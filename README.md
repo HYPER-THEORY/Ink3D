@@ -31,22 +31,22 @@ scene the_scene;
 renderer the_renderer;
 viewer the_viewer;
 
-void conf(config& t) {
-	t.width = 960;
-	t.height = 540;
-	t.hide_cursor = true;
-	t.lock_cursor = true;
+void conf(settings& t) {
+    t.width = 960;
+    t.height = 540;
+    t.hide_cursor = true;
+    t.lock_cursor = true;
 }
 
 void load() {
-	nightscene::init();
-	the_scene = nightscene::get_scene();
-	the_renderer.preload(the_scene);
-	the_viewer = {{M_PI * 0.4, 960.f / 540.f, .05, 1000}};
+    nightscene::init();
+    the_scene = nightscene::get_scene();
+    the_renderer.preload(the_scene);
+    the_viewer = {{M_PI * 0.4, 960.f / 540.f, .05, 1000}};
 }
 
 void update(float dt) {
-	the_renderer.render(the_scene, the_viewer.update());
+    the_renderer.render(the_scene, the_viewer.update());
 }
 
 void quit() {}
