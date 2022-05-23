@@ -31,6 +31,7 @@
 #include "../core/file.h"
 #include "../math/maths.h"
 #include "../objects/constants.h"
+#include "../objects/uniforms.h"
 #include "../objects/mesh.h"
 #include "../objects/image.h"
 #include "../objects/material.h"
@@ -52,7 +53,7 @@ enum {
 	TEXTURE_CUBE,
 };
 
-/* texture wrapping modes */
+/* texture wrapping mode */
 enum {
 	TEXTURE_REPEAT,
 	TEXTURE_MIRRORED_REPEAT,
@@ -60,7 +61,7 @@ enum {
 	TEXTURE_CLAMP_TO_BORDER,
 };
 
-/* texture mag & min filters */
+/* texture mag & min filter */
 enum {
 	TEXTURE_NEAREST,
 	TEXTURE_LINEAR,
@@ -72,6 +73,13 @@ enum {
 
 namespace gpu {
 
+struct rect {
+	int x = 0;			/* the lower-left corner of the rectangle */
+	int y = 0;			/* the lower-left corner of the rectangle */
+	int width = 0;		/* the width of the rectangle */
+	int height = 0;		/* the height of the rectangle */
+};
+
 /**
  * Clear the color, depth or stencil drawing buffers. Initialize the color
  * buffer to the current clear color value.
@@ -81,6 +89,11 @@ namespace gpu {
  * \param s whether to clear the stencil buffer
  */
 void clear(bool c = true, bool d = true, bool s = true);
+
+/**
+ * Returns the current clear color and opacity.
+ */
+vec4 get_clear_color();
 
 /**
  * Sets the clear color and opacity.
@@ -108,6 +121,18 @@ void enable_depth_test();
 void disable_depth_test();
 
 /**
+ * Returns the current comparison function in depth test.
+ */
+int get_depth_func();
+
+/**
+ * Sets the comparison function in depth test.
+ *
+ * \param f comparison function
+ */
+void set_depth_func(int f);
+
+/**
  * Enable stencil test.
  */
 void enable_stencil_test();
@@ -118,12 +143,79 @@ void enable_stencil_test();
 void disable_stencil_test();
 
 /**
- * Enable wireframe mode.
+ * Returns the writemask in stencil test.
+ */
+int get_stencil_writemask();
+
+/**
+ * Sets the writemask in stencil test.
+ *
+ * \param m writemask
+ */
+void set_stencil_writemask(int m);
+
+/**
+ * Returns the comparison function in stencil test.
+ */
+int get_stencil_func();
+
+/**
+ * Returns the reference value in stencil test.
+ */
+int get_stencil_ref();
+
+/**
+ * Returns the mask in stencil test.
+ */
+int get_stencil_mask();
+
+/**
+ * Sets the comparison function, reference value and mask in stencil test.
+ *
+ * \param f comparison function
+ * \param r reference value
+ * \param m mask
+ */
+void set_stencil_func(int f, int r, int m);
+
+/**
+ * Sets the operations in stencil test.
+ *
+ * \param f the operation when the stencil test fails
+ * \param zf the operation when the stencil test passes but the depth test fails
+ * \param zp the operation when both the stencil test and the depth test pass
+ */
+void set_stencil_op(int f, int zf, int zp);
+
+/**
+ * Enable alpha test.
+ */
+void enable_scissor_test();
+
+/**
+ * Disable alpha test.
+ */
+void disable_scissor_test();
+
+/**
+ * Returns the current scissor region.
+ */
+rect get_scissor();
+
+/**
+ * Sets the scissor region.
+ *
+ * \param s scissor region
+ */
+void set_scissor(const rect& s);
+
+/**
+ * Enable wireframe.
  */
 void enable_wireframe();
 
 /**
- * Disable wireframe mode.
+ * Disable wireframe.
  */
 void disable_wireframe();
 
@@ -138,18 +230,28 @@ void enable_cull_face();
 void disable_cull_face();
 
 /**
- * Determines which face will be culled.
+ * Determines which face to be culled.
+ */
+int get_cull_face();
+
+/**
+ * Determines which face to be culled.
  *
  * \param s culling side
  */
 void set_cull_face(int s);
 
 /**
- * Sets comparison function in depth test.
- *
- * \param f comparison function
+ * Returns the current viewport.
  */
-void set_depth_func(int f);
+rect get_viewport();
+
+/**
+ * Set the viewport.
+ *
+ * \param v viewport
+ */
+void set_viewport(const rect& v);
 
 /**
  * Enable multisample.
@@ -166,24 +268,40 @@ void disable_multisample();
  */
 void print_error();
 
-struct viewport {
-	int x = 0;			/* the lower-left corner of the viewport rectangle */
-	int y = 0;			/* the lower-left corner of the viewport rectangle */
-	int width = 0;		/* width of the viewport rectangle */
-	int height = 0;		/* height of the viewport rectangle */
-};
-
 /**
- * Returns the current viewport.
- */
-viewport get_viewport();
-
-/**
- * Set the viewport.
+ * Sets the material active.
  *
- * \param v viewport
+ * \param m material
  */
-void set_viewport(const viewport& v);
+void active_material_depth(const material& m);
+
+/**
+ * Sets the material active.
+ *
+ * \param m material
+ */
+void active_material_stencil(const material& m);
+
+/**
+ * Sets the material active.
+ *
+ * \param m material
+ */
+void active_material_wireframe(const material& m);
+
+/**
+ * Sets the material active.
+ *
+ * \param m material
+ */
+void active_material_side(const material& m);
+
+/**
+ * Sets the material active.
+ *
+ * \param m material
+ */
+void active_material(const material& m);
 
 class shader {
 public:
@@ -241,7 +359,7 @@ public:
 	 * \param n variable name
 	 * \param v value
 	 */
-	void uniform_int(const std::string& n, int v) const;
+	void set_uniform_i(const std::string& n, int v) const;
 
 	/**
 	 * Sets a value for the specified uniform variable.
@@ -249,7 +367,7 @@ public:
 	 * \param n variable name
 	 * \param v value
 	 */
-	void uniform_uint(const std::string& n, unsigned int v) const;
+	void set_uniform_u(const std::string& n, unsigned int v) const;
 
 	/**
 	 * Sets a value for the specified uniform variable.
@@ -257,7 +375,7 @@ public:
 	 * \param n variable name
 	 * \param v value
 	 */
-	void uniform_float(const std::string& n, float v) const;
+	void set_uniform_f(const std::string& n, float v) const;
 
 	/**
 	 * Sets a value for the specified uniform variable.
@@ -265,7 +383,7 @@ public:
 	 * \param n variable name
 	 * \param v value
 	 */
-	void uniform_vec2(const std::string& n, const vec2& v) const;
+	void set_uniform_v2(const std::string& n, const vec2& v) const;
 
 	/**
 	 * Sets a value for the specified uniform variable.
@@ -273,7 +391,7 @@ public:
 	 * \param n variable name
 	 * \param v value
 	 */
-	void uniform_vec3(const std::string& n, const vec3& v) const;
+	void set_uniform_v3(const std::string& n, const vec3& v) const;
 
 	/**
 	 * Sets a value for the specified uniform variable.
@@ -281,7 +399,7 @@ public:
 	 * \param n variable name
 	 * \param v value
 	 */
-	void uniform_vec4(const std::string& n, const vec4& v) const;
+	void set_uniform_v4(const std::string& n, const vec4& v) const;
 
 	/**
 	 * Sets a value for the specified uniform variable.
@@ -289,7 +407,7 @@ public:
 	 * \param n variable name
 	 * \param v value
 	 */
-	void uniform_mat2(const std::string& n, const mat2& v) const;
+	void set_uniform_m2(const std::string& n, const mat2& v) const;
 
 	/**
 	 * Sets a value for the specified uniform variable.
@@ -297,7 +415,7 @@ public:
 	 * \param n variable name
 	 * \param v value
 	 */
-	void uniform_mat3(const std::string& n, const mat3& v) const;
+	void set_uniform_m3(const std::string& n, const mat3& v) const;
 
 	/**
 	 * Sets a value for the specified uniform variable.
@@ -305,7 +423,14 @@ public:
 	 * \param n variable name
 	 * \param v value
 	 */
-	void uniform_mat4(const std::string& n, const mat4& v) const;
+	void set_uniform_m4(const std::string& n, const mat4& v) const;
+	
+	/**
+	 * Sets values for the specified uniform variables.
+	 *
+	 * \param u uniform variables
+	 */
+	void set_uniforms(const uniforms& u) const;
 	
 	/**
 	 * Sets the path of included shaders.
@@ -527,108 +652,23 @@ public:
 	 */
 	int active(int i) const;
 	
-	/**
-	 * Returns the texture type in OpenGL.
-	 */
-	static GLenum gl_texture_type(int t);
-	
-	/**
-	 * Returns the image base format in OpenGL.
-	 *
-	 * \param b image base format
-	 */
-	static GLint gl_base_format(int b);
-	
-	/**
-	 * Returns the image sized format in OpenGL.
-	 *
-	 * \param b image base format
-	 * \param s image sized format
-	 */
-	static GLenum gl_sized_format(int b, int s);
-	
-	/**
-	 * Returns the image data type in OpenGL.
-	 *
-	 * \param t image data type
-	 */
-	static GLenum gl_data_type(int t);
-	
-	/**
-	 * Returns the wrapping mode in OpenGL.
-	 *
-	 * \param m wrapping mode
-	 */
-	static GLint gl_wrapping_mode(int m);
-	
-	/**
-	 * Returns the filter in OpenGL.
-	 *
-	 * \param f filter
-	 */
-	static GLint gl_filter(int f);
-	
 private:
 	GLuint id = 0;
 	int type = -1;
 	
-	static constexpr GLenum gl_texture_types[] = {
-		GL_TEXTURE_1D,										/* TEXTURE_1D */
-		GL_TEXTURE_2D,										/* TEXTURE_2D */
-		GL_TEXTURE_3D,										/* TEXTURE_3D */
-		GL_TEXTURE_CUBE_MAP,								/* TEXTURE_CUBE */
-	};
+	static GLenum gl_type(int t);
 	
-	static constexpr GLenum gl_base_formats[] = {
-		GL_RED,												/* IMAGE_R */
-		GL_RG,												/* IMAGE_RG */
-		GL_RGB,												/* IMAGE_RGB */
-		GL_RGBA,											/* IMAGE_RGBA */
-		GL_DEPTH_COMPONENT,									/* IMAGE_D */
-		GL_DEPTH_STENCIL,									/* IMAGE_DS */
-	};
+	static GLint gl_base_format(int b);
 	
-	static constexpr GLint gl_sized_formats[][4] = {
-		{GL_RED,	GL_RG, 		GL_RGB,		GL_RGBA},		/* IMAGE_NONE */
-		{GL_R8,		GL_RG8,		GL_RGB8,	GL_RGBA8},		/* IMAGE_8 */
-		{GL_R16, 	GL_RG16,	GL_RGB16,	GL_RGBA16},		/* IMAGE_16 */
-		{GL_R16F,	GL_RG16F,	GL_RGB16F,	GL_RGBA16F},	/* IMAGE_16F */
-		{GL_R32F,	GL_RG32F,	GL_RGB32F,	GL_RGBA32F},	/* IMAGE_32F */
-		{GL_R8I,	GL_RG8I,	GL_RGB8I,	GL_RGBA8I},		/* IMAGE_8I */
-		{GL_R16I,	GL_RG16I,	GL_RGB16I,	GL_RGBA16I},	/* IMAGE_16I */
-		{GL_R32I,	GL_RG32I,	GL_RGB32I,	GL_RGBA32I},	/* IMAGE_32I */
-		{GL_R8UI,	GL_RG8UI,	GL_RGB8UI,	GL_RGBA8UI},	/* IMAGE_8I */
-		{GL_R16UI,	GL_RG16UI,	GL_RGB16UI,	GL_RGBA16UI},	/* IMAGE_16I */
-		{GL_R32UI,	GL_RG32UI,	GL_RGB32UI,	GL_RGBA32UI},	/* IMAGE_32I */
-	};
+	static GLenum gl_sized_format(int b, int s);
 	
-	static constexpr GLenum gl_data_types[] = {
-		GL_UNSIGNED_BYTE,									/* IMAGE_UBYTE */
-		GL_BYTE,											/* IMAGE_BYTE */
-		GL_UNSIGNED_SHORT,									/* IMAGE_USHORT */
-		GL_SHORT,											/* IMAGE_SHORT */
-		GL_UNSIGNED_INT,									/* IMAGE_UINT */
-		GL_INT,												/* IMAGE_INT */
-		GL_HALF_FLOAT,										/* IMAGE_HALF_FLOAT */
-		GL_FLOAT,											/* IMAGE_FLOAT */
-		GL_UNSIGNED_INT_24_8,								/* IMAGE_UINT_24_8 */
-	};
+	static GLenum gl_data_type(int t);
 	
-	static constexpr GLint gl_wrapping_modes[] = {
-		GL_REPEAT,											/* TEXTURE_REPEAT */
-		GL_MIRRORED_REPEAT,									/* TEXTURE_MIRRORED_REPEAT */
-		GL_CLAMP_TO_EDGE,									/* TEXTURE_CLAMP_TO_EDGE */
-		GL_CLAMP_TO_BORDER,									/* TEXTURE_CLAMP_TO_BORDER */
-	};
+	static GLint gl_wrapping_mode(int m);
 	
-	static constexpr GLint gl_filters[] = {
-		GL_NEAREST,											/* TEXTURE_NEAREST */
-		GL_LINEAR,											/* TEXTURE_LINEAR */
-		GL_NEAREST_MIPMAP_NEAREST,							/* TEXTURE_NEAREST_MIPMAP_NEAREST */
-		GL_LINEAR_MIPMAP_NEAREST,							/* TEXTURE_LINEAR_MIPMAP_NEAREST */
-		GL_NEAREST_MIPMAP_LINEAR,							/* TEXTURE_NEAREST_MIPMAP_LINEAR */
-		GL_LINEAR_MIPMAP_LINEAR,							/* TEXTURE_LINEAR_MIPMAP_LINEAR */
-	};
+	static GLint gl_filter(int f);
+	
+	friend class renderbuffer;
 	
 	friend class framebuffer;
 };

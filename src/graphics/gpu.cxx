@@ -24,12 +24,87 @@
 
 namespace gpu {
 
+constexpr GLenum gl_stencil_operations[] = {
+	GL_ZERO,											/* STENCIL_ZERO */
+	GL_KEEP,											/* STENCIL_KEEP */
+	GL_REPLACE,											/* STENCIL_REPLACE */
+	GL_INCR,											/* STENCIL_INCR */
+	GL_DECR,											/* STENCIL_DECR */
+	GL_INCR_WRAP,										/* STENCIL_INCR_WRAP */
+	GL_DECR_WRAP,										/* STENCIL_DECR_WRAP */
+	GL_INVERT,											/* STENCIL_INVERT */
+};
+
+constexpr GLenum gl_texture_types[] = {
+	GL_TEXTURE_1D,										/* TEXTURE_1D */
+	GL_TEXTURE_2D,										/* TEXTURE_2D */
+	GL_TEXTURE_3D,										/* TEXTURE_3D */
+	GL_TEXTURE_CUBE_MAP,								/* TEXTURE_CUBE */
+};
+
+constexpr GLenum gl_texture_base_formats[] = {
+	GL_RED,												/* IMAGE_R */
+	GL_RG,												/* IMAGE_RG */
+	GL_RGB,												/* IMAGE_RGB */
+	GL_RGBA,											/* IMAGE_RGBA */
+	GL_DEPTH_COMPONENT,									/* IMAGE_D */
+	GL_DEPTH_STENCIL,									/* IMAGE_DS */
+};
+
+constexpr GLint gl_texture_sized_formats[][4] = {
+	{GL_RED,	GL_RG, 		GL_RGB,		GL_RGBA},		/* IMAGE_NONE */
+	{GL_R8,		GL_RG8,		GL_RGB8,	GL_RGBA8},		/* IMAGE_8 */
+	{GL_R16, 	GL_RG16,	GL_RGB16,	GL_RGBA16},		/* IMAGE_16 */
+	{GL_R16F,	GL_RG16F,	GL_RGB16F,	GL_RGBA16F},	/* IMAGE_16F */
+	{GL_R32F,	GL_RG32F,	GL_RGB32F,	GL_RGBA32F},	/* IMAGE_32F */
+	{GL_R8I,	GL_RG8I,	GL_RGB8I,	GL_RGBA8I},		/* IMAGE_8I */
+	{GL_R16I,	GL_RG16I,	GL_RGB16I,	GL_RGBA16I},	/* IMAGE_16I */
+	{GL_R32I,	GL_RG32I,	GL_RGB32I,	GL_RGBA32I},	/* IMAGE_32I */
+	{GL_R8UI,	GL_RG8UI,	GL_RGB8UI,	GL_RGBA8UI},	/* IMAGE_8I */
+	{GL_R16UI,	GL_RG16UI,	GL_RGB16UI,	GL_RGBA16UI},	/* IMAGE_16I */
+	{GL_R32UI,	GL_RG32UI,	GL_RGB32UI,	GL_RGBA32UI},	/* IMAGE_32I */
+};
+
+constexpr GLenum gl_texture_data_types[] = {
+	GL_UNSIGNED_BYTE,									/* IMAGE_UBYTE */
+	GL_BYTE,											/* IMAGE_BYTE */
+	GL_UNSIGNED_SHORT,									/* IMAGE_USHORT */
+	GL_SHORT,											/* IMAGE_SHORT */
+	GL_UNSIGNED_INT,									/* IMAGE_UINT */
+	GL_INT,												/* IMAGE_INT */
+	GL_HALF_FLOAT,										/* IMAGE_HALF_FLOAT */
+	GL_FLOAT,											/* IMAGE_FLOAT */
+	GL_UNSIGNED_INT_24_8,								/* IMAGE_UINT_24_8 */
+};
+
+constexpr GLint gl_texture_wrapping_modes[] = {
+	GL_REPEAT,											/* TEXTURE_REPEAT */
+	GL_MIRRORED_REPEAT,									/* TEXTURE_MIRRORED_REPEAT */
+	GL_CLAMP_TO_EDGE,									/* TEXTURE_CLAMP_TO_EDGE */
+	GL_CLAMP_TO_BORDER,									/* TEXTURE_CLAMP_TO_BORDER */
+};
+
+constexpr GLint gl_texture_filters[] = {
+	GL_NEAREST,											/* TEXTURE_NEAREST */
+	GL_LINEAR,											/* TEXTURE_LINEAR */
+	GL_NEAREST_MIPMAP_NEAREST,							/* TEXTURE_NEAREST_MIPMAP_NEAREST */
+	GL_LINEAR_MIPMAP_NEAREST,							/* TEXTURE_LINEAR_MIPMAP_NEAREST */
+	GL_NEAREST_MIPMAP_LINEAR,							/* TEXTURE_NEAREST_MIPMAP_LINEAR */
+	GL_LINEAR_MIPMAP_LINEAR,							/* TEXTURE_LINEAR_MIPMAP_LINEAR */
+};
+
 void clear(bool c, bool d, bool s) {
 	GLbitfield flag = 0;
 	flag |= GL_COLOR_BUFFER_BIT * c;
 	flag |= GL_DEPTH_BUFFER_BIT * d;
 	flag |= GL_STENCIL_BUFFER_BIT * s;
 	glClear(flag);
+}
+
+vec4 get_clear_color() {
+	vec4 clear_color;
+	glGetFloatv(GL_COLOR_CLEAR_VALUE, &clear_color.x);
+	return clear_color;
 }
 
 void set_clear_color(const vec3& c, float a) {
@@ -48,12 +123,78 @@ void disable_depth_test() {
 	glDisable(GL_DEPTH_TEST);
 }
 
+int get_depth_func() {
+	int depth_func = 0;
+	glGetIntegerv(GL_DEPTH_FUNC, &depth_func);
+	return depth_func - GL_NEVER;
+}
+
+void set_depth_func(int f) {
+	glDepthFunc(GL_NEVER + f);
+}
+
 void enable_stencil_test() {
 	glEnable(GL_STENCIL_TEST);
 }
 
 void disable_stencil_test() {
 	glDisable(GL_STENCIL_TEST);
+}
+
+int get_stencil_writemask() {
+	int stencil_writemask = 0;
+	glGetIntegerv(GL_STENCIL_WRITEMASK, &stencil_writemask);
+	return stencil_writemask;
+}
+
+void set_stencil_writemask(int m) {
+	glStencilMask(m);
+}
+
+int get_stencil_func() {
+	int stencil_func = 0;
+	glGetIntegerv(GL_STENCIL_FUNC, &stencil_func);
+	return stencil_func - GL_NEVER;
+}
+
+int get_stencil_ref() {
+	int stencil_ref = 0;
+	glGetIntegerv(GL_STENCIL_REF, &stencil_ref);
+	return stencil_ref;
+}
+
+int get_stencil_mask() {
+	int stencil_mask = 0;
+	glGetIntegerv(GL_STENCIL_VALUE_MASK, &stencil_mask);
+	return stencil_mask;
+}
+
+void set_stencil_func(int f, int r, int m) {
+	glStencilFunc(GL_NEVER + f, r, m);
+}
+
+void set_stencil_op(int f, int zf, int zp) {
+	glStencilOp(gl_stencil_operations[f],
+				gl_stencil_operations[zf],
+				gl_stencil_operations[zp]);
+}
+
+void enable_scissor_test() {
+	glEnable(GL_SCISSOR_TEST);
+}
+
+void disable_scissor_test() {
+	glDisable(GL_SCISSOR_TEST);
+}
+
+rect get_scissor() {
+	rect scissor_rect;
+	glGetIntegerv(GL_SCISSOR_BOX, &scissor_rect.x);
+	return scissor_rect;
+}
+
+void set_scissor(const rect& s) {
+	glScissor(s.x, s.y, s.width, s.height);
 }
 
 void enable_wireframe() {
@@ -72,6 +213,14 @@ void disable_cull_face() {
 	glDisable(GL_CULL_FACE);
 }
 
+int get_cull_face() {
+	int cull_face = 0;
+	glGetIntegerv(GL_CULL_FACE, &cull_face);
+	if (cull_face == GL_FRONT) return FRONT_SIDE;
+	if (cull_face == GL_BACK) return BACK_SIDE;
+	return DOUBLE_SIDE;
+}
+
 void set_cull_face(int s) {
 	if (s == FRONT_SIDE) {
 		glCullFace(GL_FRONT);
@@ -82,8 +231,14 @@ void set_cull_face(int s) {
 	}
 }
 
-void set_depth_func(int f) {
-	glDepthFunc(GL_NEVER + f);
+rect get_viewport() {
+	rect viewport_rect;
+	glGetIntegerv(GL_VIEWPORT, &viewport_rect.x);
+	return viewport_rect;
+}
+
+void set_viewport(const rect& v) {
+	glViewport(v.x, v.y, v.width, v.height);
 }
 
 void enable_multisample() {
@@ -92,16 +247,6 @@ void enable_multisample() {
 
 void disable_multisample() {
 	glDisable(GL_MULTISAMPLE);
-}
-
-viewport get_viewport() {
-	viewport current_viewport;
-	glGetIntegerv(GL_VIEWPORT, &current_viewport.x);
-	return current_viewport;
-}
-
-void set_viewport(const viewport& v) {
-	glViewport(v.x, v.y, v.width, v.height);
 }
 
 void print_error() {
@@ -121,6 +266,53 @@ void print_error() {
 		}
 		error = glGetError();
 	}
+}
+
+void active_material_depth(const material& m) {
+	if (m.depth_test) {
+		enable_depth_test();
+		set_depth_func(m.depth_func);
+	} else {
+		disable_depth_test();
+	}
+}
+
+void active_material_stencil(const material& m) {
+	if (m.stencil_test) {
+		enable_stencil_test();
+		set_stencil_writemask(m.stencil_writemask);
+		set_stencil_func(m.stencil_func, m.stencil_ref, m.stencil_mask);
+		set_stencil_op(m.stencil_fail, m.stencil_zfail, m.stencil_zpass);
+	} else {
+		disable_stencil_test();
+	}
+}
+
+void active_material_wireframe(const material& m) {
+	if (m.wireframe) {
+		enable_wireframe();
+	} else {
+		disable_wireframe();
+	}
+}
+
+void active_material_side(const material& m) {
+	if (m.side == FRONT_SIDE) {
+		enable_cull_face();
+		set_cull_face(BACK_SIDE);
+	} else if (m.side == BACK_SIDE) {
+		enable_cull_face();
+		set_cull_face(FRONT_SIDE);
+	} else if (m.side == DOUBLE_SIDE) {
+		disable_cull_face();
+	}
+}
+
+void active_material(const material& m) {
+	active_material_depth(m);
+	active_material_stencil(m);
+	active_material_wireframe(m);
+	active_material_side(m);
 }
 
 shader::shader() {
@@ -192,40 +384,76 @@ void shader::use_program() const {
 	glUseProgram(program);
 }
 
-void shader::uniform_int(const std::string& n, int v) const {
+void shader::set_uniform_i(const std::string& n, int v) const {
 	glUniform1i(glGetUniformLocation(program, n.c_str()), v);
 }
 
-void shader::uniform_uint(const std::string& n, unsigned int v) const {
+void shader::set_uniform_u(const std::string& n, unsigned int v) const {
 	glUniform1ui(glGetUniformLocation(program, n.c_str()), v);
 }
 
-void shader::uniform_float(const std::string& n, float v) const {
+void shader::set_uniform_f(const std::string& n, float v) const {
 	glUniform1f(glGetUniformLocation(program, n.c_str()), v);
 }
 
-void shader::uniform_vec2(const std::string& n, const vec2& v) const {
+void shader::set_uniform_v2(const std::string& n, const vec2& v) const {
 	glUniform2fv(glGetUniformLocation(program, n.c_str()), 1, &v.x);
 }
 
-void shader::uniform_vec3(const std::string& n, const vec3& v) const {
+void shader::set_uniform_v3(const std::string& n, const vec3& v) const {
 	glUniform3fv(glGetUniformLocation(program, n.c_str()), 1, &v.x);
 }
 
-void shader::uniform_vec4(const std::string& n, const vec4& v) const {
+void shader::set_uniform_v4(const std::string& n, const vec4& v) const {
 	glUniform4fv(glGetUniformLocation(program, n.c_str()), 1, &v.x);
 }
 
-void shader::uniform_mat2(const std::string& n, const mat2& v) const {
+void shader::set_uniform_m2(const std::string& n, const mat2& v) const {
 	glUniformMatrix2fv(glGetUniformLocation(program, n.c_str()), 1, GL_TRUE, v[0]);
 }
 
-void shader::uniform_mat3(const std::string& n, const mat3& v) const {
+void shader::set_uniform_m3(const std::string& n, const mat3& v) const {
 	glUniformMatrix3fv(glGetUniformLocation(program, n.c_str()), 1, GL_TRUE, v[0]);
 }
 
-void shader::uniform_mat4(const std::string& n, const mat4& v) const {
+void shader::set_uniform_m4(const std::string& n, const mat4& v) const {
 	glUniformMatrix4fv(glGetUniformLocation(program, n.c_str()), 1, GL_TRUE, v[0]);
+}
+
+void shader::set_uniforms(const uniforms& u) const {
+	auto uniforms_end = u.end();
+	for (auto i = u.begin(); i != uniforms_end; ++i) {
+		const std::string& name_with_suffix = i->first;
+		const void* value = i->second;
+		size_t last_index = name_with_suffix.rfind('_');
+		if (last_index == -1) {
+			set_error("[Shader Error] Variable suffix not found");
+			continue;
+		}
+		std::string suffix = name_with_suffix.substr(last_index + 1);
+		std::string name = name_with_suffix.substr(0, last_index);
+		if (suffix == "i") {
+			set_uniform_i(name, *static_cast<const int*>(value));
+		} else if (suffix == "u") {
+			set_uniform_u(name, *static_cast<const unsigned int*>(value));
+		} else if (suffix == "f") {
+			set_uniform_f(name, *static_cast<const float*>(value));
+		} else if (suffix == "v2") {
+			set_uniform_v2(name, *static_cast<const vec2*>(value));
+		} else if (suffix == "v3") {
+			set_uniform_v3(name, *static_cast<const vec3*>(value));
+		} else if (suffix == "v4") {
+			set_uniform_v4(name, *static_cast<const vec4*>(value));
+		} else if (suffix == "m2") {
+			set_uniform_m2(name, *static_cast<const mat2*>(value));
+		} else if (suffix == "m3") {
+			set_uniform_m3(name, *static_cast<const mat3*>(value));
+		} else if (suffix == "m4") {
+			set_uniform_m4(name, *static_cast<const mat4*>(value));
+		} else {
+			set_error("[Shader Error] Unknown variable suffix");
+		}
+	}
 }
 
 GLuint shader::add_shader(const std::string& s, GLint t) const {
@@ -490,25 +718,25 @@ int texture::get_type() const {
 }
 
 void texture::set_wrap_s(int m) const {
-	GLenum type = gl_texture_type(this->type);
+	GLenum type = gl_type(this->type);
 	glBindTexture(type, id);
 	glTexParameteri(type, GL_TEXTURE_WRAP_S, gl_wrapping_mode(m));
 }
 
 void texture::set_wrap_t(int m) const {
-	GLenum type = gl_texture_type(this->type);
+	GLenum type = gl_type(this->type);
 	glBindTexture(type, id);
 	glTexParameteri(type, GL_TEXTURE_WRAP_T, gl_wrapping_mode(m));
 }
 
 void texture::set_wrap_r(int m) const {
-	GLenum type = gl_texture_type(this->type);
+	GLenum type = gl_type(this->type);
 	glBindTexture(type, id);
 	glTexParameteri(type, GL_TEXTURE_WRAP_R, gl_wrapping_mode(m));
 }
 
 void texture::set_wrap_all(int m) const {
-	GLenum type = gl_texture_type(this->type);
+	GLenum type = gl_type(this->type);
 	glBindTexture(type, id);
 	glTexParameteri(type, GL_TEXTURE_WRAP_S, gl_wrapping_mode(m));
 	glTexParameteri(type, GL_TEXTURE_WRAP_T, gl_wrapping_mode(m));
@@ -516,60 +744,53 @@ void texture::set_wrap_all(int m) const {
 }
 
 void texture::set_filters(int mag, int min) const {
-	GLenum type = gl_texture_type(this->type);
+	GLenum type = gl_type(this->type);
 	glBindTexture(type, id);
 	glTexParameteri(type, GL_TEXTURE_MAG_FILTER, gl_filter(mag));
 	glTexParameteri(type, GL_TEXTURE_MIN_FILTER, gl_filter(min));
 }
 
 void texture::generate_mipmap() const {
-	GLenum type = gl_texture_type(this->type);
+	GLenum type = gl_type(this->type);
 	glGenerateMipmap(type);
 }
 
 void texture::set_border_color(const vec4& c) const {
-	GLenum type = gl_texture_type(this->type);
+	GLenum type = gl_type(this->type);
 	glTexParameterfv(type, GL_TEXTURE_BORDER_COLOR, &c.x);
 }
 
 int texture::active(int i) const {
-	GLenum type = gl_texture_type(this->type);
+	GLenum type = gl_type(this->type);
 	glActiveTexture(GL_TEXTURE0 + i);
 	glBindTexture(type, id);
 	return i;
 }
 
-GLenum texture::gl_texture_type(int t) {
-	if (t < 0 || t >= 5) return set_error("[Texture Error] Illegal texture type");
+GLenum texture::gl_type(int t) {
 	return gl_texture_types[t];
 }
 
 GLint texture::gl_base_format(int b) {
-	if (b < 0 || b >= 6) return set_error("[Texture Error] Illegal texture format");
-	return gl_base_formats[b];
+	return gl_texture_base_formats[b];
 }
 
 GLenum texture::gl_sized_format(int b, int s) {
-	if (b < 0 || b >= 6) return set_error("[Texture Error] Illegal texture format");
-	if (s < 0 || s >= 11) return set_error("[Texture Error] Illegal texture format");
 	if (b == IMAGE_D) return GL_DEPTH_COMPONENT24;
 	if (b == IMAGE_DS) return GL_DEPTH24_STENCIL8;
-	return gl_sized_formats[s][b];
+	return gl_texture_sized_formats[s][b];
 }
 
 GLenum texture::gl_data_type(int t) {
-	if (t < 0 || t >= 9) return set_error("[Texture Error] Illegal texture data type");
-	return gl_data_types[t];
+	return gl_texture_data_types[t];
 }
 
 GLint texture::gl_wrapping_mode(int m) {
-	if (m < 0 || m >= 4) return set_error("[Texture Error] Illegal wrapping mode");
-	return gl_wrapping_modes[m];
+	return gl_texture_wrapping_modes[m];
 }
 
 GLint texture::gl_filter(int f) {
-	if (f < 0 || f >= 6) return set_error("[Texture Error] Illegal filter");
-	return gl_filters[f];
+	return gl_texture_filters[f];
 }
 
 renderbuffer::renderbuffer() {
@@ -626,7 +847,7 @@ void framebuffer::disable_draw() const {
 void framebuffer::set_attachment(const texture& t, unsigned int i) const {
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
 	GLenum attachment = GL_COLOR_ATTACHMENT0 + i;
-	GLenum type = texture::gl_texture_type(t.type);
+	GLenum type = texture::gl_type(t.type);
 	if (t.type == TEXTURE_2D) {
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, type, t.id, 0);
 	} else {
@@ -645,7 +866,7 @@ void framebuffer::set_attachment(const renderbuffer& r, unsigned int i) const {
 void framebuffer::set_depth_attachment(const texture& t, bool ds) const {
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
 	GLenum attachment = ds ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
-	GLenum type = texture::gl_texture_type(t.type);
+	GLenum type = texture::gl_type(t.type);
 	if (t.type == TEXTURE_2D) {
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, type, t.id, 0);
 	} else {
