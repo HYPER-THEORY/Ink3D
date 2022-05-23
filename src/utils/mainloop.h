@@ -32,25 +32,25 @@
 #include "../window/window.h"
 
 struct settings {
-	int x = SDL_WINDOWPOS_CENTERED;		/* the x-coordinate of the window's position */
-	int y = SDL_WINDOWPOS_CENTERED;		/* the y-coordinate of the window's position */
-	int width = 960;					/* the window width */
-	int height = 540;					/* the height window */
-	bool highdpi = false;				/* enable high-dpi mode */
-	bool borderless = false;			/* whether the window is borderless */
-	bool resizable = false;				/* whether the window is resizable */
-	int min_width = 0;					/* minimum window width if the window is resizable */
-	int min_height = 0;					/* minimum window height if the window is resizable */
-	bool fullscreen = false;			/* whether the window is fullscreen */
-	bool opengl = true;					/* enable OpenGL mode */
-	int depth = 24;						/* only used in OpenGL, the size of depth buffer */
-	int stencil = 8;					/* only used in OpenGL, the size of stencil buffer */
-	int msaa = 0;						/* only used in OpenGL, the number of samples in msaa */
-	int fps = 30;						/* the maximum fps */
-	bool hide_cursor = false;			/* whether to hide system cursor */
-	bool lock_cursor = false;			/* whether to lock cursor to the center of window */
-	std::string title;					/* the title of window */
-	vec3 background_color;				/* the background color of window */
+	int x = -1;						/* the x-coordinate of the window's position */
+	int y = -1;						/* the y-coordinate of the window's position */
+	int width = 960;				/* the window width */
+	int height = 540;				/* the height window */
+	bool highdpi = false;			/* enable high-dpi mode */
+	bool borderless = false;		/* whether the window is borderless */
+	bool resizable = false;			/* whether the window is resizable */
+	int min_width = 0;				/* minimum window width if the window is resizable */
+	int min_height = 0;				/* minimum window height if the window is resizable */
+	bool fullscreen = false;		/* whether the window is fullscreen */
+	bool opengl = true;				/* enable OpenGL mode */
+	int depth = 24;					/* only used in OpenGL, the size of depth buffer */
+	int stencil = 8;				/* only used in OpenGL, the size of stencil buffer */
+	int msaa = 0;					/* only used in OpenGL, the number of samples in msaa */
+	int fps = 30;					/* the maximum fps */
+	bool hide_cursor = false;		/* whether to hide system cursor */
+	bool lock_cursor = false;		/* whether to lock cursor to the center of window */
+	std::string title;				/* the title of window */
+	vec3 background_color;			/* the background color of window */
 };
 
 std::vector<vec3> frame;
@@ -77,11 +77,11 @@ int run() {
 	settings t;
 	conf(t);
 	/* initialize window */
+	window::init(t.title, t.x, t.y, t.width, t.height, t.highdpi);
 	if (t.opengl) {
-		window::init_gl(t.title, t.x, t.y, t.width, t.height,
-						t.highdpi, t.depth, t.stencil, t.msaa);
+		window::init_opengl(t.depth, t.stencil, t.msaa);
 	} else {
-		window::init(t.title, t.x, t.y, t.width, t.height, t.highdpi);
+		window::init_canvas();
 		frame = std::vector<vec3>(t.width * t.height);
 	}
 	if (t.fullscreen) {

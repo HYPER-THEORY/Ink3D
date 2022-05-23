@@ -20,60 +20,30 @@
  * SOFTWARE.
  */
 
-#pragma once
+#include "uniforms.h"
 
-/* core */
-#include "../core/error.h"
-#include "../core/file.h"
+uniforms::uniforms(std::initializer_list<std::pair<std::string, const void*> > l) {
+	for (auto& [n, v] : l) {
+		set(n, v);
+	}
+}
 
-/* math */
-#include "../math/maths.h"
+const void* uniforms::get(const std::string& n) const {
+	return vars.at(n);
+}
 
-/* objects */
-#include "../objects/image.h"
-#include "../objects/mesh.h"
-#include "../objects/instance.h"
-#include "../objects/scene.h"
-#include "../objects/material.h"
+void uniforms::set(const std::string& n, const void* v) {
+	vars.insert_or_assign(n, v);
+}
 
-/* loader */
-#include "../loader/loader.h"
+bool uniforms::has(const std::string& n) const {
+	return vars.count(n) != 0;
+}
 
-/* camera */
-#include "../camera/camera.h"
-#include "../camera/perspcamera.h"
-#include "../camera/orthocamera.h"
+std::unordered_map<std::string, const void*>::const_iterator uniforms::begin() const {
+	return vars.begin();
+}
 
-/* graphics */
-#include "../graphics/software.h"
-#include "../graphics/gpu.h"
-
-/* meshes */
-#include "../meshes/boxmesh.h"
-#include "../meshes/quadmesh.h"
-
-/* renderer */
-#include "../renderer/renderer.h"
-#include "../renderer/cubemap.h"
-#include "../renderer/renderpass.h"
-#include "../renderer/copypass.h"
-#include "../renderer/blendpass.h"
-
-/* lights */
-#include "../lights/shadowpass.h"
-
-/* postprocess */
-#include "../postprocess/ssaopass.h"
-#include "../postprocess/fxaapass.h"
-
-/* audio */
-#include "../audio/audio.h"
-
-/* physics */
-#include "../physics/physics.h"
-
-/* window */
-#include "../window/window.h"
-
-/* convexhull */
-#include "../convexhull/convexhull.h"
+std::unordered_map<std::string, const void*>::const_iterator uniforms::end() const {
+	return vars.end();
+}

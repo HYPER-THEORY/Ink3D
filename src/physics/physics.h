@@ -80,10 +80,10 @@ public:
 	/**
 	 * Set cuboid with position and size.
 	 *
-	 * \param v center point
-	 * \param w width of cuboid
-	 * \param h height of cuboid
-	 * \param d depth of cuboid
+	 * \param v the center of cuboid
+	 * \param w the width of cuboid
+	 * \param h the height of cuboid
+	 * \param d the depth of cuboid
 	 */
 	void set(const vec3& v, float w, float h, float d);
 	
@@ -97,9 +97,9 @@ public:
 	/**
 	 * Determines whether the point is contained within the cuboid region.
 	 *
-	 * \param x x-coordinate of point
-	 * \param y y-coordinate of point
-	 * \param z z-coordinate of point
+	 * \param x the x-coordinate of point
+	 * \param y the y-coordinate of point
+	 * \param z the z-coordinate of point
 	 */
 	bool contain(float x, float y, float z) const;
 	
@@ -114,11 +114,11 @@ public:
 class solid {
 public:
 	cuboid box;					/* collision box */
-	vec3 position;				/* position of box */
-	float width = 0;			/* width of box */
-	float height = 0;			/* height of box */
-	float depth = 0;			/* depth of box */
-	bool* valid = nullptr;		/* whether solid is valid */
+	vec3 position;				/* the position of box */
+	float width = 0;			/* the width of box */
+	float height = 0;			/* the height of box */
+	float depth = 0;			/* the depth of box */
+	bool* valid = nullptr;		/* whether the solid is valid */
 	
 	static list<solid*> world;
 	
@@ -131,9 +131,9 @@ public:
 	 * Create a new solid.
 	 *
 	 * \param p center point
-	 * \param w width of cuboid
-	 * \param h height of cuboid
-	 * \param d depth of cuboid
+	 * \param w the width of cuboid
+	 * \param h the height of cuboid
+	 * \param d the depth of cuboid
 	 */
 	solid(const vec3& p, float w, float h, float d);
 	
@@ -157,49 +157,12 @@ public:
 	/**
 	 * Move cuboid in the specified direction.
 	 *
-	 * \param d moving direction
+	 * \param d direction
 	 */
 	void move(const vec3& d);
 	
 private:
 	static float buffer;
-};
-
-class fragility {
-public:
-	using hit_callback = void (*)(const solid&);
-	
-	cuboid box;						/* cullision box */
-	vec3 position;					/* position of box */
-	float width = 0;				/* width of box */
-	float height = 0;				/* height of box */
-	float depth = 0;				/* depth of box */
-	hit_callback hit = nullptr;		/* collision callback */
-	
-	/**
-	 * Create a new fragility.
-	 */
-	fragility() = default;
-	
-	/**
-	 * Create a new fragility.
-	 *
-	 * \param p center point
-	 * \param w width of cuboid
-	 * \param h height of cuboid
-	 * \param d depth of cuboid
-	 */
-	fragility(const vec3& p, float w, float h, float d);
-	
-	/**
-	 * Refresh the collision box with updated position and size.
-	 */
-	void refresh();
-	
-	/**
-	 * Update the status whether the fragility is hitted by solids.
-	 */
-	void update();
 };
 
 /* template implementations */
