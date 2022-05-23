@@ -48,21 +48,19 @@ public:
 	static void init(const std::string& t, int x, int y, int w, int h, bool highdpi = false);
 	
 	/**
-	 * Init window with OpenGL.
+	 * Init canvas.
+	 */
+	static void init_canvas();
+	
+	/**
+	 * Init OpenGL.
 	 *
-	 * \param t the title of window
-	 * \param x the x-coordinate of the window's position
-	 * \param y the y-coordinate of the window's position
-	 * \param w the width of window
-	 * \param h the height of window
-	 * \param highdpi enable high-dpi mode
 	 * \param depth the size of depth buffer
 	 * \param stencil the size of stencil buffer
 	 * \param msaa the number of samples in msaa
 	 * \param accelerated enable hardware acceleration
 	 */
-	static void init_gl(const std::string& t, int x, int y, int w, int h, bool highdpi = false,
-						int depth = 24, int stencil = 8, int msaa = 0, bool accelerated = true);
+	static void init_opengl(int depth = 24, int stencil = 8, int msaa = 0, bool accelerated = true);
 	
 	/**
 	 * Close window.
@@ -240,6 +238,4 @@ private:
 	static bool keydown[512];
 	static bool keypressed[512];
 	static bool keyreleased[512];
-	
-	static void create_window(const std::string& t, int x, int y, int w, int h, bool o, bool highdpi);
 };

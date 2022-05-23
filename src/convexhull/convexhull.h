@@ -22,58 +22,45 @@
 
 #pragma once
 
-/* core */
-#include "../core/error.h"
-#include "../core/file.h"
+#include <cmath>
+#include <vector>
+#include <array>
+#include <list>
+#include <unordered_set>
 
-/* math */
 #include "../math/maths.h"
 
-/* objects */
-#include "../objects/image.h"
-#include "../objects/mesh.h"
-#include "../objects/instance.h"
-#include "../objects/scene.h"
-#include "../objects/material.h"
-
-/* loader */
-#include "../loader/loader.h"
-
-/* camera */
-#include "../camera/camera.h"
-#include "../camera/perspcamera.h"
-#include "../camera/orthocamera.h"
-
-/* graphics */
-#include "../graphics/software.h"
-#include "../graphics/gpu.h"
-
-/* meshes */
-#include "../meshes/boxmesh.h"
-#include "../meshes/quadmesh.h"
-
-/* renderer */
-#include "../renderer/renderer.h"
-#include "../renderer/cubemap.h"
-#include "../renderer/renderpass.h"
-#include "../renderer/copypass.h"
-#include "../renderer/blendpass.h"
-
-/* lights */
-#include "../lights/shadowpass.h"
-
-/* postprocess */
-#include "../postprocess/ssaopass.h"
-#include "../postprocess/fxaapass.h"
-
-/* audio */
-#include "../audio/audio.h"
-
-/* physics */
-#include "../physics/physics.h"
-
-/* window */
-#include "../window/window.h"
-
-/* convexhull */
-#include "../convexhull/convexhull.h"
+class convexhull {
+public:
+	std::vector<vec3> vertexs;
+	
+	/**
+	 * Create a new convexhull.
+	 */
+	convexhull() = default;
+	
+	/**
+	 * Add vertex to convexhull.
+	 *
+	 * \param v vertex
+	 */
+	void add_vertex(const vec3& v);
+	
+	/**
+	 * Add vertices to convexhull.
+	 *
+	 * \param v vertex list
+	 */
+	void add_vertices(const std::initializer_list<vec3>& v);
+	
+	/**
+	 * Start the execution of convex hull algorithm.
+	 */
+	void compute();
+	
+private:
+	std::list<std::array<int, 3> > faces;
+	std::list<vec3> normals;
+	
+	void insert_face(int a, int b, int c);
+};

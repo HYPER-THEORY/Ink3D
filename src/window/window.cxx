@@ -21,20 +21,28 @@
  */
 
 #include "window.h"
-	
+
 void window::init(const std::string& t, int x, int y, int w, int h, bool highdpi) {
-	/* set up the window */
-	create_window(t, x, y, w, h, false, highdpi);
-	/* create a surface of the window */
+	if (x == -1) x = SDL_WINDOWPOS_CENTERED;
+	if (y == -1) y = SDL_WINDOWPOS_CENTERED;
+	width = w;
+	height = h;
+	std::fill_n(keydown, 512, false);
+	uint32_t flags = 0;
+	flags |= highdpi * SDL_WINDOW_ALLOW_HIGHDPI;
+	flags |= SDL_WINDOW_SHOWN;
+	SDL_Init(SDL_INIT_VIDEO);
+	sdl_window = SDL_CreateWindow(t.c_str(), x, y, w, h, flags);
+}
+
+void window::init_canvas() {
+	opengl = false;
 	surface = SDL_GetWindowSurface(sdl_window);
 	canvas = static_cast<uint32_t*>(surface->pixels);
 }
 
-void window::init_gl(const std::string& t, int x, int y, int w, int h, bool highdpi,
-					 int depth, int stencil, int msaa, bool accelerated) {
-	/* set up the window */
-	create_window(t, x, y, w, h, true, highdpi);
-	/* set the OpenGL attributes */
+void window::init_opengl(int depth, int stencil, int msaa, bool accelerated) {
+	opengl = true;
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
@@ -44,7 +52,6 @@ void window::init_gl(const std::string& t, int x, int y, int w, int h, bool high
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, msaa != 0);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, msaa);
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, accelerated);
-	/* create an OpenGL context */
 	context = SDL_GL_CreateContext(sdl_window);
 #ifndef __APPLE__
 	gladLoadGL();
@@ -208,40 +215,15 @@ void window::maximize() {
 }
 
 bool window::is_down(unsigned int k) {
-	if (k < 0 || k >= 512) return !set_error("[Window Error] Illegal key code");
 	return keydown[k];
 }
 
 bool window::is_pressed(unsigned int k) {
-	if (k < 0 || k >= 512) return !set_error("[Window Error] Illegal key code");
 	return keypressed[k];
 }
 
 bool window::is_released(unsigned int k) {
-	if (k < 0 || k >= 512) return !set_error("[Window Error] Illegal key code");
 	return keyreleased[k];
-}
-
-//void window::init_setup(int w, int h, bool o) {
-//	width = w;
-//	height = h;
-//	opengl = o;
-//	open = true;
-//	SDL_Init(SDL_INIT_VIDEO);
-//	std::fill_n(keydown, 128, false);
-//}
-
-void window::create_window(const std::string& t, int x, int y, int w, int h, bool o, bool highdpi) {
-	width = w;
-	height = h;
-	opengl = o;
-	open = true;
-	std::fill_n(keydown, 128, false);
-	SDL_Init(SDL_INIT_VIDEO);
-	uint32_t flags = 0;
-	flags |= highdpi * SDL_WINDOW_ALLOW_HIGHDPI;
-	flags |= o ? SDL_WINDOW_OPENGL : SDL_WINDOW_SHOWN;
-	sdl_window = SDL_CreateWindow(t.c_str(), x, y, w, h, flags);
 }
 
 int window::width = 0;
