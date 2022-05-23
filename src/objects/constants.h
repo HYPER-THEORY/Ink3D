@@ -22,6 +22,13 @@
 
 #pragma once
 
+/* rendering side */
+enum {
+	FRONT_SIDE,
+	BACK_SIDE,
+	DOUBLE_SIDE,
+};
+
 /* image base format */
 enum {
 	IMAGE_R,
@@ -70,4 +77,16 @@ enum {
 	FUNC_NOTEQUAL,
 	FUNC_GEQUAL,
 	FUNC_ALWAYS,
+};
+
+/* stencil operation */
+enum {
+	STENCIL_ZERO,
+	STENCIL_KEEP,
+	STENCIL_REPLACE,
+	STENCIL_INCR,
+	STENCIL_DECR,
+	STENCIL_INCR_WRAP,
+	STENCIL_DECR_WRAP,
+	STENCIL_INVERT,
 };
