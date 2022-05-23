@@ -22,8 +22,18 @@
 
 #include "material.h"
 
-material::material(const std::string& n) {
-	name = n;
+material::material(const std::string& n) : name(n) {}
+
+void material::add_color_map(const image* c) {
+	color_map = static_cast<int>(image_size());
+	add_image(c);
+}
+
+uniforms material::get_uniforms() const {
+	return {
+		{"color_v3", &color},
+		{"color_map_i", &color_map},
+	};
 }
 
 const void* material::get_shader() const {
@@ -56,9 +66,4 @@ void material::add_image(const image* i) {
 
 void material::add_images(const std::initializer_list<const image*>& i) {
 	linked_images.insert(linked_images.end(), i);
-}
-
-void material::set_color_map(const image* c) {
-	color_map = static_cast<int>(linked_images.size());
-	add_image(c);
 }

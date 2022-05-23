@@ -28,28 +28,35 @@
 
 #include "../math/maths.h"
 
+#include "constants.h"
+#include "uniforms.h"
 #include "image.h"
-
-/* rendering side */
-enum {
-	FRONT_SIDE,
-	BACK_SIDE,
-	DOUBLE_SIDE,
-};
 
 class material {
 public:
-	std::string name;				/* material name */
+	std::string name;						/* material name */
 	
-	int side = FRONT_SIDE;			/* which side will be rendered */
+	bool visible = true;					/* whether the material is visible */
+	int side = FRONT_SIDE;					/* which side of faces will be rendered */
 	
-	float alpha_test = 0;			/* alpha value in alpha test */
-	bool depth_test = true;			/* whether to enable depth test */
-	bool stencil_test = true;		/* whether to enable stencil test */
-	bool wireframe = false;			/* whether to enable wireframe mode */
+	bool depth_test = true;					/* whether to enable depth test */
+	int depth_func = FUNC_LEQUAL;			/* which depth comparison function to use */
 	
-	vec3 color = {1};				/* color of material */
-	int color_map = 0;				/* color map of material */
+	bool stencil_test = true;				/* whether to enable stencil test */
+	int stencil_writemask = 0xFF;			/* the mask when writing to stencil buffer */
+	int stencil_func = FUNC_ALWAYS;			/* which stencil comparison function to use */
+	int stencil_ref = 0;					/* the reference value in stencil comparison */
+	int stencil_mask = 0xFF;				/* the mask in stencil comparison */
+	int stencil_fail = STENCIL_KEEP;		/* the operation when the stencil test fails */
+	int stencil_zfail = STENCIL_KEEP;		/* the operation when the stencil test passes but the depth test fails */
+	int stencil_zpass = STENCIL_KEEP;		/* the operation when both the stencil test and the depth test pass */
+	
+	bool wireframe = false;					/* whether to render mesh as wireframe */
+	
+	float alpha_test = 0;					/* the alpha value in alpha test */
+	
+	vec3 color = {1};						/* base color factor */
+	int color_map = 0;						/* base color map */
 	
 	/**
 	 * Create a new material.
@@ -64,7 +71,19 @@ public:
 	material(const std::string& n);
 	
 	/**
-	 * Returns shader linked with material.
+	 * Add color map.
+	 *
+	 * \param c color map
+	 */
+	void add_color_map(const image* c);
+	
+	/**
+	 * Returns the uniform variables of material.
+	 */
+	uniforms get_uniforms() const;
+	
+	/**
+	 * Returns the shader linked with material.
 	 */
 	const void* get_shader() const;
 	
@@ -76,7 +95,7 @@ public:
 	void set_shader(const void* s);
 	
 	/**
-	 * Determine images size linked with material.
+	 * Determines the size of images linked with material.
 	 */
 	size_t image_size() const;
 	
@@ -93,28 +112,21 @@ public:
 	void add_image(const image* i);
 	
 	/**
-	 * Add images linked with material.
+	 * Add images to link with material.
 	 *
 	 * \param i image list
 	 */
 	void add_images(const std::initializer_list<const image*>& i);
 	
 	/**
-	 * Returns images linked with material.
+	 * Returns the images linked with material.
 	 */
 	const image** get_images();
 	
 	/**
-	 * Returns images linked with material.
+	 * Returns the images linked with material.
 	 */
 	const image* const* get_images() const;
-	
-	/**
-	 * Sets color map.
-	 *
-	 * \param c color map
-	 */
-	void set_color_map(const image* c);
 	
 protected:
 	const void* linked_shader;
