@@ -65,11 +65,9 @@ vec3 linear_map(const image& t, const vec2& uv) {
 	return linear_map(t, uv.x, uv.y);
 }
 
-void set_viewport(int x, int y, int w, int h) {
-	viewport_x = x;
-	viewport_y = y;
-	viewport_width = w;
-	viewport_height = h;
+void set_viewport(int w, int h) {
+	viewport_w = w;
+	viewport_h = h;
 }
 
 void add_pointlist(const vec4& v, const vec3& b, pointlist& l) {
@@ -136,7 +134,7 @@ void zfar_clip(const pointlist& i, float zf, pointlist& o) {
 	}
 }
 
-void rasterize(const pointlist& p, const vec3* dvs, shader& s, vec3* canvas, double* zb) {
+void rasterize(const pointlist& p, const vec3* dvs, shader& s, vec4* canvas, double* zb) {
 	for (int i = 2; i < p.size; ++i) {
 		const vec3& vertex_a = dvs[0];
 		const vec3& vertex_b = dvs[i - 1];
@@ -153,7 +151,6 @@ void rasterize(const pointlist& p, const vec3* dvs, shader& s, vec3* canvas, dou
 		double dot11 = v1 * v1;
 		double inverse = 1 / (dot00 * dot11 - dot01 * dot01);
 		vec3 barycenter;
-		vec4 color;
 		vec3 vertex_l = vertex_a;
 		vec3 vertex_m = vertex_b;
 		vec3 vertex_u = vertex_c;
@@ -161,7 +158,7 @@ void rasterize(const pointlist& p, const vec3* dvs, shader& s, vec3* canvas, dou
 		if (vertex_m.y > vertex_u.y) std::swap(vertex_m, vertex_u);
 		if (vertex_l.y > vertex_m.y) std::swap(vertex_l, vertex_m);
 		float lower = fmaxf(floorf(vertex_l.y) + 1, 0);
-		float upper = fminf(floorf(vertex_u.y) + 1, viewport_height);
+		float upper = fminf(floorf(vertex_u.y) + 1, viewport_h);
 		float median = vertex_m.y;
 		float inverseml = 1 / (vertex_m.y - vertex_l.y);
 		float inverseum = 1 / (vertex_u.y - vertex_m.y);
@@ -173,7 +170,7 @@ void rasterize(const pointlist& p, const vec3* dvs, shader& s, vec3* canvas, dou
 			float right = (vertex_l.x * (vertex_u.y - y) + vertex_u.x * (y - vertex_l.y)) * inverseul;
 			if (left > right) std::swap(left, right);
 			left = fmaxf(floorf(left) + 1, 0);
-			right = fminf(floorf(right) + 1, viewport_width);
+			right = fminf(floorf(right) + 1, viewport_w);
 			for (float x = left; x < right; ++x) {
 				v2.x = x - vertex_a.x;
 				v2.y = y - vertex_a.y;
@@ -183,7 +180,7 @@ void rasterize(const pointlist& p, const vec3* dvs, shader& s, vec3* canvas, dou
 				double v = (dot00 * dot12 - dot01 * dot02) * inverse;
 				if (UNLIKELY(u < -eps || v < -eps || u + v > 1 + eps)) continue;
 				double z = vertex_a.z * (1 - u - v) + vertex_b.z * v + vertex_c.z * u;
-				int location = x + y * viewport_width;
+				int location = x + y * viewport_w;
 				if (z > -1 && z < 1 && z < zb[location] + eps) {
 					zb[location] = z;
 					barycenter.x = (1 - u - v) * fixed_barycenter.x;
@@ -191,18 +188,14 @@ void rasterize(const pointlist& p, const vec3* dvs, shader& s, vec3* canvas, dou
 					barycenter.z = u * fixed_barycenter.z;
 					barycenter /= barycenter.x + barycenter.y + barycenter.z;
 					barycenter = fixed_a * barycenter.x + fixed_b * barycenter.y + fixed_c * barycenter.z;
-					s.fragment_shader(barycenter, {x / viewport_width, y / viewport_height}, color);
-					canvas[location].x = canvas[location].x * (1 - color.w) + color.x * color.w;
-					canvas[location].y = canvas[location].y * (1 - color.w) + color.y * color.w;
-					canvas[location].z = canvas[location].z * (1 - color.w) + color.z * color.w;
+					s.fragment(barycenter, {x / viewport_w, y / viewport_h}, canvas[location]);
 				}
 			}
 		}
 	}
 }
 
-template <bool write>
-bool rasterize(const pointlist& p, const vec3* dvs, double* zb) {
+void rasterize(const pointlist& p, const vec3* dvs, double* zb) {
 	for (int i = 2; i < p.size; ++i) {
 		const vec3& vertex_a = dvs[0];
 		const vec3& vertex_b = dvs[i - 1];
@@ -221,7 +214,7 @@ bool rasterize(const pointlist& p, const vec3* dvs, double* zb) {
 		if (vertex_m.y > vertex_u.y) std::swap(vertex_m, vertex_u);
 		if (vertex_l.y > vertex_m.y) std::swap(vertex_l, vertex_m);
 		float lower = fmaxf(floorf(vertex_l.y) + 1, 0);
-		float upper = fminf(floorf(vertex_u.y) + 1, viewport_height);
+		float upper = fminf(floorf(vertex_u.y) + 1, viewport_h);
 		float median = vertex_m.y;
 		float inverseml = 1 / (vertex_m.y - vertex_l.y);
 		float inverseum = 1 / (vertex_u.y - vertex_m.y);
@@ -233,7 +226,7 @@ bool rasterize(const pointlist& p, const vec3* dvs, double* zb) {
 			float right = (vertex_l.x * (vertex_u.y - y) + vertex_u.x * (y - vertex_l.y)) * inverseul;
 			if (left > right) std::swap(left, right);
 			left = fmaxf(floorf(left) + 1, 0);
-			right = fminf(floorf(right) + 1, viewport_width);
+			right = fminf(floorf(right) + 1, viewport_w);
 			for (float x = left; x < right; ++x) {
 				v2.x = x - vertex_a.x;
 				v2.y = y - vertex_a.y;
@@ -243,28 +236,24 @@ bool rasterize(const pointlist& p, const vec3* dvs, double* zb) {
 				double v = (dot00 * dot12 - dot01 * dot02) * inverse;
 				if (UNLIKELY(u < -eps || v < -eps || u + v > 1 + eps)) continue;
 				double z = vertex_a.z * (1 - u - v) + vertex_b.z * v + vertex_c.z * u;
-				int location = x + y * viewport_width;
-				if (z > -1 && z < 1 && z < zb[location] + eps) {
-					if (!write) return true;
-					zb[location] = z;
-				}
+				int location = x + y * viewport_w;
+				if (z > -1 && z < 1 && z < zb[location] + eps) zb[location] = z;
 			}
 		}
 	}
-	return false;
 }
 
-void draw(const camera& c, shader& s, const mesh& m, vec3* canvas, double* zb) {
+void draw(const camera& c, shader& s, const mesh& m, vec4* canvas, double* zb) {
 	vec3 barycenters[3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
 	size_t length = m.vertex.size();
 	for (int i = 0; i < length; i += 3) {
 		vec4 vertices[3];
 		/* vertex shader */
 		for (int j = 0; j < 3; ++j) {
-			s.vextex_shader(m, i + j, j, vertices[j]);
+			s.vextex(m, i + j, j, vertices[j]);
 		}
 		/* geometry shader */
-		s.geometry_shader(vertices);
+		s.geometry(vertices);
 		/* clipping */
 		vec4 clip_vertices[4];
 		vec3 clip_barycenters[4];
@@ -283,25 +272,25 @@ void draw(const camera& c, shader& s, const mesh& m, vec3* canvas, double* zb) {
 		}
 		/* viewport transform */
 		for (int i = 0; i < primitive.size; ++i) {
-			device_vertices[i].x = device_vertices[i].x * viewport_width / 2 + viewport_width / 2;
-			device_vertices[i].y = -device_vertices[i].y * viewport_height / 2 + viewport_height / 2;
+			device_vertices[i].x = device_vertices[i].x * viewport_w / 2 + viewport_w / 2;
+			device_vertices[i].y = -device_vertices[i].y * viewport_h / 2 + viewport_h / 2;
 		}
 		/* rasterization */
 		rasterize(primitive, device_vertices, s, canvas, zb);
 	}
 }
 
-void ztest(const camera& c, shader& s, const mesh& m, double* zb) {
+void draw(const camera& c, shader& s, const mesh& m, double* zb) {
 	vec3 barycenters[3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
 	size_t length = m.vertex.size();
 	for (int i = 0; i < length; i += 3) {
 		vec4 vertices[3];
 		/* vertex shader */
 		for (int j = 0; j < 3; ++j) {
-			s.vextex_shader(m, i + j, j, vertices[j]);
+			s.vextex(m, i + j, j, vertices[j]);
 		}
 		/* geometry shader */
-		s.geometry_shader(vertices);
+		s.geometry(vertices);
 		/* clipping */
 		vec4 clip_vertices[4];
 		vec3 clip_barycenters[4];
@@ -320,58 +309,20 @@ void ztest(const camera& c, shader& s, const mesh& m, double* zb) {
 		}
 		/* viewport transform */
 		for (int i = 0; i < primitive.size; ++i) {
-			device_vertices[i].x = device_vertices[i].x * viewport_width / 2 + viewport_width / 2;
-			device_vertices[i].y = -device_vertices[i].y * viewport_height / 2 + viewport_height / 2;
+			device_vertices[i].x = device_vertices[i].x * viewport_w / 2 + viewport_w / 2;
+			device_vertices[i].y = -device_vertices[i].y * viewport_h / 2 + viewport_h / 2;
 		}
 		/* rasterization */
 		rasterize(primitive, device_vertices, zb);
 	}
 }
 
-bool zquery(const camera& c, shader& s, const mesh& m, double* zb) {
-	vec3 barycenters[3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-	size_t length = m.vertex.size();
-	for (int i = 0; i < length; i += 3) {
-		vec4 vertices[3];
-		/* vertex shader */
-		for (int j = 0; j < 3; ++j) {
-			s.vextex_shader(m, i + j, j, vertices[j]);
-		}
-		/* geometry shader */
-		s.geometry_shader(vertices);
-		/* clipping */
-		vec4 clip_vertices[4];
-		vec3 clip_barycenters[4];
-		pointlist clip_primitive = {0, clip_vertices, clip_barycenters};
-		znear_clip({3, vertices, barycenters}, c.znear, clip_primitive);
-		vec4 primitive_vertices[5];
-		vec3 primitive_barycenters[5];
-		pointlist primitive = {0, primitive_vertices, primitive_barycenters};
-		zfar_clip(clip_primitive, c.zfar, primitive);
-		/* perspective division */
-		vec3 device_vertices[5];
-		for (int i = 0; i < primitive.size; ++i) {
-			device_vertices[i].x = primitive.vertices[i].x / primitive.vertices[i].w;
-			device_vertices[i].y = primitive.vertices[i].y / primitive.vertices[i].w;
-			device_vertices[i].z = primitive.vertices[i].z / primitive.vertices[i].w;
-		}
-		/* viewport transform */
-		for (int i = 0; i < primitive.size; ++i) {
-			device_vertices[i].x = device_vertices[i].x * viewport_width / 2 + viewport_width / 2;
-			device_vertices[i].y = -device_vertices[i].y * viewport_height / 2 + viewport_height / 2;
-		}
-		/* rasterization */
-		if (rasterize<false>(primitive, device_vertices, zb)) return true;
-	}
-	return false;
-}
-
 void draw_instances(const camera& c, shader& s, const instance* const* is,
-					const image** const* ts, size_t size, vec3* canvas) {
-	size_t buffer_size = viewport_width * viewport_height;
+					const image** const* ts, size_t size, vec4* canvas) {
+	size_t buffer_size = viewport_w * viewport_h;
 	if (zbuffer.size() != buffer_size) zbuffer.resize(buffer_size);
 	std::fill(zbuffer.begin(), zbuffer.end(), 1);
-	mat<4, 4> view_proj = c.projection * c.viewing;
+	mat4 view_proj = c.projection * c.viewing;
 	for (int i = 0; i < size; ++i) {
 		s.model = camera::model_transform(*is[i]);
 		s.view = c.viewing;

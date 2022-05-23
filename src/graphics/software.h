@@ -55,14 +55,14 @@ public:
 	 * \param id vertex id
 	 * \param v vertex position
 	 */
-	virtual void vextex_shader(const mesh& m, int i, int id, vec4& v) = 0;
+	virtual void vextex(const mesh& m, int i, int id, vec4& v) = 0;
 	
 	/**
 	 * Geometry shader.
 	 *
 	 * \param vs vertex positions
 	 */
-	virtual void geometry_shader(vec4* vs) = 0;
+	virtual void geometry(vec4* vs) = 0;
 	
 	/**
 	 * Fragment shader.
@@ -71,7 +71,7 @@ public:
 	 * \param p screen position
 	 * \param c out color
 	 */
-	virtual void fragment_shader(const vec3& b, const vec2& p, vec4& c) = 0;
+	virtual void fragment(const vec3& b, const vec2& p, vec4& c) = 0;
 };
 
 /**
@@ -108,20 +108,16 @@ vec3 linear_map(const image& t, float u, float v);
  */
 vec3 linear_map(const image& t, const vec2& uv);
 
-static int viewport_x = 0;
-static int viewport_y = 0;
-static int viewport_width = 0;
-static int viewport_height = 0;
+static int viewport_w = 0;
+static int viewport_h = 0;
 
 /**
  * Sets the viewport.
  *
- * \param x lower-left corner of the viewport rectangle
- * \param y lower-left corner of the viewport rectangle
- * \param w width of the viewport
- * \param h height of the viewport
+ * \param w the width of the viewport
+ * \param h the height of the viewport
  */
-void set_viewport(int x, int y, int w, int h);
+void set_viewport(int w, int h);
 
 struct pointlist {
 	size_t size = 0;
@@ -165,17 +161,16 @@ void zfar_clip(const pointlist& i, float zf, pointlist& o);
  * \param canvas drawing canvas
  * \param zb Z-buffer
  */
-void rasterize(const pointlist& p, const vec3* dvs, shader& s, vec3* canvas, double* zb);
+void rasterize(const pointlist& p, const vec3* dvs, shader& s, vec4* canvas, double* zb);
 
 /**
- * Rasterize the triangle of pointlist without shading.
+ * Rasterize the triangle of pointlist and only write depth infomation.
  *
  * \param p pointlist
  * \param dvs device vertices
  * \param zb Z-buffer
  */
-template <bool write = true>
-bool rasterize(const pointlist& p, const vec3* dvs, double* zb);
+void rasterize(const pointlist& p, const vec3* dvs, double* zb);
 
 /**
  * Draw objects.
@@ -186,27 +181,17 @@ bool rasterize(const pointlist& p, const vec3* dvs, double* zb);
  * \param canvas drawing canvas
  * \param zb Z-buffer
  */
-void draw(const camera& c, shader& s, const mesh& m, vec3* canvas, double* zb);
+void draw(const camera& c, shader& s, const mesh& m, vec4* canvas, double* zb);
 
 /**
- * Write depth infomation into Z-buffer.
+ * Draw objects and only write depth infomation.
  *
  * \param c camera
  * \param s shader
  * \param m mesh
  * \param zb Z-buffer
  */
-void ztest(const camera& c, shader& s, const mesh& m, double* zb);
-
-/**
- * Query whether the object will pass depth test.
- *
- * \param c camera
- * \param s shader
- * \param m mesh
- * \param zb Z-buffer
- */
-bool zquery(const camera& c, shader& s, const mesh& m, double* zb);
+void draw(const camera& c, shader& s, const mesh& m, double* zb);
 
 /**
  * Draw instances.
@@ -219,7 +204,7 @@ bool zquery(const camera& c, shader& s, const mesh& m, double* zb);
  * \param canvas drawing canvas
  */
 void draw_instances(const camera& c, shader& s, const instance* const* is,
-					const image* const* ts, size_t size, vec3* canvas);
+					const image* const* ts, size_t size, vec4* canvas);
 
 static std::vector<double> zbuffer;
 
