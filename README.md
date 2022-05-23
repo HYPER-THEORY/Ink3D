@@ -15,7 +15,7 @@ Physically Based Rendering
 
 Lighting / Shadows
 
-Post Processing
+Post Processing Library
 
 ### Getting Started ###
 
@@ -42,6 +42,7 @@ void load() {
     nightscene::init();
     the_scene = nightscene::get_scene();
     the_renderer.preload(the_scene);
+    the_renderer.set_viewport({0, 0, 960, 540});
     the_viewer = {{M_PI * 0.4, 960.f / 540.f, .05, 1000}};
 }
 
