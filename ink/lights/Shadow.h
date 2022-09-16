@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include "../camera/Camera.h"
 #include "../graphics/Gpu.h"
 
@@ -97,11 +99,9 @@ private:
 	
 	static std::unique_ptr<Gpu::Texture> shadow_map;
 	
-	static std::unique_ptr<Gpu::FrameBuffer> shadow_buffer;
+	static std::unique_ptr<Gpu::FrameBuffer> shadow_target;
 	
 	Shadow(const Shadow&) = delete;
-	
-	Shadow& operator=(const Shadow&) = delete;
 };
 
 }

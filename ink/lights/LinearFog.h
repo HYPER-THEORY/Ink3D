@@ -20,31 +20,27 @@
  * SOFTWARE.
  */
 
-#include "EnvProbe.h"
+#pragma once
+
+#include "../math/Maths.h"
 
 namespace Ink {
 
-EnvProbe::EnvProbe(float i, int r) :
-intensity(i), resolution(r) {}
-
-void EnvProbe::load_cubemap(const Image& px, const Image& nx, const Image& py,
-							const Image& ny, const Image& pz, const Image& nz) {
-	env_map = std::make_unique<Gpu::Texture>();
-	IBLPrefilter::load_cubemap(px, nx, py, ny, pz, nz, *env_map, resolution);
-}
-
-void EnvProbe::load_equirect(const Image& i) {
-	env_map = std::make_unique<Gpu::Texture>();
-	IBLPrefilter::load_equirect(i, *env_map, resolution);
-}
-
-void EnvProbe::load_texture(const Gpu::Texture& t) {
-	env_map = std::make_unique<Gpu::Texture>();
-	IBLPrefilter::load_texture(t, *env_map, resolution);
-}
-
-int EnvProbe::activate(int l) const {
-	return env_map->activate(l);
-}
+class LinearFog {
+public:
+	bool visible = true;       /**< whether the fog is visible */
+	Vec3 color = {1, 1, 1};    /**< the color of fog */
+	float near = 1;            /**< the nearest distance of fog */
+	float far = 1000;          /**< the farthest distance of fog */
+	
+	/**
+	 * Create a new Fog with its color and distances.
+	 *
+	 * \param c the color of fog
+	 * \param n the nearest distance of fog
+	 * \param f the farthest distance of fog
+	 */
+	LinearFog(const Vec3& c = {1, 1, 1}, float n = 1, float f = 1000);
+};
 
 }

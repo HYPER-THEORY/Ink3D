@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include "../graphics/Gpu.h"
 
 namespace Ink {
@@ -36,11 +38,18 @@ public:
 	/**
 	 * Load a set of cube images to prefiltered radiance environment map.
 	 *
-	 * \param i +X, -X, +Y, -Y, +Z, -Z images
+	 * \param px right (+X) face of cube image
+	 * \param nx left  (-X) face of cube image
+	 * \param py upper (+Y) face of cube image
+	 * \param ny lower (-Y) face of cube image
+	 * \param pz front (+Z) face of cube image
+	 * \param nz back  (-Z) face of cube image
 	 * \param m prefiltered radiance environment map
 	 * \param s the size of radiance environment map
 	 */
-	static void load_cubemap(const Image* i, Gpu::Texture& m, int s = 256);
+	static void load_cubemap(const Image& px, const Image& nx, const Image& py,
+							 const Image& ny, const Image& pz, const Image& nz,
+							 Gpu::Texture& m, int s = 256);
 	
 	/**
 	 * Load an equirectangular image to prefiltered radiance environment map.
@@ -65,8 +74,8 @@ private:
 	
 	static std::unique_ptr<Gpu::Texture> blur_map;
 	
-	static std::unique_ptr<Gpu::FrameBuffer> cubemap_buffer;
-	static std::unique_ptr<Gpu::FrameBuffer> blur_buffer;
+	static std::unique_ptr<Gpu::FrameBuffer> cubemap_target;
+	static std::unique_ptr<Gpu::FrameBuffer> blur_target;
 	
 	static std::unique_ptr<Gpu::Shader> cubemap_shader;
 	static std::unique_ptr<Gpu::Shader> blur_shader;
