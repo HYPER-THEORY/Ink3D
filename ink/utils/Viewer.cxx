@@ -75,12 +75,20 @@ const Camera& Viewer::get_camera() const {
 	return camera;
 }
 
-Camera& Viewer::get_camera() {
-	return camera;
-}
-
 void Viewer::set_camera(const Camera& c) {
 	camera = c;
+}
+
+void Viewer::set_position(const Vec3& p) {
+	camera.position = p;
+}
+
+void Viewer::set_direction(const Vec3& d) {
+	Vec3 direction = -d.normalize();
+	axis_z = asinf(direction.y);
+	axis_y = asinf(direction.x / cosf(axis_z));
+	if (std::isnan(axis_y)) axis_y = 0;
+	if (cosf(axis_y) * direction.z < 0) axis_y = -axis_y + PI;
 }
 
 }

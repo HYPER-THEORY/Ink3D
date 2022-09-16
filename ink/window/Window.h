@@ -38,9 +38,11 @@ public:
 	 * \param y the y-coordinate of the window's position
 	 * \param w the width of window
 	 * \param h the height of window
+	 * \param opengl whether to enable OpenGL
 	 * \param dpi whether to enable high-dpi mode
 	 */
-	static void init(const std::string& t, int x, int y, int w, int h, bool dpi = false);
+	static void init(const std::string& t, int x, int y, int w, int h,
+					 bool opengl = true, bool dpi = false);
 	
 	/**
 	 * Initialize canvas after the window is initialized.

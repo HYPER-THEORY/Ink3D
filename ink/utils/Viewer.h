@@ -45,7 +45,7 @@ public:
 	int key_right = SDLK_d;       /**< the key controls camera move right */
 	
 	/**
-	 * Create a new Viewer.
+	 * Create a new Viewer with moving speed.
 	 *
 	 * \param c camera
 	 * \param s moving speed
@@ -60,14 +60,9 @@ public:
 	void update(float dt);
 	
 	/**
-	 * Return the viewing camera.
+	 * Returns the viewing camera.
 	 */
 	const Camera& get_camera() const;
-	
-	/**
-	 * Return the viewing camera.
-	 */
-	Camera& get_camera();
 	
 	/**
 	 * Sets the viewing camera.
@@ -75,6 +70,20 @@ public:
 	 * \param c camera
 	 */
 	void set_camera(const Camera& c);
+	
+	/**
+	 * Sets the position of camera.
+	 *
+	 * \param p position
+	 */
+	void set_position(const Vec3& p);
+	
+	/**
+	 * Sets the viewing direction of camera.
+	 *
+	 * \param d viewing direction
+	 */
+	void set_direction(const Vec3& d);
 	
 private:
 	Camera camera;
