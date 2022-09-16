@@ -32,6 +32,8 @@
 #include "../lights/DirectionalLight.h"
 #include "../lights/AmbientLight.h"
 #include "../lights/HemisphereLight.h"
+#include "../lights/ExpFog.h"
+#include "../lights/LinearFog.h"
 
 namespace Ink {
 
@@ -87,6 +89,30 @@ public:
 	void clear_material();
 	
 	/**
+	 * Returns the linear fog to the scene.
+	 */
+	const LinearFog* get_linear_fog() const;
+	
+	/**
+	 * Sets the linear fog to the scene.
+	 *
+	 * \param f linear fog
+	 */
+	void set_linear_fog(const LinearFog* f);
+	
+	/**
+	 * Returns the exp fog to the scene.
+	 */
+	const ExpFog* get_exp_fog() const;
+	
+	/**
+	 * Sets the exp fog to the scene.
+	 *
+	 * \param f exp fog
+	 */
+	void set_exp_fog(const ExpFog* f);
+	
+	/**
 	 * Add a point light to the scene.
 	 *
 	 * \param l point light
@@ -120,6 +146,11 @@ public:
 	 * \param l ambient light
 	 */
 	void add_light(const HemisphereLight* l);
+	
+	/**
+	 * Clear all the lights in the scene.
+	 */
+	void clear_light();
 	
 	/**
 	 * Returns the number of point lights.
@@ -182,11 +213,6 @@ public:
 	const HemisphereLight* get_hemisphere_light(int i) const;
 	
 	/**
-	 * Clear all the lights in the scene.
-	 */
-	void clear_light();
-	
-	/**
 	 * Update the local and global matrices of descendant instances.
 	 */
 	void update_instances();
@@ -198,6 +224,9 @@ public:
 	
 private:
 	std::unordered_map<std::string, const Material*> material_library;
+	
+	const LinearFog* linear_fog = nullptr;
+	const ExpFog* exp_fog = nullptr;
 	
 	std::vector<const PointLight*> point_lights;
 	std::vector<const SpotLight*> spot_lights;
