@@ -24,17 +24,17 @@
 
 namespace Ink {
 
+void RenderPass::process() {
+	compile();
+	render();
+}
+
 const Gpu::FrameBuffer* RenderPass::get_target() const {
 	return target;
 }
 
 void RenderPass::set_target(const Gpu::FrameBuffer* t) {
 	target = t;
-}
-
-void RenderPass::process() {
-	compile();
-	render();
 }
 
 Gpu::Rect RenderPass::get_viewport() {
@@ -45,35 +45,6 @@ void RenderPass::set_viewport(const Gpu::Rect& v) {
 	viewport = v;
 }
 
-bool RenderPass::get_scissor_test() {
-	return scissor_test;
-}
-
-void RenderPass::set_scissor_test(bool t) {
-	scissor_test = t;
-}
-
-Gpu::Rect RenderPass::get_scissor() {
-	return scissor;
-}
-
-void RenderPass::set_scissor(const Gpu::Rect& s) {
-	scissor = s;
-}
-
-bool RenderPass::init_render_to() {
-	/* prepare plane object */
-	Mesh plane_mesh;
-	plane_mesh.groups = {{"default", 0, 3}};
-	plane_mesh.vertex = {{-1, 3, 0}, {-1, -1, 0}, {3, -1, 0}};
-	plane_mesh.uv = {{0, 2}, {0, 0}, {2, 0}};
-	plane = std::make_unique<Gpu::VertexObject>();
-	plane->load(plane_mesh);
-	
-	/* finish initialization */
-	return true;
-}
-
 void RenderPass::render_to(const Gpu::Shader* s, const Gpu::FrameBuffer* t) {
 	/* initialize render_to */
 	[[maybe_unused]]
@@ -82,24 +53,18 @@ void RenderPass::render_to(const Gpu::Shader* s, const Gpu::FrameBuffer* t) {
 	/* activate render target */
 	Gpu::FrameBuffer::activate(t);
 	
-	/* disable depth & stencil test */
+	/* disable depth & stencil & scissor test */
 	Gpu::disable_depth_test();
 	Gpu::disable_stencil_test();
+	Gpu::disable_scissor_test();
 	
 	/* disable blending & wireframe & culling */
+	Gpu::disable_blending();
 	Gpu::disable_wireframe();
 	Gpu::disable_cull_face();
 	
 	/* set the viewport */
 	Gpu::set_viewport(viewport);
-	
-	/* set the scissor test */
-	if (scissor_test) {
-		Gpu::enable_scissor_test();
-		Gpu::set_scissor(scissor);
-	} else {
-		Gpu::disable_scissor_test();
-	}
 	
 	/* draw the plane with shader */
 	plane->attach(*s);
@@ -109,9 +74,20 @@ void RenderPass::render_to(const Gpu::Shader* s, const Gpu::FrameBuffer* t) {
 	Gpu::FrameBuffer::activate(nullptr);
 }
 
-bool RenderPass::scissor_test = false;
-
-Gpu::Rect RenderPass::scissor = {0, 0, 0, 0};
+bool RenderPass::init_render_to() {
+	/* prepare plane mesh */
+	Mesh plane_mesh = {"plane"};
+	plane_mesh.groups = {{"default", 0, 3}};
+	plane_mesh.vertex = {{-1, 3, 0}, {-1, -1, 0}, {3, -1, 0}};
+	plane_mesh.uv = {{0, 2}, {0, 0}, {2, 0}};
+	
+	/* prepare plane vertex object */
+	plane = std::make_unique<Gpu::VertexObject>();
+	plane->load(plane_mesh);
+	
+	/* finish initialization */
+	return true;
+}
 
 Gpu::Rect RenderPass::viewport = {0, 0, 0, 0};
 

@@ -22,6 +22,9 @@
 
 #pragma once
 
+#include <array>
+#include <functional>
+
 #include "../graphics/Gpu.h"
 #include "../scene/Scene.h"
 #include "../lights/EnvProbe.h"
@@ -94,64 +97,19 @@ public:
 	void set_scissor(const Gpu::Rect& s);
 	
 	/**
-	 * Sets the location of G-Buffer color.
+	 * Sets the locations of G-Buffer (color, normal, material, light).
 	 *
-	 * \param l the location of G-Buffer
+	 * \param c diffuse color buffer
+	 * \param n world normal buffer
+	 * \param m material (specular + roughness) buffer
+	 * \param l indirect light + emissive color buffer
 	 */
-	void set_location_c(unsigned int l);
+	void set_locations(unsigned int c, unsigned int n, unsigned int m, unsigned int l);
 	
 	/**
-	 * Returns the locations of G-Buffer color.
+	 * Returns the locations of G-Buffer (color, normal, material, light).
 	 */
-	unsigned int get_location_c() const;
-	
-	/**
-	 * Sets the location of G-Buffer normal.
-	 *
-	 * \param l the location of G-Buffer
-	 */
-	void set_location_n(unsigned int l);
-	
-	/**
-	 * Returns the locations of G-Buffer normal.
-	 */
-	unsigned int get_location_n() const;
-	
-	/**
-	 * Sets the location of G-Buffer material.
-	 *
-	 * \param l the location of G-Buffer
-	 */
-	void set_location_m(unsigned int l);
-	
-	/**
-	 * Returns the locations of G-Buffer material.
-	 */
-	unsigned int get_location_m() const;
-	
-	/**
-	 * Sets the location of G-Buffer emissive.
-	 *
-	 * \param l the location of G-Buffer
-	 */
-	void set_location_e(unsigned int l);
-	
-	/**
-	 * Returns the locations of G-Buffer emissive.
-	 */
-	unsigned int get_location_e() const;
-	
-	/**
-	 * Sets the location of G-Buffer indirect light.
-	 *
-	 * \param l the location of G-Buffer
-	 */
-	void set_location_i(unsigned int l);
-	
-	/**
-	 * Returns the locations of G-Buffer indirect light.
-	 */
-	unsigned int get_location_i() const;
+	std::array<unsigned int, 4> get_locations() const;
 	
 	/**
 	 * Returns the current render target if there are, returns nullptr
@@ -186,9 +144,15 @@ public:
 	/**
 	 * Load a set of cube images to skybox.
 	 *
-	 * \param i +X, -X, +Y, -Y, +Z, -Z images
+	 * \param px right (+X) face of cube image
+	 * \param nx left  (-X) face of cube image
+	 * \param py upper (+Y) face of cube image
+	 * \param ny lower (-Y) face of cube image
+	 * \param pz front (+Z) face of cube image
+	 * \param nz back  (-Z) face of cube image
 	 */
-	void load_skybox_cubemap(const Image* i);
+	void load_skybox_cubemap(const Image& px, const Image& nx, const Image& py,
+							 const Image& ny, const Image& pz, const Image& nz);
 	
 	/**
 	 * Load an equirectangular image to skybox.
@@ -233,7 +197,9 @@ public:
 	void load_scene(const Scene& s);
 	
 	/**
-	 * Update scene before render it.
+	 * Update all the descendant instances in the scene before rendering.
+	 *
+	 * \param s scene
 	 */
 	void update_scene(Scene& s);
 	
@@ -246,7 +212,7 @@ public:
 	void render(const Scene& s, const Camera& c) const;
 	
 	/**
-	 * Render a scene to shadow map.
+	 * Render a scene to the shadow map of shadow.
 	 *
 	 * \param s scene
 	 * \param t target shadow
@@ -254,25 +220,23 @@ public:
 	void render_shadow(const Scene& s, const Shadow& t) const;
 	
 	/**
-	 * Update the shadow map of spot light.
+	 * Update the shadow map of spot light by rendering the scene.
+	 *
+	 * \param s scene
+	 * \param l spot light
 	 */
 	void update_shadow(const Scene& s, SpotLight& l) const;
 	
 	/**
-	 * Update the shadow map of directional light.
+	 * Update the shadow map of directional light by rendering the scene.
+	 *
+	 * \param s scene
+	 * \param l directional light
 	 */
 	void update_shadow(const Scene& s, DirectionalLight& l) const;
 	
 private:
-	unsigned int location_c = 0;
-	
-	unsigned int location_n = 1;
-	
-	unsigned int location_m = 2;
-	
-	unsigned int location_e = 3;
-	
-	unsigned int location_i = 4;
+	std::array<unsigned int, 4> locations = {0, 1, 2, 3};
 	
 	bool scissor_test = false;
 	
@@ -303,11 +267,15 @@ private:
 	
 	static std::unique_ptr<Gpu::Shader> skybox_shader;
 	
-	using MaterialCallback = std::function<bool(const Instance&, const Material&)>;
+	static std::unique_ptr<Gpu::Shader> shadow_shader;
 	
-	void render(const Scene& s, const Camera& c, const MaterialCallback& f) const;
+	void render_to_buffers(const Scene& s, const Camera& c) const;
+	
+	void render_to_shadows(const Scene& s, const Camera& c) const;
 	
 	static bool init_skybox();
+	
+	static bool init_shadow();
 };
 
 }

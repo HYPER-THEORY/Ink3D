@@ -26,8 +26,8 @@ namespace Ink {
 
 void CopyPass::init() {
 	copy_shader = std::make_unique<Gpu::Shader>();
-	copy_shader->load_vert_file("shaders/lib/Copy.vert.glsl");
-	copy_shader->load_frag_file("shaders/lib/Copy.frag.glsl");
+	copy_shader->load_vert_file("ink/shaders/lib/Copy.vert.glsl");
+	copy_shader->load_frag_file("ink/shaders/lib/Copy.frag.glsl");
 }
 
 void CopyPass::compile() {
@@ -44,8 +44,8 @@ const Gpu::Texture* CopyPass::get_texture() const {
 	return map;
 }
 
-void CopyPass::set_texture(const Gpu::Texture* s) {
-	map = s;
+void CopyPass::set_texture(const Gpu::Texture* t) {
+	map = t;
 }
 
 }

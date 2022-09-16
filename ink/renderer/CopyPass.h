@@ -51,16 +51,16 @@ public:
 	void render() const override;
 	
 	/**
-	 * Returns the input texture.
+	 * Returns the texture as the source of replication.
 	 */
 	const Gpu::Texture* get_texture() const;
 	
 	/**
-	 * Sets the input texture.
+	 * Sets the texture as the source of replication.
 	 *
-	 * \param s input texture
+	 * \param t source texture
 	 */
-	void set_texture(const Gpu::Texture* s);
+	void set_texture(const Gpu::Texture* t);
 	
 private:
 	const Gpu::Texture* map = nullptr;

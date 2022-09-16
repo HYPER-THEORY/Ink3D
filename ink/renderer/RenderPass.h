@@ -23,6 +23,7 @@
 #pragma once
 
 #include <functional>
+#include <memory>
 
 #include "../graphics/Gpu.h"
 
@@ -72,40 +73,26 @@ public:
 	void set_target(const Gpu::FrameBuffer* t);
 	
 	/**
-	 * Returns the current viewport.
+	 * Returns the current viewport region.
 	 */
 	static Gpu::Rect get_viewport();
 	
 	/**
-	 * Sets the viewport.
+	 * Sets the current viewport region.
 	 *
 	 * \param v viewport
 	 */
 	static void set_viewport(const Gpu::Rect& v);
 	
 	/**
-	 * Determines whether to enable scissor test.
-	 */
-	static bool get_scissor_test();
-	
-	/**
-	 * Determines whether to enable scissor test.
+	 * Sets the blend factors when applying blending.
 	 *
-	 * \param t enable scissor test
-	 */
-	static void set_scissor_test(bool t);
-	
-	/**
-	 * Returns the current scissor region.
-	 */
-	static Gpu::Rect get_scissor();
-	
-	/**
-	 * Sets the scissor region.
-	 *
-	 * \param s scissor region
-	 */
-	static void set_scissor(const Gpu::Rect& s);
+	 * \param srgb RGB source blend function
+	 * \param drgb RGB source destination function
+	 * \param sa alpha source blend function
+	 * \param da alpha source destination function
+	*/
+	static void set_blend_factor(int srgb, int drgb, int sa, int da);
 	
 	/**
 	 * Render full screen to the specified render target.
@@ -114,13 +101,9 @@ public:
 	 * \param t render target
 	 */
 	static void render_to(const Gpu::Shader* s, const Gpu::FrameBuffer* t);
-
+	
 protected:
 	const Gpu::FrameBuffer* target = nullptr;
-	
-	static bool scissor_test;
-	
-	static Gpu::Rect scissor;
 	
 	static Gpu::Rect viewport;
 	

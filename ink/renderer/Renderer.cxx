@@ -66,44 +66,15 @@ void Renderer::set_scissor(const Gpu::Rect& s) {
 	scissor = s;
 }
 
-void Renderer::set_location_c(unsigned int l) {
-	location_c = l;
+void Renderer::set_locations(unsigned int c, unsigned int n, unsigned int m, unsigned int l) {
+	locations[0] = c;
+	locations[1] = n;
+	locations[2] = m;
+	locations[3] = l;
 }
 
-unsigned int Renderer::get_location_c() const {
-	return location_c;
-}
-
-void Renderer::set_location_n(unsigned int l) {
-	location_n = l;
-}
-
-unsigned int Renderer::get_location_n() const {
-	return location_n;
-}
-
-void Renderer::set_location_m(unsigned int l) {
-	location_m = l;
-}
-
-unsigned int Renderer::get_location_m() const {
-	return location_m;
-}
-
-void Renderer::set_location_e(unsigned int l) {
-	location_e = l;
-}
-
-unsigned int Renderer::get_location_e() const {
-	return location_e;
-}
-
-void Renderer::set_location_i(unsigned int l) {
-	location_i = l;
-}
-
-unsigned int Renderer::get_location_i() const {
-	return location_i;
+std::array<unsigned int, 4> Renderer::get_locations() const {
+	return locations;
 }
 
 const Gpu::FrameBuffer* Renderer::get_target() const {
@@ -122,16 +93,17 @@ void Renderer::set_skybox_intensity(float i) {
 	skybox_intensity = i;
 }
 
-void Renderer::load_skybox_cubemap(const Image* i) {
+void Renderer::load_skybox_cubemap(const Image& px, const Image& nx, const Image& py,
+								   const Image& ny, const Image& pz, const Image& nz) {
 	skybox_map = std::make_unique<Gpu::Texture>();
-	skybox_map->init_cube(i, Gpu::Texture::default_format(i[0]));
-	skybox_map->set_filters(TEXTURE_LINEAR, TEXTURE_NEAREST);
+	skybox_map->init_cube(px, nx, py, ny, pz, nz, Gpu::Texture::default_format(px));
+	skybox_map->set_filters(TEXTURE_LINEAR, TEXTURE_LINEAR);
 }
 
 void Renderer::load_skybox_equirect(const Image& i) {
 	skybox_map = std::make_unique<Gpu::Texture>();
 	skybox_map->init_2d(i, Gpu::Texture::default_format(i));
-	skybox_map->set_filters(TEXTURE_LINEAR, TEXTURE_NEAREST);
+	skybox_map->set_filters(TEXTURE_LINEAR, TEXTURE_LINEAR);
 }
 
 void Renderer::render_skybox(const Camera& c) {
@@ -147,7 +119,8 @@ void Renderer::render_skybox(const Camera& c) {
 	Gpu::set_depth_func(FUNC_ALWAYS);
 	Gpu::disable_stencil_test();
 	
-	/* disable wireframe mode */
+	/* disable blending & wireframe */
+	Gpu::disable_blending();
 	Gpu::disable_wireframe();
 	
 	/* cull the front sides of faces */
@@ -170,11 +143,10 @@ void Renderer::render_skybox(const Camera& c) {
 	
 	/* compile skybox shader */
 	if (skybox_map->get_type() == TEXTURE_2D) {
-		skybox_shader->set_define({{"USE_EQUIRECT", ""}});
-	} else if (skybox_map->get_type() == TEXTURE_CUBE) {
-		skybox_shader->set_define({{"USE_CUBEMAP", ""}});
-	} else {
-		set_error("Renderer: Illegal skybox map type");
+		skybox_shader->set_define({{{"USE_EQUIRECT", ""}}});
+	}
+	if (skybox_map->get_type() == TEXTURE_CUBE) {
+		skybox_shader->set_define({{{"USE_CUBEMAP", ""}}});
 	}
 	skybox_shader->compile();
 	
@@ -201,8 +173,7 @@ void Renderer::load_mesh(const Mesh* m) {
 	mesh_buffer.insert({m, std::make_unique<Gpu::VertexObject[]>(group_size)});
 	auto* vertex_object_ptr = mesh_buffer[m].get();
 	for (int g = 0; g < group_size; ++g) {
-		vertex_object_ptr->load(*m, g);
-		++vertex_object_ptr;
+		(vertex_object_ptr + g)->load(*m, g);
 	}
 }
 
@@ -218,19 +189,18 @@ void Renderer::load_material(const Material* m) {
 	if (material_buffer.count(m) != 0) return;
 	material_buffer.insert({m, std::make_unique<Gpu::Shader>()});
 	auto* shader_ptr = material_buffer[m].get();
-	shader_ptr->load_vert_file("shaders/lib/GBuffer.vert.glsl");
-	shader_ptr->load_frag_file("shaders/lib/GBuffer.frag.glsl");
+	shader_ptr->load_vert_file("ink/shaders/lib/GBuffer.vert.glsl");
+	shader_ptr->load_frag_file("ink/shaders/lib/GBuffer.frag.glsl");
 	Defines material_defines = m->get_defines();
-	material_defines.set("LOCATION_C", std::to_string(location_c));
-	material_defines.set("LOCATION_N", std::to_string(location_n));
-	material_defines.set("LOCATION_M", std::to_string(location_m));
-	material_defines.set("LOCATION_E", std::to_string(location_e));
-	material_defines.set("LOCATION_I", std::to_string(location_i));
+	material_defines.set("LOCATION_C", std::to_string(locations[0]));
+	material_defines.set("LOCATION_N", std::to_string(locations[1]));
+	material_defines.set("LOCATION_M", std::to_string(locations[2]));
+	material_defines.set("LOCATION_L", std::to_string(locations[3]));
 	shader_ptr->set_define(material_defines);
 	shader_ptr->compile();
 }
 
-void Renderer::load_scene(const Scene &s) {
+void Renderer::load_scene(const Scene& s) {
 	/* load all instances in the scene */
 	auto instances = s.to_instances();
 	for (auto& instance_ptr : instances) {
@@ -293,23 +263,8 @@ void Renderer::render(const Scene& s, const Camera& c) const {
 		Gpu::disable_scissor_test();
 	}
 	
-	/* render the scene using a camera */
-	render(s, c, [](const Instance& i, const Material& m) -> bool {
-		/* apply the depth test setting of material */
-		Gpu::apply_material_depth(m);
-		
-		/* apply the stencil test setting of material */
-		Gpu::apply_material_stencil(m);
-		
-		/* apply the wireframe setting of material */
-		Gpu::apply_material_wireframe(m);
-		
-		/* apply the render side setting of material */
-		Gpu::apply_material_side(m);
-		
-		/* always render the material */
-		return true;
-	});
+	/* render the scene */
+	render_to_buffers(s, c);
 	
 	/* set back to the default render target */
 	Gpu::FrameBuffer::activate(nullptr);
@@ -329,23 +284,8 @@ void Renderer::render_shadow(const Scene& s, const Shadow& t) const {
 	/* clear the shadow map (depth only) */
 	Gpu::clear(false, true, false);
 	
-	/* render the scene using the camera of shadow */
-	render(s, t.camera, [](const Instance& i, const Material& m) -> bool {
-		/* apply the depth test setting of material */
-		Gpu::apply_material_depth(m);
-		
-		/* apply the stencil test setting of material */
-		Gpu::apply_material_stencil(m);
-		
-		/* apply the wireframe setting of material */
-		Gpu::apply_material_wireframe(m);
-		
-		/* apply the render side setting of material */
-		Gpu::apply_material_shadow_side(m);
-		
-		/* only render the material when casting shadow */
-		return i.cast_shadow;
-	});
+	/* render the scene to shadow */
+	render_to_shadows(s, t.camera);
 	
 	/* set back to the default render target */
 	Gpu::FrameBuffer::activate(nullptr);
@@ -365,21 +305,7 @@ void Renderer::update_shadow(const Scene& s, DirectionalLight& l) const {
 	render_shadow(s, l.shadow);
 }
 
-bool Renderer::init_skybox() {
-	/* prepare cube object */
-	cube = std::make_unique<Gpu::VertexObject>();
-	cube->load(BoxMesh::create());
-	
-	/* prepare skybox shader */
-	skybox_shader = std::make_unique<Gpu::Shader>();
-	skybox_shader->load_vert_file("shaders/lib/Skybox.vert.glsl");
-	skybox_shader->load_frag_file("shaders/lib/Skybox.frag.glsl");
-	
-	/* finish initialization */
-	return true;
-}
-
-void Renderer::render(const Scene& s, const Camera& c, const MaterialCallback& f) const {
+void Renderer::render_to_buffers(const Scene& s, const Camera& c) const {
 	/* create transform matrices */
 	Mat4 model;
 	Mat4 view = c.viewing;
@@ -388,17 +314,6 @@ void Renderer::render(const Scene& s, const Camera& c, const MaterialCallback& f
 	Mat4 model_view_proj;
 	Mat3 normal_mat;
 	Vec3 camera_pos = c.position;
-	
-	/* set uniform variables */
-	Uniforms uniforms = {
-		{"model_m4"          , &model          },
-		{"view_m4"           , &view           },
-		{"proj_m4"           , &proj           },
-		{"model_view_m4"     , &model_view     },
-		{"model_view_proj_m4", &model_view_proj},
-		{"normal_mat_m3"     , &normal_mat     },
-		{"camera_pos_v3"     , &camera_pos     },
-	};
 	
 	/* render all instances */
 	auto instances = s.to_instances();
@@ -455,10 +370,35 @@ void Renderer::render(const Scene& s, const Camera& c, const MaterialCallback& f
 			vertex_object_ptr->attach(*shader_ptr);
 			
 			/* set uniforms from renderer */
-			shader_ptr->set_uniforms(uniforms);
+			shader_ptr->set_uniform_m4("model"          , model          );
+			shader_ptr->set_uniform_m4("view"           , view           );
+			shader_ptr->set_uniform_m4("proj"           , proj           );
+			shader_ptr->set_uniform_m4("model_view"     , model_view     );
+			shader_ptr->set_uniform_m4("model_view_proj", model_view_proj);
+			shader_ptr->set_uniform_m3("normal_mat"     , normal_mat     );
+			shader_ptr->set_uniform_v3("camera_pos"     , camera_pos     );
 			
 			/* set uniforms from material */
-			shader_ptr->set_uniforms(material_ptr->get_uniforms());
+			shader_ptr->set_uniform_v3("color"            , material_ptr->color             );
+			shader_ptr->set_uniform_v3("emissive"         , material_ptr->emissive          );
+			shader_ptr->set_uniform_f("alpha_test"        , material_ptr->alpha_test        );
+			shader_ptr->set_uniform_f("alpha"             , material_ptr->alpha             );
+			shader_ptr->set_uniform_f("specular"          , material_ptr->specular          );
+			shader_ptr->set_uniform_f("metalness"         , material_ptr->metalness         );
+			shader_ptr->set_uniform_f("roughness"         , material_ptr->roughness         );
+			shader_ptr->set_uniform_f("emissive_intensity", material_ptr->emissive_intensity);
+			
+			/* set normal scale if use normal map */
+			if (material_ptr->normal_map != nullptr) {
+				shader_ptr->set_uniform_f("normal_scale", material_ptr->normal_scale);
+			}
+			
+			/* set displacement scale if use displacement map */
+			if (material_ptr->displacement_map != nullptr) {
+				shader_ptr->set_uniform_f("displacement_scale", material_ptr->displacement_scale);
+			}
+			
+			/* set maps from material */
 			shader_ptr->set_uniform_i("normal_map"      , 16);
 			shader_ptr->set_uniform_i("displacement_map", 17);
 			shader_ptr->set_uniform_i("color_map"       , 18);
@@ -493,13 +433,25 @@ void Renderer::render(const Scene& s, const Camera& c, const MaterialCallback& f
 			auto* env_probe_ptr = material_ptr->get_env_probe<EnvProbe>();
 			if (env_probe_ptr != nullptr) {
 				env_probe_ptr->activate(23);
-				int max_lod = log2f(env_probe_ptr->get_resolution());
+				int max_lod = log2f(env_probe_ptr->resolution);
 				shader_ptr->set_uniform_i("env_max_lod", max_lod);
 				shader_ptr->set_uniform_f("env_intensity", env_probe_ptr->intensity);
 			}
 			
-			/* invoke material callback function */
-			if (f && !std::invoke(f, *instance_ptr, *material_ptr)) continue;
+			/* apply the depth test setting of material */
+			Gpu::apply_material_depth(*material_ptr);
+			
+			/* apply the stencil test setting of material */
+			Gpu::apply_material_stencil(*material_ptr);
+			
+			/* apply the wireframe setting of material */
+			Gpu::apply_material_wireframe(*material_ptr);
+			
+			/* apply the blending setting of material */
+			Gpu::apply_material_blending(*material_ptr);
+			
+			/* apply the render side setting of material */
+			Gpu::apply_material_side(*material_ptr);
 			
 			/* draw vertex object */
 			vertex_object_ptr->draw();
@@ -508,8 +460,131 @@ void Renderer::render(const Scene& s, const Camera& c, const MaterialCallback& f
 	}
 }
 
+void Renderer::render_to_shadows(const Scene& s, const Camera& c) const {
+	/* initialize shadow */
+	[[maybe_unused]]
+	static bool inited = init_shadow();
+	
+	/* get shader from material */
+	auto* shader_ptr = shadow_shader.get();
+	
+	/* create transform matrices */
+	Mat4 model;
+	Mat4 view = c.viewing;
+	Mat4 proj = c.projection;
+	Mat4 model_view;
+	Mat4 model_view_proj;
+	
+	/* render all instances */
+	auto instances = s.to_instances();
+	for (auto& instance_ptr : instances) {
+		
+		/* check whether the instance is visible */
+		if (!instance_ptr->visible) continue;
+		
+		/* check whether the instance casts shadow */
+		if (!instance_ptr->cast_shadow) continue;
+		
+		/* get mesh from instance */
+		auto* mesh_ptr = instance_ptr->mesh;
+		
+		/* check whether the mesh is linked */
+		if (mesh_ptr == nullptr) continue;
+		
+		/* get matrices from instance */
+		model = instance_ptr->matrix_global;
+		model_view = view * model;
+		model_view_proj = proj * model_view;
+		
+		/* check whether the mesh is loaded */
+		if (mesh_buffer.count(mesh_ptr) == 0) {
+			set_error("Renderer: Scene is not loaded");
+			continue;
+		}
+		
+		/* get vertex objects from mesh */
+		auto* vertex_object_ptr = mesh_buffer.at(mesh_ptr).get();
+		for (auto& group : mesh_ptr->groups) {
+			
+			/* get material from material groups */
+			auto* material_ptr = s.get_material(mesh_ptr, group.name);
+			if (material_ptr == nullptr) {
+				material_ptr = s.get_material(group.name);
+			}
+			if (material_ptr == nullptr) {
+				set_error("Renderer: Material is not linked");
+				continue;
+			}
+			if (!material_ptr->visible) continue;
+			
+			/* render vertex object with shader */
+			shader_ptr->use_program();
+			vertex_object_ptr->attach(*shader_ptr);
+			
+			/* set uniforms from renderer */
+			shader_ptr->set_uniform_m4("model_view_proj", model_view_proj);
+			
+			/* set uniforms from material */
+			shader_ptr->set_uniform_f("alpha", material_ptr->alpha);
+			shader_ptr->set_uniform_f("alpha_test", material_ptr->alpha_test);
+			shader_ptr->set_uniform_i("color_map", 0);
+			
+			/* activate color map linked with material */
+			if (material_ptr->color_map != nullptr) {
+				image_buffer.at(material_ptr->color_map)->activate(0);
+			}
+			
+			/* apply the depth test setting of material */
+			Gpu::apply_material_depth(*material_ptr);
+			
+			/* apply the stencil test setting of material */
+			Gpu::apply_material_stencil(*material_ptr);
+			
+			/* apply the wireframe setting of material */
+			Gpu::apply_material_wireframe(*material_ptr);
+			
+			/* apply the blending setting of material */
+			Gpu::apply_material_blending(*material_ptr);
+			
+			/* apply the render side setting of material */
+			Gpu::apply_material_shadow_side(*material_ptr);
+			
+			/* draw vertex object */
+			vertex_object_ptr->draw();
+			++vertex_object_ptr;
+		}
+	}
+}
+
+bool Renderer::init_skybox() {
+	/* prepare cube object */
+	cube = std::make_unique<Gpu::VertexObject>();
+	cube->load(BoxMesh::create());
+	
+	/* prepare skybox shader */
+	skybox_shader = std::make_unique<Gpu::Shader>();
+	skybox_shader->load_vert_file("ink/shaders/lib/Skybox.vert.glsl");
+	skybox_shader->load_frag_file("ink/shaders/lib/Skybox.frag.glsl");
+	
+	/* finish initialization */
+	return true;
+}
+
+bool Renderer::init_shadow() {
+	/* prepare skybox shader */
+	shadow_shader = std::make_unique<Gpu::Shader>();
+	shadow_shader->load_vert_file("ink/shaders/lib/Shadow.vert.glsl");
+	shadow_shader->load_frag_file("ink/shaders/lib/Shadow.frag.glsl");
+	shadow_shader->compile();
+	
+	/* finish initialization */
+	return true;
+}
+
 std::unique_ptr<Gpu::VertexObject> Renderer::cube;
 
 std::unique_ptr<Gpu::Shader> Renderer::skybox_shader;
+
+std::unique_ptr<Gpu::Shader> Renderer::shadow_shader;
 
 }
