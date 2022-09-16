@@ -697,13 +697,11 @@ void Shader::set_uniform_m4(const std::string& n, const Mat4& v) const {
 }
 
 void Shader::set_uniforms(const Uniforms& u) const {
-	auto uniforms_begin = u.vars.begin();
-	auto uniforms_end = u.vars.end();
-	for (auto i = uniforms_begin; i != uniforms_end; ++i) {
+	for (auto var : u.vars) {
 		
 		/* analyse the name and suffix of variable */
-		const std::string& name_with_suffix = i->first;
-		const void* value = i->second;
+		const std::string& name_with_suffix = var.first;
+		const void* value = var.second;
 		size_t last_index = name_with_suffix.rfind('_');
 		if (last_index == -1) {
 			set_error("Shader: Variable suffix not found");
@@ -941,7 +939,7 @@ void Shader::set_include_path(const std::string& p) {
 	include_path = p;
 }
 
-std::string Shader::include_path = "shaders/inc/";
+std::string Shader::include_path = "ink/shaders/inc/";
 std::string Shader::glsl_version = "410";
 
 BufferObject::BufferObject() {
@@ -1068,10 +1066,9 @@ void Texture::init_2d(int w, int h, int f, int t) {
 }
 
 void Texture::init_2d(const Image& i, int f) {
-	int type = i.bytes == 1 ? IMAGE_UBYTE : IMAGE_FLOAT;
 	uint32_t external = GL_TEXTURE_FORMATS[f].first;
 	int32_t internal = GL_TEXTURE_FORMATS[f].second;
-	uint32_t data = GL_IMAGE_TYPES[type];
+	uint32_t data = GL_IMAGE_TYPES[i.bytes == 1 ? IMAGE_UBYTE : IMAGE_FLOAT];
 	glBindTexture(GL_TEXTURE_2D, id);
 	glTexImage2D(GL_TEXTURE_2D, 0, internal, i.width, i.height, 0, external, data, i.data.data());
 	set_parameters(TEXTURE_2D, f, i.width, i.height, 0);
@@ -1098,16 +1095,24 @@ void Texture::init_cube(int w, int h, int f, int t) {
 	set_parameters(TEXTURE_CUBE, f, w, h, 0);
 }
 
-void Texture::init_cube(const Image* i, int f) {
-	int type = i[0].bytes == 1 ? IMAGE_UBYTE : IMAGE_FLOAT;
+void Texture::init_cube(const Image& px, const Image& nx, const Image& py,
+						const Image& ny, const Image& pz, const Image& nz, int f) {
 	uint32_t external = GL_TEXTURE_FORMATS[f].first;
 	int32_t internal = GL_TEXTURE_FORMATS[f].second;
-	uint32_t data = GL_IMAGE_TYPES[type];
+	uint32_t data = GL_IMAGE_TYPES[px.bytes == 1 ? IMAGE_UBYTE : IMAGE_FLOAT];
 	glBindTexture(GL_TEXTURE_CUBE_MAP, id);
-	for (int f = 0; f < 6; ++f) {
-		uint32_t target = GL_TEXTURE_CUBE_MAP_POSITIVE_X + f;
-		glTexImage2D(target, 0, internal, i[f].width, i[f].height, 0, external, data, i[f].data.data());
-	}
+	uint32_t target_px = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+	glTexImage2D(target_px, 0, internal, px.width, px.height, 0, external, data, px.data.data());
+	uint32_t target_nx = GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
+	glTexImage2D(target_nx, 0, internal, nx.width, nx.height, 0, external, data, nx.data.data());
+	uint32_t target_py = GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
+	glTexImage2D(target_py, 0, internal, py.width, py.height, 0, external, data, py.data.data());
+	uint32_t target_ny = GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
+	glTexImage2D(target_ny, 0, internal, ny.width, ny.height, 0, external, data, ny.data.data());
+	uint32_t target_pz = GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
+	glTexImage2D(target_pz, 0, internal, pz.width, pz.height, 0, external, data, pz.data.data());
+	uint32_t target_nz = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
+	glTexImage2D(target_nz, 0, internal, nz.width, nz.height, 0, external, data, nz.data.data());
 	set_parameters(TEXTURE_CUBE, f, width, height, 0);
 }
 
