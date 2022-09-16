@@ -60,8 +60,8 @@ int run() {
 	Settings t;
 	conf(t); /* config setting */
 	
-	/* initialize window */
-	Ink::Window::init(t.title, t.x, t.y, t.width, t.height, t.highdpi);
+	/* initialize window with parameters */
+	Ink::Window::init(t.title, t.x, t.y, t.width, t.height, t.opengl, t.highdpi);
 	if (t.opengl) {
 		Ink::Window::init_opengl(t.vsync, t.depth, t.stencil, t.msaa);
 	} else {

@@ -45,7 +45,7 @@ public:
 	void add_vertex(const Vec3& v);
 	
 	/**
-	 * Add vertices to convex hull.
+	 * Add vertex list to convex hull.
 	 *
 	 * \param v vertex list
 	 */

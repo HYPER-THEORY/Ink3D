@@ -22,13 +22,13 @@
 
 #pragma once
 
-/* core */
+/* core part */
 #include "../core/Error.h"
 #include "../core/File.h"
 #include "../core/Format.h"
 #include "../core/Date.h"
 
-/* math */
+/* math part */
 #include "../math/Constants.h"
 #include "../math/Random.h"
 #include "../math/Vector2.h"
@@ -37,7 +37,7 @@
 #include "../math/Matrix.h"
 #include "../math/Ray.h"
 
-/* objects */
+/* objects part */
 #include "../objects/Constants.h"
 #include "../objects/Uniforms.h"
 #include "../objects/Defines.h"
@@ -46,27 +46,27 @@
 #include "../objects/Material.h"
 #include "../objects/Instance.h"
 
-/* loader */
+/* loader part */
 #include "../loader/Loader.h"
 
-/* camera */
+/* camera part */
 #include "../camera/Camera.h"
 #include "../camera/PerspCamera.h"
 #include "../camera/OrthoCamera.h"
 
-/* meshes */
+/* meshes part */
 #include "../meshes/BoxMesh.h"
 #include "../meshes/PlaneMesh.h"
 #include "../meshes/CylinderMesh.h"
 #include "../meshes/SphereMesh.h"
 
-/* graphics */
+/* graphics part */
 #include "../graphics/Software.h"
 #include "../graphics/Gpu.h"
 
-/* lights */
-#include "../lights/Light.h"
+/* lights part */
 #include "../lights/Shadow.h"
+#include "../lights/Light.h"
 #include "../lights/PointLight.h"
 #include "../lights/SpotLight.h"
 #include "../lights/DirectionalLight.h"
@@ -75,11 +75,13 @@
 #include "../lights/IBLPrefilter.h"
 #include "../lights/LightProbe.h"
 #include "../lights/EnvProbe.h"
+#include "../lights/ExpFog.h"
+#include "../lights/LinearFog.h"
 
-/* scene */
+/* scene part */
 #include "../scene/Scene.h"
 
-/* renderer */
+/* renderer part */
 #include "../renderer/RenderPass.h"
 #include "../renderer/Renderer.h"
 #include "../renderer/CopyPass.h"
@@ -87,17 +89,18 @@
 #include "../renderer/BlurPass.h"
 #include "../renderer/LightPass.h"
 
-/* postprocess */
+/* postprocess part */
+#include "../postprocess/SSAOPass.h"
+#include "../postprocess/BloomPass.h"
+#include "../postprocess/FXAAPass.h"
 #include "../postprocess/ToneMappingPass.h"
 #include "../postprocess/ColorGradingPass.h"
-#include "../postprocess/SSAOPass.h"
-#include "../postprocess/FXAAPass.h"
 
-/* audio */
+/* audio part */
 #include "../audio/Audio.h"
 
-/* physics */
+/* physics part */
 #include "../physics/Physics.h"
 
-/* window */
+/* window part */
 #include "../window/Window.h"

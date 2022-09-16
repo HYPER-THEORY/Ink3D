@@ -29,29 +29,31 @@
 
 namespace Ink {
 
-void Window::init(const std::string& t, int x, int y, int w, int h, bool dpi) {
+void Window::init(const std::string& t, int x, int y, int w, int h, bool opengl, bool dpi) {
 	/* whether to center the window */
 	if (x == -1) x = SDL_WINDOWPOS_CENTERED;
 	if (y == -1) y = SDL_WINDOWPOS_CENTERED;
 	
-	/* init keydown with false */
+	/* initialize keydown with false */
 	std::fill_n(keydown, 512, false);
 	
-	/* create SDL window */
+	/* check whether to enable OpenGL */
+	Window::opengl = opengl;
+	
+	/* create a SDL window */
 	SDL_Init(SDL_INIT_VIDEO);
 	uint32_t flags = SDL_WINDOW_SHOWN;
+	flags |= SDL_WINDOW_OPENGL * opengl;
 	flags |= SDL_WINDOW_ALLOW_HIGHDPI * dpi;
 	sdl_window = SDL_CreateWindow(t.c_str(), x, y, w, h, flags);
 }
 
 void Window::init_canvas() {
-	opengl = false;
 	surface = SDL_GetWindowSurface(sdl_window);
 	canvas = static_cast<uint32_t*>(surface->pixels);
 }
 
 void Window::init_opengl(int v, int d, int s, int m, bool a) {
-	opengl = true;
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
@@ -63,7 +65,8 @@ void Window::init_opengl(int v, int d, int s, int m, bool a) {
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, a);
 	context = SDL_GL_CreateContext(sdl_window);
 	SDL_GL_SetSwapInterval(v);
-	gladLoadGL();
+	int status = gladLoadGL();
+	if (status == 0) set_error("Window: Failed to load OpenGL");
 }
 
 void Window::close() {
