@@ -96,6 +96,26 @@ void Image::flip_horizontal() {
 	}
 }
 
+std::vector<Image> Image::split() const {
+	int bpp = channel * bytes;
+	std::vector<Image> images(channel);
+	std::vector<uint8_t*> image_ptrs(channel);
+	for (int i = 0; i < channel; ++i) {
+		images[i] = Image(width, height, 1, bytes);
+		image_ptrs[i] = images[i].data.data();
+	}
+	const uint8_t* data_ptr = data.data();
+	int pixel = width * height;
+	while (pixel --> 0) {
+		const uint8_t* ptr_1 = data_ptr + pixel * bpp;
+		for (int i = 0; i < channel; ++i) {
+			uint8_t* ptr_2 = image_ptrs[i] + pixel * bytes;
+			std::copy_n(ptr_1 + i * bytes, bytes, ptr_2);
+		}
+	}
+	return images;
+}
+
 void Image::convert(int c) {
 	/* check the number of channels */
 	if (channel != 3 && channel != 4) {

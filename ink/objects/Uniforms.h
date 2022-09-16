@@ -32,14 +32,19 @@ class Uniforms {
 public:
 	std::unordered_map<std::string, const void*> vars;
 	
+	/**
+	 * Create a new Uniforms.
+	 */
+	Uniforms() = default;
+	
 	using UniformPair = std::pair<std::string, const void*>;
 	
 	/**
-	 * Create a new Uniforms.
+	 * Create a new Uniforms with uniform variable pairs.
 	 *
 	 * \param l uniform variable list
 	 */
-	Uniforms(const std::initializer_list<UniformPair>& l = {});
+	Uniforms(const std::initializer_list<UniformPair>& l);
 	
 	/**
 	 * Returns the value of the specified uniform variable. Use suffix in name

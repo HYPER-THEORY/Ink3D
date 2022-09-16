@@ -27,26 +27,34 @@ namespace Ink {
 Material::Material(const std::string& n) : name(n) {}
 
 Uniforms Material::get_uniforms() const {
-	Uniforms vars = {
-		{"alpha_test_f", &alpha_test},
-		{"color_v3"    , &color     },
-		{"color_map_i" , &color_map },
-		{"alpha_f"     , &alpha     },
-		{"emissive_v3" , &emissive  },
-		{"metalness_f" , &metalness },
-		{"roughness_f" , &roughness },
-		{"specular_f"  , &specular  },
-	};
+	/* create new uniforms */
+	Uniforms vars;
+	
+	/* set uniform from material */
+	vars.set("alpha_test_f", &alpha_test);
+	vars.set("color_v3"    , &color     );
+	vars.set("alpha_f"     , &alpha     );
+	vars.set("emissive_v3" , &emissive  );
+	vars.set("metalness_f" , &metalness );
+	vars.set("roughness_f" , &roughness );
+	vars.set("specular_f"  , &specular  );
+	
+	/* set normal scale if use normal map */
 	if (normal_map != nullptr) {
 		vars.set("normal_scale_f", &normal_scale);
 	}
+	
+	/* set normal scale if use normal map */
 	if (displacement_map != nullptr) {
 		vars.set("displacement_scale_f", &displacement_scale);
 	}
+	
+	/* return the uniforms */
 	return vars;
 }
 
 Defines Material::get_defines() const {
+	/* create new defines */
 	Defines defines;
 	
 	/* check whether to use normal map */
@@ -56,7 +64,12 @@ Defines Material::get_defines() const {
 	
 	/* check whether to use tangent space */
 	if (normal_map != nullptr && tangent_space) {
-		defines.set("USE_TANGENT");
+		defines.set("IN_TANGENT_SPACE");
+	}
+	
+	/* check whether to use object space */
+	if (normal_map != nullptr && !tangent_space) {
+		defines.set("IN_OBJECT_SPACE");
 	}
 	
 	/* check whether to use displacement map */
@@ -98,6 +111,8 @@ Defines Material::get_defines() const {
 	if (env_probe != nullptr) {
 		defines.set("USE_ENV_PROBE");
 	}
+	
+	/* return the defines */
 	return defines;
 }
 

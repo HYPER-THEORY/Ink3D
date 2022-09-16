@@ -29,14 +29,19 @@ namespace Ink {
 
 class Defines {
 public:
+	/**
+	 * Create a new Defines.
+	 */
+	Defines() = default;
+	
 	using DefinePair = std::pair<std::string, std::string>;
 	
 	/**
-	 * Create a new Defines.
+	 * Create a new Defines with define pairs.
 	 *
 	 * \param l define list
 	 */
-	Defines(const std::initializer_list<DefinePair>& l = {});
+	Defines(const std::initializer_list<DefinePair>& l);
 	
 	/**
 	 * Returns the value of the define directives.
