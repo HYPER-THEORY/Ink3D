@@ -29,7 +29,7 @@ namespace Ink {
 
 class ToneMappingPass : public RenderPass {
 public:
-	int mode = LINEAR_TONE_MAPPING;    /**< tone mapping mode */
+	int mode = TONE_MAPPING_LINEAR;    /**< tone mapping mode */
 	float exposure = 1.;               /**< tone mapping exposure */
 	
 	/**
@@ -55,16 +55,16 @@ public:
 	void render() const override;
 	
 	/**
-	 * Returns the input texture.
+	 * Returns the texture as the input of post processing.
 	 */
 	const Gpu::Texture* get_texture() const;
 	
 	/**
-	 * Sets the input texture.
+	 * Sets the texture as the input of post processing.
 	 *
-	 * \param s input texture
+	 * \param t input texture
 	 */
-	void set_texture(const Gpu::Texture* s);
+	void set_texture(const Gpu::Texture* t);
 	
 private:
 	const Gpu::Texture* map = nullptr;

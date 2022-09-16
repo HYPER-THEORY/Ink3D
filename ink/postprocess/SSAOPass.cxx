@@ -41,29 +41,29 @@ void SSAOPass::init() {
 	blur_map_2->set_wrap_all(TEXTURE_CLAMP_TO_EDGE);
 	
 	/* prepare blur frame buffer 1 */
-	blur_buffer_1 = std::make_unique<Gpu::FrameBuffer>();
-	blur_buffer_1->set_attachment(*blur_map_1, 0);
-	blur_buffer_1->draw_attachments({0});
+	blur_target_1 = std::make_unique<Gpu::FrameBuffer>();
+	blur_target_1->set_attachment(*blur_map_1, 0);
+	blur_target_1->draw_attachments({0});
 	
 	/* prepare blur frame buffer 2 */
-	blur_buffer_2 = std::make_unique<Gpu::FrameBuffer>();
-	blur_buffer_2->set_attachment(*blur_map_2, 0);
-	blur_buffer_2->draw_attachments({0});
+	blur_target_2 = std::make_unique<Gpu::FrameBuffer>();
+	blur_target_2->set_attachment(*blur_map_2, 0);
+	blur_target_2->draw_attachments({0});
 	
 	/* prepare SSAO shader */
 	ssao_shader = std::make_unique<Gpu::Shader>();
-	ssao_shader->load_vert_file("shaders/lib/SSAO.vert.glsl");
-	ssao_shader->load_frag_file("shaders/lib/SSAO.frag.glsl");
+	ssao_shader->load_vert_file("ink/shaders/lib/SSAO.vert.glsl");
+	ssao_shader->load_frag_file("ink/shaders/lib/SSAO.frag.glsl");
 	
 	/* prepare blur shader */
 	blur_shader = std::make_unique<Gpu::Shader>();
-	blur_shader->load_vert_file("shaders/lib/Blur.vert.glsl");
-	blur_shader->load_frag_file("shaders/lib/Blur.frag.glsl");
+	blur_shader->load_vert_file("ink/shaders/lib/Blur.vert.glsl");
+	blur_shader->load_frag_file("ink/shaders/lib/Blur.frag.glsl");
 	
-	/* prepare copy shader */
-	copy_shader = std::make_unique<Gpu::Shader>();
-	copy_shader->load_vert_file("shaders/lib/Copy.vert.glsl");
-	copy_shader->load_frag_file("shaders/lib/Copy.frag.glsl");
+	/* prepare blend shader */
+	blend_shader = std::make_unique<Gpu::Shader>();
+	blend_shader->load_vert_file("ink/shaders/lib/Blend.vert.glsl");
+	blend_shader->load_frag_file("ink/shaders/lib/Blend.frag.glsl");
 }
 
 void SSAOPass::compile() {
@@ -73,24 +73,29 @@ void SSAOPass::compile() {
 	if (camera->is_perspective()) camera_type = "PERSP_CAMERA";
 	
 	/* compile SSAO shader */
-	ssao_shader->set_define({
+	ssao_shader->set_define({{
 		{camera_type, ""         },
 		{"SAMPLES"  , samples_str},
-	});
+	}});
 	ssao_shader->compile();
 	
 	/* compile blur shader */
-	blur_shader->set_define({
+	blur_shader->set_define({{
 		{"BLUR_BILATERAL", ""     },
 		{"TYPE"          , "float"},
 		{"SWIZZLE"       , ".x"   },
-		{"SIGMA_S"       , "2"    },
-		{"SIGMA_R"       , "0.25" },
-	});
+	}});
 	blur_shader->compile();
 	
-	/* compile copy shader */
-	copy_shader->compile();
+	/* compile blend shader */
+	blend_shader->set_define({{
+		{"USE_A"    , ""     },
+		{"A_SWIZZLE", ".xyzw"},
+		{"USE_B"    , ""     },
+		{"B_SWIZZLE", ".xxxx"},
+		{"OP(a, b)" , "a * b"},
+	}});
+	blend_shader->compile();
 }
 
 void SSAOPass::render() const {
@@ -113,35 +118,43 @@ void SSAOPass::render() const {
 	ssao_shader->set_uniform_f("camera_far", camera->far);
 	ssao_shader->set_uniform_m4("view_proj", view_proj);
 	ssao_shader->set_uniform_m4("inv_view_proj", inv_view_proj);
-	ssao_shader->set_uniform_i("gbuffer_n", gbuffer_n->activate(0));
-	ssao_shader->set_uniform_i("gbuffer_d", gbuffer_d->activate(1));
-	RenderPass::render_to(ssao_shader.get(), blur_buffer_1.get());
+	ssao_shader->set_uniform_i("buffer_n", buffer_n->activate(0));
+	ssao_shader->set_uniform_i("buffer_d", buffer_d->activate(1));
+	RenderPass::render_to(ssao_shader.get(), blur_target_1.get());
 	
-	/* blur texture for two times */
+	/* 2. blur texture for two times */
 	for (int i = 0; i < 2; ++i) {
 		
-		/* 2. blur texture horizontally */
+		/* blur texture horizontally */
 		blur_shader->use_program();
 		blur_shader->set_uniform_v2("direction", Vec2(1 / screen_size.x, 0));
+		blur_shader->set_uniform_f("lod", 0);
 		blur_shader->set_uniform_i("radius", 7);
+		blur_shader->set_uniform_f("sigma_s", 2);
+		blur_shader->set_uniform_f("sigma_r", 0.25);
 		blur_shader->set_uniform_i("map", blur_map_1->activate(0));
-		RenderPass::render_to(blur_shader.get(), blur_buffer_2.get());
+		RenderPass::render_to(blur_shader.get(), blur_target_2.get());
 		
-		/* 3. blur texture vertically */
+		/* blur texture vertically */
 		blur_shader->use_program();
 		blur_shader->set_uniform_v2("direction", Vec2(0, 1 / screen_size.y));
+		blur_shader->set_uniform_f("lod", 0);
 		blur_shader->set_uniform_i("radius", 7);
+		blur_shader->set_uniform_f("sigma_s", 2);
+		blur_shader->set_uniform_f("sigma_r", 0.25);
 		blur_shader->set_uniform_i("map", blur_map_2->activate(0));
-		RenderPass::render_to(blur_shader.get(), blur_buffer_1.get());
+		RenderPass::render_to(blur_shader.get(), blur_target_1.get());
 	}
 	
 	/* set back to the original viewport */
 	RenderPass::set_viewport(viewport);
 	
-	/* 4. render results to target (upsampling) */
-	copy_shader->use_program();
-	copy_shader->set_uniform_i("map", blur_map_1->activate(0));
-	RenderPass::render_to(copy_shader.get(), target);
+	/* 3. render results to target (upsampling) */
+	blend_shader->use_program();
+	blend_shader->set_uniform_v4("init_color", {1, 1, 1, 1});
+	blend_shader->set_uniform_i("map_a", map->activate(1));
+	blend_shader->set_uniform_i("map_b", blur_map_1->activate(0));
+	RenderPass::render_to(blend_shader.get(), target);
 }
 
 void SSAOPass::process(const Camera& c) {
@@ -149,20 +162,28 @@ void SSAOPass::process(const Camera& c) {
 	process();
 }
 
-const Gpu::Texture* SSAOPass::get_gbuffer_n() const {
-	return gbuffer_n;
+const Gpu::Texture* SSAOPass::get_buffer_n() const {
+	return buffer_n;
 }
 
-void SSAOPass::set_gbuffer_n(const Gpu::Texture* n) {
-	gbuffer_n = n;
+void SSAOPass::set_buffer_n(const Gpu::Texture* n) {
+	buffer_n = n;
 }
 
-const Gpu::Texture* SSAOPass::get_gbuffer_d() const {
-	return gbuffer_d;
+const Gpu::Texture* SSAOPass::get_buffer_d() const {
+	return buffer_d;
 }
 
-void SSAOPass::set_gbuffer_d(const Gpu::Texture* d) {
-	gbuffer_d = d;
+void SSAOPass::set_buffer_d(const Gpu::Texture* d) {
+	buffer_d = d;
+}
+
+const Gpu::Texture* SSAOPass::get_texture() const {
+	return map;
+}
+
+void SSAOPass::set_texture(const Gpu::Texture* t) {
+	map = t;
 }
 
 }
