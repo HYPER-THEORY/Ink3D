@@ -88,6 +88,11 @@ public:
 	void flip_horizontal();
 	
 	/**
+	 * Returns a list of image splitted by channel.
+	 */
+	std::vector<Image> split() const;
+	
+	/**
 	 * Convert from one color space to another.
 	 *
 	 * \param c color conversion

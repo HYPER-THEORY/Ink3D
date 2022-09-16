@@ -93,7 +93,7 @@ public:
 	float alpha = 1;                            /**< the opacity of material */
 	
 	Vec3 emissive = {0, 0, 0};                  /**< the emissive color of material */
-	 
+	
 	float emissive_intensity = 1;               /**< the emissive intensity of material */
 	
 	float specular = 1;                         /**< how specular the material appears */
@@ -117,7 +117,7 @@ public:
 	const Image* specular_map = nullptr;        /**< the map affects how specular the material appears */
 	
 	/**
-	 * Create a new Material.
+	 * Create a new Material with its name.
 	 *
 	 * \param n name
 	 */
@@ -139,14 +139,14 @@ public:
 	size_t get_image_count() const;
 	
 	/**
-	 * Link an image to material.
+	 * Link a custom image to material.
 	 *
 	 * \param i image
 	 */
 	void add_image(const Image* i);
 	
 	/**
-	 * Link images to material.
+	 * Link custom image list to material.
 	 *
 	 * \param l image list
 	 */
