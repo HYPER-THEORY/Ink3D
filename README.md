@@ -5,49 +5,74 @@ Ink 3D
 
 Ink 3D is a lightweight and easy to use framework for 3D rendering.
 
+![Forest_Ink3D.png](https://s2.loli.net/2022/09/16/fml5pO9VYWQX1IS.png "Forest - Render by Ink3D")
+
+![Satellite_Ink3D.png](https://s2.loli.net/2022/09/16/dJblkZyncmNR3oF.png "Satellite - Render by Ink3D")
+
+![Game_Ink3D.png](https://s2.loli.net/2022/09/16/YVWnQLMasIb9jSP.png "Game - Render by Ink3D")
+
 ### Features ###
 
-High Performance Rendering Pipeline
+- Forward + Deferred Rendering Pipeline
 
-Forward Rendering / Deferred Rendering
+- HDR Rendering Pipeline Supported
 
-Physically Based Rendering
+- Physically Based Rendering Materials
 
-Lighting / Shadows
+- Light System (Directional / Point / Spot / Ambient / Hemisphere)
 
-Post Processing Library
+- High Quality Shadows (Hard-Edge / PCF / PCSS)
+
+- Probes System (Light Probe / Environment Probe)
+
+- Global Fog (Linear / Exponential Square Fog)
+
+- Post-Processing (SSAO, Bloom, FXAA, Tone Mapping and more)
 
 ### Getting Started ###
 
-Render a scene with a few lines of code.
+- Render a cube with a few lines of code.
 
 ```
-#include "utils/everything.h"
-#include "utils/mainloop.h"
-#include "utils/viewer.h"
-#include "../demos/nightscene/nightscene.h"
+#include "ink/utils/Everything.h"
+#include "ink/utils/Mainloop.h"
+#include "ink/utils/Viewer.h"
 
-scene the_scene;
-renderer the_renderer;
-viewer the_viewer;
+Ink::Mesh box;
+Ink::Material material;
 
-void conf(settings& t) {
-    t.width = 960;
-    t.height = 540;
-    t.hide_cursor = true;
-    t.lock_cursor = true;
+Ink::Scene scene;
+Ink::Viewer viewer;
+Ink::Renderer renderer;
+
+void conf(Settings& t) {
+	t.width = 960;
+	t.height = 540;
+	t.hide_cursor = true;
+	t.lock_cursor = true;
 }
 
 void load() {
-    nightscene::init();
-    the_scene = nightscene::get_scene();
-    the_renderer.preload(the_scene);
-    the_renderer.set_viewport({0, 0, 960, 540});
-    the_viewer = {{M_PI * 0.4, 960.f / 540.f, .05, 1000}};
+	box = Ink::BoxMesh::create();
+	Ink::Instance* cube = Ink::Instance::create();
+	cube->mesh = &box;
+	scene.add(cube);
+	
+	material.color = Ink::Vec3(1.00, 0.77, 0.34);
+	scene.set_material("default", &material);
+	
+	viewer = Ink::Viewer(Ink::PerspCamera(75 * Ink::DEG_TO_RAD, 1.77, 0.05, 1000));
+	viewer.set_position(Ink::Vec3(-1, 0, 0));
+	
+	renderer.load_scene(scene);
+	renderer.set_viewport(Ink::Gpu::Rect(960, 540));
 }
 
 void update(float dt) {
-    the_renderer.render(the_scene, the_viewer.update());
+	viewer.update(dt);
+	renderer.update_scene(scene);
+	renderer.clear();
+	renderer.render(scene, viewer.get_camera());
 }
 
 void quit() {}
@@ -55,12 +80,14 @@ void quit() {}
 
 ### Dependencies ###
 
-[SDL2](https://libsdl.org)
+- [SDL2](https://libsdl.org) Simple Directmedia Layer
 
-[SDL_image](https://www.libsdl.org/projects/SDL_image/)
+- [Glad](https://glad.dav1d.de) Multi-Language Loader-Generator
+
+- [Stb_image](https://github.com/nothings/stb) Image loading/decoding from file/memory
 
 ### Requirements ###
 
-OpenGL 4.1 capable GPU
+- OpenGL core 4.1 capable GPU
 
-1 GB Graphics Memory recommended
+- 1 GB Graphics memory recommended
