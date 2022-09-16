@@ -60,6 +60,22 @@ void Scene::clear_material() {
 	material_library.clear();
 }
 
+const LinearFog* Scene::get_linear_fog() const {
+	return linear_fog;
+}
+
+void Scene::set_linear_fog(const LinearFog* f) {
+	linear_fog = f;
+}
+
+const ExpFog* Scene::get_exp_fog() const {
+	return exp_fog;
+}
+
+void Scene::set_exp_fog(const ExpFog* f) {
+	exp_fog = f;
+}
+
 void Scene::add_light(const PointLight* l) {
 	point_lights.emplace_back(l);
 }
@@ -78,6 +94,14 @@ void Scene::add_light(const AmbientLight* l) {
 
 void Scene::add_light(const HemisphereLight* l) {
 	hemisphere_lights.emplace_back(l);
+}
+
+void Scene::clear_light() {
+	point_lights.clear();
+	spot_lights.clear();
+	directional_lights.clear();
+	ambient_lights.clear();
+	hemisphere_lights.clear();
 }
 
 size_t Scene::get_point_light_count() const {
@@ -118,14 +142,6 @@ size_t Scene::get_hemisphere_light_count() const {
 
 const HemisphereLight* Scene::get_hemisphere_light(int i) const {
 	return hemisphere_lights[i];
-}
-
-void Scene::clear_light() {
-	point_lights.clear();
-	spot_lights.clear();
-	directional_lights.clear();
-	ambient_lights.clear();
-	hemisphere_lights.clear();
 }
 
 void Scene::update_instances() {
