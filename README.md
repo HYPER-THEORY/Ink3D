@@ -5,7 +5,7 @@ Ink 3D
 
 Ink 3D is a lightweight and easy to use framework for 3D rendering.
 
-![Forest_Ink3D.png](https://s2.loli.net/2022/09/16/fml5pO9VYWQX1IS.png "Forest - Render by Ink3D")
+![Forest_Ink3D.png](https://s2.loli.net/2022/09/16/HWl1xMqmyFhAvNp.png "Forest - Render by Ink3D")
 
 ![Satellite_Ink3D.png](https://s2.loli.net/2022/09/16/dJblkZyncmNR3oF.png "Satellite - Render by Ink3D")
 
