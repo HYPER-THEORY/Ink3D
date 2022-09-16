@@ -81,6 +81,7 @@ std::vector<Mesh> Loader::load_obj(const std::string& f, const std::string& g) {
 		set_error("Loader: Error reading from obj file");
 		return std::vector<Mesh>();
 	}
+	size_t stream_max = std::numeric_limits<std::streamsize>::max();
 	
 	/* temporary data */
 	std::vector<Vec3> vertex;
@@ -100,10 +101,7 @@ std::vector<Mesh> Loader::load_obj(const std::string& f, const std::string& g) {
 	int total_length = 0;
 	
 	/* read data by line */
-	std::string line;
 	while (!stream.eof()) {
-		std::getline(stream, line);
-		std::istringstream stream(line.c_str());
 		std::string keyword;
 		stream >> keyword;
 		
@@ -163,6 +161,9 @@ std::vector<Mesh> Loader::load_obj(const std::string& f, const std::string& g) {
 				continue;
 			}
 			
+			/* initialize total length */
+			total_length = 0;
+			
 			/* create new mesh object */
 			meshes.emplace_back(Mesh(name));
 			current_mesh = &meshes.back();
@@ -170,9 +171,6 @@ std::vector<Mesh> Loader::load_obj(const std::string& f, const std::string& g) {
 			/* create new mesh group */
 			current_mesh->groups.emplace_back<MeshGroup>({name, total_length, 0});
 			current_group = &current_mesh->groups.back();
-			
-			/* initialize total length */
-			total_length = 0;
 		}
 		
 		/* use material */
@@ -189,6 +187,11 @@ std::vector<Mesh> Loader::load_obj(const std::string& f, const std::string& g) {
 			/* create new mesh group */
 			current_mesh->groups.emplace_back<MeshGroup>({name, total_length, 0});
 			current_group = &current_mesh->groups.back();
+		}
+		
+		/* ignore useless data */
+		else {
+			stream.ignore(stream_max, '\n');
 		}
 	}
 	
@@ -207,16 +210,14 @@ std::vector<Material> Loader::load_mtl(const std::string& f) {
 		set_error("Loader: Error reading from mtl file");
 		return std::vector<Material>();
 	}
+	size_t stream_max = std::numeric_limits<std::streamsize>::max();
 	
 	/* initialize material pointer */
 	std::vector<Material> materials;
 	Material* current_material = nullptr;
 	
 	/* read data by line */
-	std::string line;
 	while (!stream.eof()) {
-		std::getline(stream, line);
-		std::istringstream stream(line.c_str());
 		std::string keyword;
 		stream >> keyword;
 		
@@ -268,6 +269,11 @@ std::vector<Material> Loader::load_mtl(const std::string& f) {
 	   
 		/* optical density */
 		/* else if (keyword == "Ni") {} */
+		
+		/* ignore useless data */
+		else {
+			stream.ignore(stream_max, '\n');
+		}
 	}
 	
 	/* close file stream */
