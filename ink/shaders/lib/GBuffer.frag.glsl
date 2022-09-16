@@ -60,16 +60,15 @@ in vec2 v_uv;
 in vec3 v_normal;
 in vec3 v_world_pos;
 
-#ifdef USE_TANGENT
+#ifdef IN_TANGENT_SPACE
 in vec3 v_tangent;
 in vec3 v_bitangent;
 #endif
 
-layout(location = LOCATION_C) out vec4 out_gbuffer_c;
-layout(location = LOCATION_N) out vec4 out_gbuffer_n;
-layout(location = LOCATION_M) out vec4 out_gbuffer_m;
-layout(location = LOCATION_E) out vec4 out_gbuffer_e;
-layout(location = LOCATION_I) out vec4 out_gbuffer_i;
+layout(location = LOCATION_C) out vec4 out_buffer_c;    /* G-Buffer diffuse color */
+layout(location = LOCATION_N) out vec4 out_buffer_n;    /* G-Buffer world normal */
+layout(location = LOCATION_M) out vec4 out_buffer_m;    /* G-Buffer material */
+layout(location = LOCATION_L) out vec4 out_buffer_l;    /* G-Buffer light color */
 
 void main() {
 	/* calculate color */
@@ -78,22 +77,24 @@ void main() {
 		t_color *= texture(color_map, v_uv);
 	#endif
 	
-	/* alpha test */
+	/* discard if it failes alpha test */
 	if (t_color.w < alpha_test) discard;
 	
 	/* calculate normal */
 	vec3 t_normal = normalize(v_normal);
-	#ifdef USE_TANGENT
+	#ifdef IN_TANGENT_SPACE
 		vec3 tangent = normalize(v_tangent);
 		vec3 bitangent = normalize(v_bitangent);
 		mat3 tbn_mat = mat3(tangent, bitangent, t_normal);
 	#endif
 	#ifdef USE_NORMAL_MAP
-		vec3 normal = unpack_normal(texture(normal_map, v_uv).xyz);
+		vec3 normal = texture(normal_map, v_uv).xyz;
+		normal = normalize(unpack_normal(normal));
 		normal.xy *= normal_scale;
-		#ifdef USE_TANGENT
+		#ifdef IN_TANGENT_SPACE
 			t_normal = normalize(tbn_mat * normal);
-		#else
+		#endif
+		#ifdef IN_OBJECT_SPACE
 			t_normal = normalize(normal_mat * normal);
 		#endif
 	#endif
@@ -118,9 +119,9 @@ void main() {
 	#endif
 	
 	/* calculate emissive */
-	vec4 t_emissive = vec4(emissive, emissive_intensity);
+	vec3 t_emissive = emissive * emissive_intensity;
 	#ifdef USE_EMISSIVE_MAP
-		t_emissive *= texture(emissive_map, v_uv);
+		t_emissive *= texture(emissive_map, v_uv).xyz;
 	#endif
 	
 	/* calculate diffuse color */
@@ -135,19 +136,18 @@ void main() {
 	vec3 in_diffuse = vec3(0.);
 	vec3 in_specular = vec3(0.);
 	
-	/* apply environment probe */
 	#ifdef USE_ENV_PROBE
-		/* calculate single and multi scattering */
+		/* calculate single and multi-scattering */
 		vec3 single_scattering = vec3(0.);
 		vec3 multi_scattering = vec3(0.);
-		multiscatter(t_normal, view_dir, t_color.xyz, t_roughness, single_scattering, multi_scattering);
+		multiscatter(t_normal, view_dir, specular_f0, t_roughness, single_scattering, multi_scattering);
 		
 		/* calculate diffuse and specular from environment map */
 		vec3 env_diffuse = ibl_diffuse(env_map, env_max_lod, t_normal) * ONE_BY_PI * env_intensity;
 		vec3 env_specular = ibl_specular(env_map, env_max_lod, view_dir, t_normal, t_roughness) * env_intensity;
 		
 		/* add contributions to indirect light */
-		in_diffuse += diffuse * (1 - (single_scattering + multi_scattering)) * env_diffuse;
+//		in_diffuse += diffuse * (1 - (single_scattering + multi_scattering)) * env_diffuse;
 		in_specular += single_scattering * env_specular;
 		in_specular += multi_scattering * env_diffuse;
 	#endif
@@ -156,9 +156,8 @@ void main() {
 	vec3 in_light = in_diffuse + in_specular;
 	
 	/* output G-Buffers */
-	out_gbuffer_c = vec4(diffuse, t_color.w);
-	out_gbuffer_n = vec4(pack_normal(t_normal), 0.);
-	out_gbuffer_m = vec4(specular_f0, t_roughness);
-	out_gbuffer_e = t_emissive;
-	out_gbuffer_i = vec4(in_light, 0.);
+	out_buffer_c = vec4(diffuse, t_color.w);
+	out_buffer_n = vec4(pack_normal(t_normal), 0.);
+	out_buffer_m = vec4(specular_f0, t_roughness);
+	out_buffer_l = vec4(in_light + t_emissive, 0.);
 }

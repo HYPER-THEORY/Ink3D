@@ -40,4 +40,18 @@ struct HemisphereLight {
 	vec3 ground_color;
 };
 
+struct LinearFog {
+	bool visible;
+	vec3 color;
+	float near;
+	float far;
+};
+
+struct ExpFog {
+	bool visible;
+	vec3 color;
+	float near;
+	float density;
+};
+
 #endif

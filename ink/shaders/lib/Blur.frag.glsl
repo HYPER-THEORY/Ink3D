@@ -3,7 +3,10 @@
 uniform sampler2D map;
 
 uniform vec2 direction;
+uniform float lod;
 uniform int radius;
+uniform float sigma_s;
+uniform float sigma_r;
 
 in vec2 v_uv;
 
@@ -15,20 +18,20 @@ void main() {
 	
 	/* prepare for gaussian filtering */
 	#ifdef BLUR_GAUSSIAN
-		float factor_s = 1. / (SIGMA_S * SIGMA_S);
+		float factor_s = 1. / (sigma_s * sigma_s);
 	#endif
 	
 	/* prepare for bilateral filtering */
 	#ifdef BLUR_BILATERAL
-		float factor_s = 1. / (SIGMA_S * SIGMA_S);
-		float factor_r = 1. / (SIGMA_R * SIGMA_R);
-		TYPE center_color = textureLod(map, v_uv, 0) SWIZZLE;
+		float factor_s = 1. / (sigma_s * sigma_s);
+		float factor_r = 1. / (sigma_r * sigma_r);
+		TYPE center_color = textureLod(map, v_uv, lod) SWIZZLE;
 	#endif
 	
 	/* sampling along the direction */
 	for (float i = -radius + 1; i < radius; ++i) {
 		vec2 offset = direction * i;
-		TYPE color = textureLod(map, v_uv + offset, 0) SWIZZLE;
+		TYPE color = textureLod(map, v_uv + offset, lod) SWIZZLE;
 		
 		/* the weight of simple filtering */
 		#ifdef BLUR_SIMPLE
