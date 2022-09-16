@@ -51,12 +51,12 @@ public:
 	void render() const override;
 	
 	/**
-	 * Returns the texture A.
+	 * Returns the texture A as the input of blending.
 	 */
 	const Gpu::Texture* get_texture_a() const;
 	
 	/**
-	 * Sets the texture A as the blending input.
+	 * Sets the texture A as the input of blending.
 	 *
 	 * \param t texture A
 	 */
@@ -70,12 +70,12 @@ public:
 	void set_swizzle_a(const std::string& s);
 	
 	/**
-	 * Returns the texture B.
+	 * Returns the texture B as the input of blending.
 	 */
 	const Gpu::Texture* get_texture_b() const;
 	
 	/**
-	 * Sets the texture B as the blending input.
+	 * Sets the texture B as the input of blending.
 	 *
 	 * \param t texture B
 	 */
@@ -89,12 +89,12 @@ public:
 	void set_swizzle_b(const std::string& s);
 	
 	/**
-	 * Returns the texture C.
+	 * Returns the texture C as the input of blending.
 	 */
 	const Gpu::Texture* get_texture_c() const;
 	
 	/**
-	 * Sets the texture C as the blending input.
+	 * Sets the texture C as the input of blending.
 	 *
 	 * \param t texture C
 	 */
@@ -108,12 +108,12 @@ public:
 	void set_swizzle_c(const std::string& s);
 	
 	/**
-	 * Returns the texture D.
+	 * Returns the texture D as the input of blending.
 	 */
 	const Gpu::Texture* get_texture_d() const;
 	
 	/**
-	 * Sets the texture D as the blending input.
+	 * Sets the texture D as the input of blending.
 	 *
 	 * \param t texture D
 	 */
@@ -127,7 +127,16 @@ public:
 	void set_swizzle_d(const std::string& s);
 	
 	/**
+	 * Sets the initial color before applying blending. Default is (1, 1, 1, 1).
+	 *
+	 * \param c initial color
+	 */
+	void set_init_color(const Vec4& c);
+	
+	/**
 	 * Sets the operations when applying blending. Default is "a * b".
+	 *
+	 * \param o operation
 	 */
 	void set_operation(const std::string& o);
 	
@@ -141,6 +150,8 @@ private:
 	const Gpu::Texture* map_b = nullptr;
 	const Gpu::Texture* map_c = nullptr;
 	const Gpu::Texture* map_d = nullptr;
+	
+	Vec4 init_color = {1, 1, 1, 1};
 	
 	std::string operation = "a * b";
 	

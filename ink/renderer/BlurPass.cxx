@@ -42,34 +42,28 @@ void BlurPass::init() {
 	blur_map_2->set_wrap_all(TEXTURE_CLAMP_TO_EDGE);
 	
 	/* prepare blur frame buffer 1 */
-	blur_buffer_1 = std::make_unique<Gpu::FrameBuffer>();
-	blur_buffer_1->set_attachment(*blur_map_1, 0);
-	blur_buffer_1->draw_attachments({0});
+	blur_target_1 = std::make_unique<Gpu::FrameBuffer>();
+	blur_target_1->set_attachment(*blur_map_1, 0);
+	blur_target_1->draw_attachments({0});
 	
 	/* prepare blur frame buffer 2 */
-	blur_buffer_2 = std::make_unique<Gpu::FrameBuffer>();
-	blur_buffer_2->set_attachment(*blur_map_2, 0);
-	blur_buffer_2->draw_attachments({0});
+	blur_target_2 = std::make_unique<Gpu::FrameBuffer>();
+	blur_target_2->set_attachment(*blur_map_2, 0);
+	blur_target_2->draw_attachments({0});
 	
 	/* prepare blur shader */
 	blur_shader = std::make_unique<Gpu::Shader>();
-	blur_shader->load_vert_file("shaders/lib/Blur.vert.glsl");
-	blur_shader->load_frag_file("shaders/lib/Blur.frag.glsl");
+	blur_shader->load_vert_file("ink/shaders/lib/Blur.vert.glsl");
+	blur_shader->load_frag_file("ink/shaders/lib/Blur.frag.glsl");
 	
 	/* prepare copy shader */
 	copy_shader = std::make_unique<Gpu::Shader>();
-	copy_shader->load_vert_file("shaders/lib/Copy.vert.glsl");
-	copy_shader->load_frag_file("shaders/lib/Copy.frag.glsl");
+	copy_shader->load_vert_file("ink/shaders/lib/Copy.vert.glsl");
+	copy_shader->load_frag_file("ink/shaders/lib/Copy.frag.glsl");
 }
 
 void BlurPass::compile() {
 	Defines defines;
-	
-	/* set the sigma of space */
-	defines.set("SIGMA_S", std::to_string(sigma_s));
-	
-	/* set the sigma of range */
-	defines.set("SIGMA_R", std::to_string(sigma_r));
 	
 	/* set the type of blur */
 	if (type == BLUR_SIMPLE) {
@@ -115,17 +109,23 @@ void BlurPass::render() const {
 	
 	/* 1. blur horizontally (downsampling) */
 	blur_shader->use_program();
+	blur_shader->set_uniform_f("lod", 0);
 	blur_shader->set_uniform_v2("direction", Vec2(1 / screen_size.x, 0));
 	blur_shader->set_uniform_i("radius", radius);
+	blur_shader->set_uniform_f("sigma_s", sigma_s);
+	blur_shader->set_uniform_f("sigma_r", sigma_r);
 	blur_shader->set_uniform_i("map", map->activate(0));
-	RenderPass::render_to(blur_shader.get(), blur_buffer_1.get());
+	RenderPass::render_to(blur_shader.get(), blur_target_1.get());
 	
 	/* 2. blur vertically */
 	blur_shader->use_program();
+	blur_shader->set_uniform_f("lod", 0);
 	blur_shader->set_uniform_v2("direction", Vec2(0, 1 / screen_size.y));
 	blur_shader->set_uniform_i("radius", radius);
+	blur_shader->set_uniform_f("sigma_s", sigma_s);
+	blur_shader->set_uniform_f("sigma_r", sigma_r);
 	blur_shader->set_uniform_i("map", blur_map_1->activate(0));
-	RenderPass::render_to(blur_shader.get(), blur_buffer_2.get());
+	RenderPass::render_to(blur_shader.get(), blur_target_2.get());
 	
 	/* set back to the original viewport */
 	RenderPass::set_viewport(viewport);

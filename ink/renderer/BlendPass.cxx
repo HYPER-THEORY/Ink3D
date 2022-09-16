@@ -26,8 +26,8 @@ namespace Ink {
 
 void BlendPass::init() {
 	blend_shader = std::make_unique<Gpu::Shader>();
-	blend_shader->load_vert_file("shaders/lib/Blend.vert.glsl");
-	blend_shader->load_frag_file("shaders/lib/Blend.frag.glsl");
+	blend_shader->load_vert_file("ink/shaders/lib/Blend.vert.glsl");
+	blend_shader->load_frag_file("ink/shaders/lib/Blend.frag.glsl");
 }
 
 void BlendPass::compile() {
@@ -67,6 +67,7 @@ void BlendPass::render() const {
 	if (map_d != nullptr) {
 		blend_shader->set_uniform_i("map_d", map_d->activate(3));
 	}
+	blend_shader->set_uniform_v4("init_color", init_color);
 	RenderPass::render_to(blend_shader.get(), target);
 }
 
@@ -118,8 +119,12 @@ void BlendPass::set_swizzle_d(const std::string& s) {
 	swizzle_d = s;
 }
 
+void BlendPass::set_init_color(const Vec4& c) {
+	init_color = c;
+}
+
 void BlendPass::set_operation(const std::string& o) {
-	
+	operation = o;
 }
 
 }

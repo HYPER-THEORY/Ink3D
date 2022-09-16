@@ -29,10 +29,10 @@
 namespace Ink {
 
 enum ToneMappingMode {
-	LINEAR_TONE_MAPPING,
-	REINHARD_TONE_MAPPING,
-	OPTIMIZED_TONE_MAPPING,
-	ACES_FILMIC_TONE_MAPPING,
+	TONE_MAPPING_LINEAR,
+	TONE_MAPPING_REINHARD,
+	TONE_MAPPING_OPTIMIZED,
+	TONE_MAPPING_ACES_FILMIC,
 };
 
 class LightPass : public RenderPass {
@@ -68,76 +68,64 @@ public:
 	void process(const Scene& s, const Camera& c);
 	
 	/**
-	 * Returns the G-Buffer color texture.
+	 * Returns the G-Buffer diffuse color texture.
 	 */
-	const Gpu::Texture* get_gbuffer_c() const;
+	const Gpu::Texture* get_buffer_c() const;
 	
 	/**
-	 * Sets the G-Buffer color texture.
+	 * Sets the G-Buffer diffuse color texture.
 	 *
-	 * \param t G-Buffer color texture
+	 * \param t diffuse color texture
 	 */
-	void set_gbuffer_c(const Gpu::Texture* t);
+	void set_buffer_c(const Gpu::Texture* t);
 	
 	/**
-	 * Returns the G-Buffer normal texture.
+	 * Returns the G-Buffer world normal texture.
 	 */
-	const Gpu::Texture* get_gbuffer_n() const;
+	const Gpu::Texture* get_buffer_n() const;
 	
 	/**
-	 * Sets the G-Buffer normal texture.
+	 * Sets the G-Buffer world normal texture.
 	 *
-	 * \param t G-Buffer normal texture
+	 * \param t world normal texture
 	 */
-	void set_gbuffer_n(const Gpu::Texture* t);
+	void set_buffer_n(const Gpu::Texture* t);
 	
 	/**
 	 * Returns the G-Buffer material texture.
 	 */
-	const Gpu::Texture* get_gbuffer_m() const;
+	const Gpu::Texture* get_buffer_m() const;
 	
 	/**
 	 * Sets the G-Buffer material texture.
 	 *
-	 * \param t G-Buffer material texture
+	 * \param t material texture
 	 */
-	void set_gbuffer_m(const Gpu::Texture* t);
+	void set_buffer_m(const Gpu::Texture* t);
+	
+	/**
+	 * Returns the G-Buffer light color texture.
+	 */
+	const Gpu::Texture* get_buffer_l() const;
+	
+	/**
+	 * Sets the G-Buffer light color texture.
+	 *
+	 * \param t light color texture
+	 */
+	void set_buffer_l(const Gpu::Texture* t);
 	
 	/**
 	 * Returns the G-Buffer depth texture.
 	 */
-	const Gpu::Texture* get_gbuffer_d() const;
+	const Gpu::Texture* get_buffer_d() const;
 	
 	/**
 	 * Sets the G-Buffer depth texture.
 	 *
-	 * \param d G-Buffer depth texture
+	 * \param d depth texture
 	 */
-	void set_gbuffer_d(const Gpu::Texture* d);
-	
-	/**
-	 * Returns the G-Buffer emissive texture.
-	 */
-	const Gpu::Texture* get_gbuffer_e() const;
-	
-	/**
-	 * Sets the G-Buffer emissive texture.
-	 *
-	 * \param t G-Buffer emissive texture
-	 */
-	void set_gbuffer_e(const Gpu::Texture* t);
-	
-	/**
-	 * Returns the G-Buffer indirect light texture.
-	 */
-	const Gpu::Texture* get_gbuffer_i() const;
-	
-	/**
-	 * Sets the G-Buffer indirect light texture.
-	 *
-	 * \param t G-Buffer indirect light texture
-	 */
-	void set_gbuffer_i(const Gpu::Texture* t);
+	void set_buffer_d(const Gpu::Texture* d);
 	
 	/**
 	 * Sets the mode and exposure of tone mapping.
@@ -148,25 +136,23 @@ public:
 	void set_tone_mapping(int m, float e);
 	
 private:
-	int tone_map_mode = LINEAR_TONE_MAPPING;
+	int tone_mapping = TONE_MAPPING_LINEAR;
 	
-	float tone_map_exposure = 1;
+	float tone_mapping_exposure = 1;
 	
 	const Scene* scene = nullptr;
 	
 	const Camera* camera = nullptr;
 	
-	const Gpu::Texture* gbuffer_c = nullptr;
+	const Gpu::Texture* buffer_c = nullptr;
 	
-	const Gpu::Texture* gbuffer_n = nullptr;
+	const Gpu::Texture* buffer_n = nullptr;
 	
-	const Gpu::Texture* gbuffer_m = nullptr;
+	const Gpu::Texture* buffer_m = nullptr;
 	
-	const Gpu::Texture* gbuffer_d = nullptr;
+	const Gpu::Texture* buffer_l = nullptr;
 	
-	const Gpu::Texture* gbuffer_e = nullptr;
-	
-	const Gpu::Texture* gbuffer_i = nullptr;
+	const Gpu::Texture* buffer_d = nullptr;
 	
 	std::unique_ptr<Gpu::Shader> light_shader;
 	

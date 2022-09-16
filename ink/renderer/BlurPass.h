@@ -73,16 +73,16 @@ public:
 	void render() const override;
 	
 	/**
-	 * Returns the input texture.
+	 * Returns the texture as the input of blurring.
 	 */
 	const Gpu::Texture* get_texture() const;
 	
 	/**
-	 * Sets the input texture.
+	 * Sets the texture as the input of blurring.
 	 *
-	 * \param s input texture
+	 * \param t input texture
 	 */
-	void set_texture(const Gpu::Texture* s);
+	void set_texture(const Gpu::Texture* t);
 	
 private:
 	const Gpu::Texture* map = nullptr;
@@ -90,8 +90,8 @@ private:
 	std::unique_ptr<Gpu::Texture> blur_map_1;
 	std::unique_ptr<Gpu::Texture> blur_map_2;
 	
-	std::unique_ptr<Gpu::FrameBuffer> blur_buffer_1;
-	std::unique_ptr<Gpu::FrameBuffer> blur_buffer_2;
+	std::unique_ptr<Gpu::FrameBuffer> blur_target_1;
+	std::unique_ptr<Gpu::FrameBuffer> blur_target_2;
 	
 	std::unique_ptr<Gpu::Shader> blur_shader;
 	std::unique_ptr<Gpu::Shader> copy_shader;

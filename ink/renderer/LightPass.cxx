@@ -28,12 +28,12 @@ namespace Ink {
 
 void LightPass::init() {
 	light_shader = std::make_unique<Gpu::Shader>();
-	light_shader->load_vert_file("shaders/lib/lighting.vert.glsl");
-	light_shader->load_frag_file("shaders/lib/lighting.frag.glsl");
+	light_shader->load_vert_file("ink/shaders/lib/lighting.vert.glsl");
+	light_shader->load_frag_file("ink/shaders/lib/lighting.frag.glsl");
 }
 
 void LightPass::compile() {
-	/* create a new define */
+	/* create light shader defines */
 	Defines defines;
 	
 	/* calculate the number of lights */
@@ -50,18 +50,28 @@ void LightPass::compile() {
 	defines.set("NUM_AMBIENT_LIGHT"    , num_ambient_light    );
 	defines.set("NUM_HEMISPHERE_LIGHT" , num_hemisphere_light );
 	
+	/* set the whether to use linear fog */
+	if (scene->get_linear_fog() != nullptr) {
+		defines.set("USE_LINEAR_FOG");
+	}
+	
+	/* set the whether to use exp fog */
+	if (scene->get_exp_fog() != nullptr) {
+		defines.set("USE_EXP_FOG");
+	}
+	
 	/* set the mode of tone mapping */
-	if (tone_map_mode == LINEAR_TONE_MAPPING) {
-		defines.set("LINEAR_TONE_MAPPING");
+	if (tone_mapping == TONE_MAPPING_LINEAR) {
+		defines.set("TONE_MAPPING_LINEAR");
 	}
-	if (tone_map_mode == REINHARD_TONE_MAPPING) {
-		defines.set("REINHARD_TONE_MAPPING");
+	if (tone_mapping == TONE_MAPPING_REINHARD) {
+		defines.set("TONE_MAPPING_REINHARD");
 	}
-	if (tone_map_mode == OPTIMIZED_TONE_MAPPING) {
-		defines.set("OPTIMIZED_TONE_MAPPING");
+	if (tone_mapping == TONE_MAPPING_OPTIMIZED) {
+		defines.set("TONE_MAPPING_OPTIMIZED");
 	}
-	if (tone_map_mode == ACES_FILMIC_TONE_MAPPING) {
-		defines.set("ACES_FILMIC_TONE_MAPPING");
+	if (tone_mapping == TONE_MAPPING_ACES_FILMIC) {
+		defines.set("TONE_MAPPING_ACES_FILMIC");
 	}
 	
 	/* compile lighting shader */
@@ -79,12 +89,11 @@ void LightPass::render() const {
 	light_shader->set_uniform_m4("inv_view_proj", inv_view_proj);
 	
 	/* pass G-Buffers to shader */
-	light_shader->set_uniform_i("gbuffer_c", gbuffer_c->activate(0));
-	light_shader->set_uniform_i("gbuffer_n", gbuffer_n->activate(1));
-	light_shader->set_uniform_i("gbuffer_m", gbuffer_m->activate(2));
-	light_shader->set_uniform_i("gbuffer_d", gbuffer_d->activate(3));
-	light_shader->set_uniform_i("gbuffer_e", gbuffer_e->activate(4));
-	light_shader->set_uniform_i("gbuffer_i", gbuffer_i->activate(5));
+	light_shader->set_uniform_i("buffer_c", buffer_c->activate(0));
+	light_shader->set_uniform_i("buffer_n", buffer_n->activate(1));
+	light_shader->set_uniform_i("buffer_m", buffer_m->activate(2));
+	light_shader->set_uniform_i("buffer_l", buffer_l->activate(3));
+	light_shader->set_uniform_i("buffer_d", buffer_d->activate(4));
 	
 	/* determines whether to enable shadow */
 	bool enable_shadow = false;
@@ -205,8 +214,26 @@ void LightPass::render() const {
 	light_shader->set_uniform_i("global_shadow.map", 6);
 	light_shader->set_uniform_v2("global_shadow.size", Shadow::get_resolution());
 	
+	/* pass linear fog parameters to shader */
+	auto* linear_fog = scene->get_linear_fog();
+	if (linear_fog != nullptr) {
+		light_shader->set_uniform_i("linear_fog.visible", linear_fog->visible);
+		light_shader->set_uniform_v3("linear_fog.color", linear_fog->color);
+		light_shader->set_uniform_f("linear_fog.near", linear_fog->near);
+		light_shader->set_uniform_f("linear_fog.far", linear_fog->far);
+	}
+	
+	/* pass linear fog parameters to shader */
+	auto* exp_fog = scene->get_exp_fog();
+	if (exp_fog != nullptr) {
+		light_shader->set_uniform_i("exp_fog.visible", exp_fog->visible);
+		light_shader->set_uniform_v3("exp_fog.color", exp_fog->color);
+		light_shader->set_uniform_f("exp_fog.near", exp_fog->near);
+		light_shader->set_uniform_f("exp_fog.density", exp_fog->density);
+	}
+	
 	/* pass the tone mapping parameters to shader */
-	light_shader->set_uniform_f("exposure", tone_map_exposure);
+	light_shader->set_uniform_f("exposure", tone_mapping_exposure);
 	
 	/* render to target */
 	RenderPass::render_to(light_shader.get(), target);
@@ -218,57 +245,49 @@ void LightPass::process(const Scene& s, const Camera& c) {
 	process();
 }
 
-const Gpu::Texture* LightPass::get_gbuffer_c() const {
-	return gbuffer_c;
+const Gpu::Texture* LightPass::get_buffer_c() const {
+	return buffer_c;
 }
 
-void LightPass::set_gbuffer_c(const Gpu::Texture* t) {
-	gbuffer_c = t;
+void LightPass::set_buffer_c(const Gpu::Texture* t) {
+	buffer_c = t;
 }
 
-const Gpu::Texture* LightPass::get_gbuffer_n() const {
-	return gbuffer_n;
+const Gpu::Texture* LightPass::get_buffer_n() const {
+	return buffer_n;
 }
 
-void LightPass::set_gbuffer_n(const Gpu::Texture* t) {
-	gbuffer_n = t;
+void LightPass::set_buffer_n(const Gpu::Texture* t) {
+	buffer_n = t;
 }
 
-const Gpu::Texture* LightPass::get_gbuffer_m() const {
-	return gbuffer_m;
+const Gpu::Texture* LightPass::get_buffer_m() const {
+	return buffer_m;
 }
 
-void LightPass::set_gbuffer_m(const Gpu::Texture* t) {
-	gbuffer_m = t;
+void LightPass::set_buffer_m(const Gpu::Texture* t) {
+	buffer_m = t;
 }
 
-const Gpu::Texture* LightPass::get_gbuffer_d() const {
-	return gbuffer_d;
+const Gpu::Texture* LightPass::get_buffer_l() const {
+	return buffer_l;
 }
 
-void LightPass::set_gbuffer_d(const Gpu::Texture* t) {
-	gbuffer_d = t;
+void LightPass::set_buffer_l(const Gpu::Texture* t) {
+	buffer_l = t;
 }
 
-const Gpu::Texture* LightPass::get_gbuffer_e() const {
-	return gbuffer_e;
+const Gpu::Texture* LightPass::get_buffer_d() const {
+	return buffer_d;
 }
 
-void LightPass::set_gbuffer_e(const Gpu::Texture* t) {
-	gbuffer_e = t;
-}
-
-const Gpu::Texture* LightPass::get_gbuffer_i() const {
-	return gbuffer_i;
-}
-
-void LightPass::set_gbuffer_i(const Gpu::Texture* t) {
-	gbuffer_i = t;
+void LightPass::set_buffer_d(const Gpu::Texture* t) {
+	buffer_d = t;
 }
 
 void LightPass::set_tone_mapping(int m, float e) {
-	tone_map_mode = m;
-	tone_map_exposure = e;
+	tone_mapping = m;
+	tone_mapping_exposure = e;
 }
 
 }
