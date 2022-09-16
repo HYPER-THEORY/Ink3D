@@ -29,8 +29,8 @@ namespace Ink {
 class Light {
 public:
 	bool visible = true;       /**< whether the light is visible */
-	Vec3 color = {1, 1, 1};    /**< the color of light */
 	float intensity = 1;       /**< the intensity of light */
+	Vec3 color = {1, 1, 1};    /**< the color of light */
 	
 	/**
 	 * Create a new Light with its color and intensity.

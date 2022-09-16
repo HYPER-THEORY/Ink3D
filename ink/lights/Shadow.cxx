@@ -41,8 +41,8 @@ int Shadow::get_unique_id() const {
 }
 
 const Gpu::FrameBuffer* Shadow::get_target() const {
-	shadow_buffer->set_depth_attachment(*shadow_map, 0, unique_id);
-	return shadow_buffer.get();
+	shadow_target->set_depth_attachment(*shadow_map, 0, unique_id);
+	return shadow_target.get();
 }
 
 void Shadow::init(int w, int h, int n) {
@@ -52,8 +52,8 @@ void Shadow::init(int w, int h, int n) {
 	shadow_map->set_wrap_all(TEXTURE_CLAMP_TO_BORDER);
 	shadow_map->set_filters(TEXTURE_LINEAR, TEXTURE_NEAREST);
 	shadow_map->set_border_color({1, 1, 1, 1});
-	shadow_buffer = std::make_unique<Gpu::FrameBuffer>();
-	shadow_buffer->disable_draw();
+	shadow_target = std::make_unique<Gpu::FrameBuffer>();
+	shadow_target->disable_draw();
 }
 
 int Shadow::activate_texture(int l) {
@@ -70,6 +70,6 @@ std::vector<int> Shadow::assigner;
 
 std::unique_ptr<Gpu::Texture> Shadow::shadow_map;
 
-std::unique_ptr<Gpu::FrameBuffer> Shadow::shadow_buffer;
+std::unique_ptr<Gpu::FrameBuffer> Shadow::shadow_target;
 
 }

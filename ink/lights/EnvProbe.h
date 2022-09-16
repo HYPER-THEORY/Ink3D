@@ -28,38 +28,43 @@ namespace Ink {
 
 class EnvProbe {
 public:
-	float intensity = 1;    /**< the intensity of environment probe */
+	int resolution = 256;    /**< the resolution of environment probe */
+	float intensity = 1;     /**< the intensity of environment probe */
 	
 	/**
-	 * Create a new EnvProbe with its intensity.
+	 * Create a new EnvProbe with intensity and resolution.
 	 *
 	 * \param i the intensity of environment probe
+	 * \param r the resolution of environment probe
 	 */
-	EnvProbe(float i = 1);
+	EnvProbe(float i = 1, int r = 256);
 	
 	/**
 	 * Load a set of cube images to environment probe.
 	 *
-	 * \param i +X, -X, +Y, -Y, +Z, -Z images
-	 * \param r the resolution of environment probe
+	 * \param px right (+X) face of cube image
+	 * \param nx left  (-X) face of cube image
+	 * \param py upper (+Y) face of cube image
+	 * \param ny lower (-Y) face of cube image
+	 * \param pz front (+Z) face of cube image
+	 * \param nz back  (-Z) face of cube image
 	 */
-	void load_cubemap(const Image* i, int r = 256);
+	void load_cubemap(const Image& px, const Image& nx, const Image& py,
+					  const Image& ny, const Image& pz, const Image& nz);
 	
 	/**
 	 * Load an equirectangular image to environment probe.
 	 *
 	 * \param i equirectangular image
-	 * \param r the resolution of environment probe
 	 */
-	void load_equirect(const Image& i, int r = 256);
+	void load_equirect(const Image& i);
 	
 	/**
 	 * Load a cube texture or 2D texture to environment probe.
 	 *
-	 * \param t texture
-	 * \param r the resolution of environment probe
+	 * \param t cube texture
 	 */
-	void load_texture(const Gpu::Texture& t, int r = 256);
+	void load_texture(const Gpu::Texture& t);
 	
 	/**
 	 * Sets the texture of environment probe active.
@@ -68,14 +73,7 @@ public:
 	 */
 	int activate(int l) const;
 	
-	/**
-	 * Returns the resolution of environment probe.
-	 */
-	int get_resolution() const;
-	
 private:
-	int resolution = 0;
-	
 	std::unique_ptr<Gpu::Texture> env_map;
 };
 
