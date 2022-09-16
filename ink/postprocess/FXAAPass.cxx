@@ -26,8 +26,8 @@ namespace Ink {
 
 void FXAAPass::init() {
 	fxaa_shader = std::make_unique<Gpu::Shader>();
-	fxaa_shader->load_vert_file("shaders/lib/FXAA.vert.glsl");
-	fxaa_shader->load_frag_file("shaders/lib/FXAA.frag.glsl");
+	fxaa_shader->load_vert_file("ink/shaders/lib/FXAA.vert.glsl");
+	fxaa_shader->load_frag_file("ink/shaders/lib/FXAA.frag.glsl");
 }
 
 void FXAAPass::compile() {
@@ -47,8 +47,8 @@ const Gpu::Texture* FXAAPass::get_texture() const {
 	return map;
 }
 
-void FXAAPass::set_texture(const Gpu::Texture* s) {
-	map = s;
+void FXAAPass::set_texture(const Gpu::Texture* t) {
+	map = t;
 }
 
 }

@@ -26,23 +26,23 @@ namespace Ink {
 
 void ToneMappingPass::init() {
 	tone_map_shader = std::make_unique<Gpu::Shader>();
-	tone_map_shader->load_vert_file("shaders/lib/ToneMapping.vert.glsl");
-	tone_map_shader->load_frag_file("shaders/lib/ToneMapping.frag.glsl");
+	tone_map_shader->load_vert_file("ink/shaders/lib/ToneMapping.vert.glsl");
+	tone_map_shader->load_frag_file("ink/shaders/lib/ToneMapping.frag.glsl");
 }
 
 void ToneMappingPass::compile() {
 	Defines defines;
-	if (mode == LINEAR_TONE_MAPPING) {
-		defines.set("LINEAR_TONE_MAPPING");
+	if (mode == TONE_MAPPING_LINEAR) {
+		defines.set("TONE_MAPPING_LINEAR");
 	}
-	if (mode == REINHARD_TONE_MAPPING) {
-		defines.set("REINHARD_TONE_MAPPING");
+	if (mode == TONE_MAPPING_REINHARD) {
+		defines.set("TONE_MAPPING_REINHARD");
 	}
-	if (mode == OPTIMIZED_TONE_MAPPING) {
-		defines.set("OPTIMIZED_TONE_MAPPING");
+	if (mode == TONE_MAPPING_OPTIMIZED) {
+		defines.set("TONE_MAPPING_OPTIMIZED");
 	}
-	if (mode == ACES_FILMIC_TONE_MAPPING) {
-		defines.set("ACES_FILMIC_TONE_MAPPING");
+	if (mode == TONE_MAPPING_ACES_FILMIC) {
+		defines.set("TONE_MAPPING_ACES_FILMIC");
 	}
 	tone_map_shader->set_define(defines);
 	tone_map_shader->compile();
@@ -59,8 +59,8 @@ const Gpu::Texture* ToneMappingPass::get_texture() const {
 	return map;
 }
 
-void ToneMappingPass::set_texture(const Gpu::Texture* s) {
-	map = s;
+void ToneMappingPass::set_texture(const Gpu::Texture* t) {
+	map = t;
 }
 
 }

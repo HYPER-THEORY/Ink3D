@@ -51,16 +51,17 @@ public:
 	void render() const override;
 	
 	/**
-	 * Returns the input texture.
+	 * Returns the texture as the input of post processing.
 	 */
 	const Gpu::Texture* get_texture() const;
 	
 	/**
-	 * Sets the input texture. Insure the texture is set to linear filtering.
+	 * Sets the texture as the input of post processing. Insure the texture is
+	 * set to linear filtering.
 	 *
-	 * \param s input texture
+	 * \param t input texture
 	 */
-	void set_texture(const Gpu::Texture* s);
+	void set_texture(const Gpu::Texture* t);
 	
 private:
 	const Gpu::Texture* map = nullptr;

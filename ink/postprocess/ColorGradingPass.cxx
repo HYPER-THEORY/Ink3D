@@ -26,8 +26,8 @@ namespace Ink {
 
 void ColorGradingPass::init() {
 	color_grade_shader = std::make_unique<Gpu::Shader>();
-	color_grade_shader->load_vert_file("shaders/lib/ColorGrading.vert.glsl");
-	color_grade_shader->load_frag_file("shaders/lib/ColorGrading.frag.glsl");
+	color_grade_shader->load_vert_file("ink/shaders/lib/ColorGrading.vert.glsl");
+	color_grade_shader->load_frag_file("ink/shaders/lib/ColorGrading.frag.glsl");
 }
 
 void ColorGradingPass::compile() {
@@ -49,8 +49,8 @@ const Gpu::Texture* ColorGradingPass::get_texture() const {
 	return map;
 }
 
-void ColorGradingPass::set_texture(const Gpu::Texture* s) {
-	map = s;
+void ColorGradingPass::set_texture(const Gpu::Texture* t) {
+	map = t;
 }
 
 }

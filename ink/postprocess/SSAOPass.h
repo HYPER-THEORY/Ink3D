@@ -31,11 +31,11 @@ class SSAOPass : public RenderPass {
 public:
 	int width = 0;           /**< the width of screen */
 	int height = 0;          /**< the height of screen */
-	int samples = 32;        /**< sample times, must be 16, 32 or 64 */
 	float radius = 0;        /**< radius to search for occluders */
 	float max_radius = 0;    /**< the maximum radius from occluder to shading point */
 	float darkness = 1;      /**< the darkness of ambient occlusion, range is 0 to 1 */
 	float bias = 0.2;        /**< bias to avoid unrealistic effects */
+	int samples = 32;        /**< sample times, must be 16, 32 or 64 */
 	
 	/**
 	 * Create a new SSAOPass (Screen Space Ambient Occlusion).
@@ -79,42 +79,55 @@ public:
 	/**
 	 * Returns the G-Buffer normal texture.
 	 */
-	const Gpu::Texture* get_gbuffer_n() const;
+	const Gpu::Texture* get_buffer_n() const;
 	
 	/**
 	 * Sets the G-Buffer normal texture.
 	 *
 	 * \param n G-Buffer normal texture
 	 */
-	void set_gbuffer_n(const Gpu::Texture* n);
+	void set_buffer_n(const Gpu::Texture* n);
 	
 	/**
 	 * Returns the G-Buffer depth texture.
 	 */
-	const Gpu::Texture* get_gbuffer_d() const;
+	const Gpu::Texture* get_buffer_d() const;
 	
 	/**
 	 * Sets the G-Buffer depth texture.
 	 *
 	 * \param d G-Buffer depth texture
 	 */
-	void set_gbuffer_d(const Gpu::Texture* d);
+	void set_buffer_d(const Gpu::Texture* d);
+	
+	/**
+	 * Returns the texture as the input of post processing.
+	 */
+	const Gpu::Texture* get_texture() const;
+	
+	/**
+	 * Sets the texture as the input of post processing.
+	 *
+	 * \param t input texture
+	 */
+	void set_texture(const Gpu::Texture* t);
 	
 private:
 	const Camera* camera = nullptr;
 	
-	const Gpu::Texture* gbuffer_n = nullptr;
-	const Gpu::Texture* gbuffer_d = nullptr;
+	const Gpu::Texture* map = nullptr;
+	const Gpu::Texture* buffer_n = nullptr;
+	const Gpu::Texture* buffer_d = nullptr;
 	
 	std::unique_ptr<Gpu::Texture> blur_map_1;
 	std::unique_ptr<Gpu::Texture> blur_map_2;
 	
-	std::unique_ptr<Gpu::FrameBuffer> blur_buffer_1;
-	std::unique_ptr<Gpu::FrameBuffer> blur_buffer_2;
+	std::unique_ptr<Gpu::FrameBuffer> blur_target_1;
+	std::unique_ptr<Gpu::FrameBuffer> blur_target_2;
 	
 	std::unique_ptr<Gpu::Shader> ssao_shader;
 	std::unique_ptr<Gpu::Shader> blur_shader;
-	std::unique_ptr<Gpu::Shader> copy_shader;
+	std::unique_ptr<Gpu::Shader> blend_shader;
 	
 	using RenderPass::process;
 };
