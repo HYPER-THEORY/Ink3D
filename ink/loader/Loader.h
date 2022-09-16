@@ -48,7 +48,7 @@ public:
 	 * Load an OBJ file into mesh array.
 	 *
 	 * \param f the URL to the file
-	 * \param g grouping keyword
+	 * \param g grouping keyword, default is "o"
 	 */
 	static std::vector<Mesh> load_obj(const std::string& f, const std::string& g = "o");
 	
