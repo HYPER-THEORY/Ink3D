@@ -48,9 +48,9 @@ highp float rand(vec3 s) {
 }
 
 /* Convert color to relative luminance. */
-float relative_luminance(vec3 c) {
+float relative_luminance(vec3 color) {
 	const vec3 weights = vec3(0.2126, 0.7152, 0.0722);
-	return dot(weights, c);
+	return dot(weights, color);
 }
 
 #endif

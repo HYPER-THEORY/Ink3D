@@ -16,12 +16,14 @@ uniform sampler2D map_c;
 uniform sampler2D map_d;
 #endif
 
+uniform vec4 init_color;
+
 in vec2 v_uv;
 
 layout(location = 0) out vec4 out_color;
 
 void main() {
-	out_color = vec4(1.);
+	out_color = init_color;
 	#ifdef USE_A
 		out_color = OP(out_color, textureLod(map_a, v_uv, 0) A_SWIZZLE);
 	#endif
@@ -34,5 +36,4 @@ void main() {
 	#ifdef USE_D
 		out_color = OP(out_color, textureLod(map_d, v_uv, 0) D_SWIZZLE);
 	#endif
-	out_color.w = 1;
 }

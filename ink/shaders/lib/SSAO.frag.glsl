@@ -19,8 +19,8 @@
 #define POISSON_3D poisson_3d_64
 #endif
 
-uniform sampler2D gbuffer_n;
-uniform sampler2D gbuffer_d;
+uniform sampler2D buffer_n;
+uniform sampler2D buffer_d;
 
 uniform float radius;
 uniform float max_radius;
@@ -59,7 +59,7 @@ float ssao(vec3 world_pos, vec3 normal, float linear_depth, vec3 noise) {
 		if (out_of_screen(coord.xy)) continue;
 		
 		/* calcualte linear depths */
-		float depth = textureLod(gbuffer_d, coord.xy, 0).x;
+		float depth = textureLod(buffer_d, coord.xy, 0).x;
 		float linear_a = LINEARIZE_DEPTH(depth, camera_near, camera_far);
 		float linear_b = LINEARIZE_DEPTH(coord.z, camera_near, camera_far);
 		
@@ -76,8 +76,8 @@ float ssao(vec3 world_pos, vec3 normal, float linear_depth, vec3 noise) {
 
 void main() {
 	/* sample from textures */
-	float depth = textureLod(gbuffer_d, v_uv, 0).x;
-	vec3 normal = textureLod(gbuffer_n, v_uv, 0).xyz;
+	float depth = textureLod(buffer_d, v_uv, 0).x;
+	vec3 normal = textureLod(buffer_n, v_uv, 0).xyz;
 	
 	/* normalize normal to avoid artifacts */
 	normal = normalize(unpack_normal(normal));

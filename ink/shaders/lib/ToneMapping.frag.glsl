@@ -1,19 +1,19 @@
 #include <common>
 #include <tonemapping>
 
-#ifdef LINEAR_TONE_MAPPING
+#ifdef TONE_MAPPING_LINEAR
 #define TONE_MAPPING linear_tone_mapping
 #endif
 
-#ifdef REINHARD_TONE_MAPPING
+#ifdef TONE_MAPPING_REINHARD
 #define TONE_MAPPING reinhard_tone_mapping
 #endif
 
-#ifdef OPTIMIZED_TONE_MAPPING
+#ifdef TONE_MAPPING_OPTIMIZED
 #define TONE_MAPPING optimized_tone_mapping
 #endif
 
-#ifdef ACES_FILMIC_TONE_MAPPING
+#ifdef TONE_MAPPING_ACES_FILMIC
 #define TONE_MAPPING aces_filmic_tone_mapping
 #endif
 
