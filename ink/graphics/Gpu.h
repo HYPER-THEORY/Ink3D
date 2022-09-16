@@ -268,7 +268,7 @@ void disable_scissor_test();
 Rect get_scissor();
 
 /**
- * Sets the scissor region.
+ * Sets the current scissor region.
  *
  * \param s scissor region
  */
@@ -307,12 +307,12 @@ int get_cull_face();
 void set_cull_face(int s);
 
 /**
- * Returns the current viewport.
+ * Returns the current viewport region.
  */
 Rect get_viewport();
 
 /**
- * Sets the viewport.
+ * Sets the current viewport region.
  *
  * \param v viewport
  */
@@ -609,7 +609,7 @@ public:
 	void set_uniforms(const Uniforms& u) const;
 	
 	/**
-	 * Sets the path of included shaders. Default is "shaders/inc/".
+	 * Sets the path of included shaders. Default is "ink/shaders/inc/".
 	 *
 	 * \param p include path
 	 */
@@ -791,10 +791,16 @@ public:
 	/**
 	 * Initialize cube texture with images.
 	 *
-	 * \param i +X, -X, +Y, -Y, +Z, -Z images
+	 * \param px right (+X) face of cube image
+	 * \param nx left  (-X) face of cube image
+	 * \param py upper (+Y) face of cube image
+	 * \param ny lower (-Y) face of cube image
+	 * \param pz front (+Z) face of cube image
+	 * \param nz back  (-Z) face of cube image
 	 * \param f texture format
 	 */
-	void init_cube(const Image* i, int f);
+	void init_cube(const Image& px, const Image& nx, const Image& py,
+				   const Image& ny, const Image& pz, const Image& nz, int f);
 	
 	/**
 	 * Initialize 1D array texture with empty data.
