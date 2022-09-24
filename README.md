@@ -35,7 +35,7 @@ Ink 3D is a lightweight and easy to use framework for 3D rendering.
 
 - A few lines of code to render a question block.
 
-```
+```CPP
 #include "ink/utils/Everything.h"
 #include "ink/utils/Mainloop.h"
 #include "ink/utils/Viewer.h"
