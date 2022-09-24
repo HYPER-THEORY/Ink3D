@@ -33,7 +33,7 @@ Ink 3D is a lightweight and easy to use framework for 3D rendering.
 
 ### Getting Started ###
 
-- Just a few lines of code to render a Question Block.
+- A few lines of code to render a question block.
 
 ```
 #include "ink/utils/Everything.h"
@@ -55,41 +55,41 @@ Ink::Viewer viewer;
 Ink::Renderer renderer;
 
 void conf(Settings& t) {
-	t.title = "Ink3D Example";
-	t.width = 960;
-	t.height = 540;
-	t.hide_cursor = true;
-	t.lock_cursor = true;
-	t.background_color = Ink::Vec3(1, 0.93, 0.8);
+    t.title = "Ink3D Example";
+    t.width = 960;
+    t.height = 540;
+    t.hide_cursor = true;
+    t.lock_cursor = true;
+    t.background_color = Ink::Vec3(1, 0.93, 0.8);
 }
 
 void load() {
-	Ink::Instance* cube = Ink::Instance::create();
-	cube->mesh = new Ink::Mesh(Ink::BoxMesh::create());
-	scene.add(cube);
-	
-	Ink::Image* image = new Ink::Image(12, 12, 3);
-	std::copy_n(block, 432, image->data.data());
-	
-	Ink::Material* material = new Ink::Material();
-	material->color_map = image;
-	scene.set_material("default", material);
-	
-	viewer = Ink::Viewer(Ink::PerspCamera(75 * Ink::DEG_TO_RAD, 1.77, 0.05, 1000));
-	viewer.set_position(Ink::Vec3(0, 0, -2));
-	
-	renderer.set_texture_callback([](Ink::Gpu::Texture& t) -> void {
-		t.set_filters(Ink::TEXTURE_NEAREST, Ink::TEXTURE_NEAREST);
-	});
-	
-	renderer.load_scene(scene);
-	renderer.set_viewport(Ink::Gpu::Rect(960, 540));
+    Ink::Instance* cube = Ink::Instance::create();
+    cube->mesh = new Ink::Mesh(Ink::BoxMesh::create());
+    scene.add(cube);
+    
+    Ink::Image* image = new Ink::Image(12, 12, 3);
+    std::copy_n(block, 12 * 12 * 3, &image->data[0]);
+    
+    Ink::Material* material = new Ink::Material();
+    material->color_map = image;
+    scene.set_material("default", material);
+    
+    viewer = Ink::Viewer(Ink::PerspCamera(75 * Ink::DEG_TO_RAD, 1.77, 0.05, 1000));
+    viewer.set_position(Ink::Vec3(0, 0, -2));
+    
+    renderer.set_texture_callback([](Ink::Gpu::Texture& t) -> void {
+        t.set_filters(Ink::TEXTURE_NEAREST, Ink::TEXTURE_NEAREST);
+    });
+    
+    renderer.load_scene(scene);
+    renderer.set_viewport(Ink::Gpu::Rect(960, 540));
 }
 
 void update(float dt) {
-	viewer.update(dt);
-	renderer.update_scene(scene);
-	renderer.render(scene, viewer.get_camera());
+    viewer.update(dt);
+    renderer.update_scene(scene);
+    renderer.render(scene, viewer.get_camera());
 }
 
 void quit() {}
