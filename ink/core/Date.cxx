@@ -26,40 +26,12 @@
 
 namespace Ink {
 
-long long get_time() {
-	using namespace std::chrono;
-	auto now = system_clock::now().time_since_epoch();
-	return duration_cast<milliseconds>(now).count();
-}
+Date::Date(int year, int month, int day, int h, int m, int s, int ms) :
+year(year), month(month), day(day), hours(h), minutes(m), seconds(s), milliseconds(ms) {}
 
-Date get_date() {
-	long long time_ms = get_time();
-	time_t time_s = time_ms / 1000;
-	tm local = *localtime(&time_s);
-	return {
-		local.tm_year + 1900, local.tm_mon,
-		local.tm_mday, local.tm_hour,
-		local.tm_min, local.tm_sec,
-		static_cast<int>(time_ms % 1000),
-	};
-}
-
-Date get_utc_date() {
-	long long time_ms = get_time();
-	time_t time_s = time_ms / 1000;
-	tm local = *gmtime(&time_s);
-	return {
-		local.tm_year + 1900, local.tm_mon,
-		local.tm_mday, local.tm_hour,
-		local.tm_min, local.tm_sec,
-		static_cast<int>(time_ms % 1000),
-	};
-}
-
-std::string format_date(const Date& d) {
+std::string Date::format() const {
 	int date[6] = {
-		d.year, d.month + 1, d.day,
-		d.hours, d.minutes, d.seconds,
+		year, month + 1, day, hours, minutes, seconds
 	};
 	const char* delimiter = " -- ::";
 	std::string formatted = std::to_string(date[0]);
@@ -69,6 +41,27 @@ std::string format_date(const Date& d) {
 		formatted.append(std::to_string(date[i]));
 	}
 	return formatted;
+}
+
+long long Date::get_time() {
+	auto now = std::chrono::system_clock::now().time_since_epoch();
+	return std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
+}
+
+Date Date::get_local() {
+	long long time_ms = get_time();
+	time_t time_s = time_ms / 1000;
+	std::tm local = *std::localtime(&time_s);
+	return Date(local.tm_year + 1900, local.tm_mon, local.tm_mday,
+				local.tm_hour, local.tm_min, local.tm_sec, time_ms % 1000);
+}
+
+Date Date::get_utc() {
+	long long time_ms = get_time();
+	time_t time_s = time_ms / 1000;
+	std::tm local = *std::gmtime(&time_s);
+	return Date(local.tm_year + 1900, local.tm_mon, local.tm_mday,
+				local.tm_hour, local.tm_min, local.tm_sec, time_ms % 1000);
 }
 
 }

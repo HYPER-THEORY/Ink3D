@@ -37,7 +37,7 @@ const std::vector<Vec2> cylinder_mesh_uv = {
 };
 
 Mesh CylinderMesh::create() {
-	Mesh mesh = {"Cylinder"};
+	Mesh mesh = Mesh("Cylinder");
 	mesh.groups = {{"default", 0, 192}};
 	mesh.vertex = cylinder_mesh_vertex;
 	mesh.normal = cylinder_mesh_normal;

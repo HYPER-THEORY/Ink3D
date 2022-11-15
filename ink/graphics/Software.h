@@ -31,17 +31,15 @@ namespace Ink::Soft {
 
 class Shader {
 public:
-	Mat4 model;                      /**< model matrix */
-	Mat4 view;                       /**< view matrix */
-	Mat4 proj;                       /**< projection matrix */
-	Mat4 model_view;                 /**< model view matrix */
-	Mat4 model_view_proj;            /**< model view projection matrix */
-	Vec3 camera_pos;                 /**< camera position */
-	
-	const Image* const* textures;    /**< textures used by camera */
+	Mat4 model;                      /**< the matrix of model transform */
+	Mat4 view;                       /**< the matrix of viewing transform */
+	Mat4 proj;                       /**< the matrix of projection transform */
+	Mat4 model_view;                 /**< the matrix of model view transform */
+	Mat4 model_view_proj;            /**< the matrix of model view projection transform */
+	Vec3 camera_pos;                 /**< the position of camera */
 	
 	/**
-	 * Vertex shader function.
+	 * The function to complete the task of vertex shader.
 	 *
 	 * \param m mesh
 	 * \param i mesh index
@@ -51,14 +49,14 @@ public:
 	virtual void vextex(const Mesh& m, int i, int id, Vec4& v) = 0;
 	
 	/**
-	 * Geometry shader function.
+	 * The function to complete the task of geometry shader.
 	 *
 	 * \param v vertex positions
 	 */
 	virtual void geometry(Vec4* v) = 0;
 	
 	/**
-	 * Fragment shader function.
+	 * The function to complete the task of fragment shader.
 	 *
 	 * \param b barycentric coordinate
 	 * \param p screen position
@@ -68,7 +66,7 @@ public:
 };
 
 /**
- * Nearest texture mapping.
+ * Samples the texture with UV-coordinate by nearest texture mapping.
  *
  * \param t texture
  * \param u u-coordinate
@@ -77,7 +75,7 @@ public:
 Vec3 nearest_map(const Image& t, float u, float v);
 
 /**
- * Nearest texture mapping.
+ * Samples the texture with UV-coordinate by nearest texture mapping.
  *
  * \param t texture
  * \param uv uv-coordinate
@@ -85,19 +83,19 @@ Vec3 nearest_map(const Image& t, float u, float v);
 Vec3 nearest_map(const Image& t, const Vec2& uv);
 
 /**
- * Linear texture mapping.
+ * Samples the texture with UV-coordinate by linear texture mapping.
  *
  * \param t texture
- * \param u u-coordinate
- * \param v v-coordinate
+ * \param u U-coordinate
+ * \param v V-coordinate
  */
 Vec3 linear_map(const Image& t, float u, float v);
 
 /**
- * Linear texture mapping.
+ * Samples the texture with UV-coordinate by linear texture mapping.
  *
  * \param t texture
- * \param uv uv-coordinate
+ * \param uv UV-coordinate
  */
 Vec3 linear_map(const Image& t, const Vec2& uv);
 
@@ -105,7 +103,7 @@ static int viewport_w = 0;
 static int viewport_h = 0;
 
 /**
- * Sets the viewport.
+ * Sets the viewport region to render from (0, 0) to (width, height).
  *
  * \param w the width of the viewport
  * \param h the height of the viewport
@@ -119,7 +117,7 @@ struct PointList {
 };
 
 /**
- * Add point into point list.
+ * Adds a point into the point list.
  *
  * \param l point list
  * \param v vertex
@@ -128,7 +126,7 @@ struct PointList {
 void add_point(PointList& l, const Vec4& v, const Vec3& b);
 
 /**
- * Clip the point list at near clip plane.
+ * Clips the point list at near clip plane.
  *
  * \param i input point list
  * \param z znear plane distance
@@ -137,7 +135,7 @@ void add_point(PointList& l, const Vec4& v, const Vec3& b);
 void znear_clip(const PointList& i, float z, PointList& o);
 
 /**
- * Clip the pointlist at far clip plane.
+ * Clips the pointlist at far clip plane.
  *
  * \param i input point list
  * \param z zfar plane distance
@@ -146,7 +144,8 @@ void znear_clip(const PointList& i, float z, PointList& o);
 void zfar_clip(const PointList& i, float z, PointList& o);
 
 /**
- * Rasterize the triangles in pointlist.
+ * Rasterizes the triangles in pointlist. The results will be saved in Z-Buffer
+ * and canvas.
  *
  * \param p pointlist
  * \param d device vertices
@@ -157,7 +156,8 @@ void zfar_clip(const PointList& i, float z, PointList& o);
 void rasterize(const PointList& p, const Vec3* d, Shader& s, double* zb, Vec4* canvas);
 
 /**
- * Rasterize the triangles in pointlist without rendering its color.
+ * Rasterizes the triangles in pointlist without shading. The results will be
+ * saved in Z-Buffer.
  *
  * \param p pointlist
  * \param d device vertices
@@ -166,8 +166,8 @@ void rasterize(const PointList& p, const Vec3* d, Shader& s, double* zb, Vec4* c
 void rasterize(const PointList& p, const Vec3* d, double* zb);
 
 /**
- * Draw the mesh using a camera. When canvas is nullptr, the drawing will only
- * affects Z-Buffer.
+ * Draws the mesh using a camera. Drawing will only affects Z-Buffer when canvas
+ * is nullptr.
  *
  * \param c camera
  * \param s shader
@@ -178,18 +178,16 @@ void rasterize(const PointList& p, const Vec3* d, double* zb);
 void draw(const Camera& c, Shader& s, const Mesh& m, double* zb, Vec4* canvas = nullptr);
 
 /**
- * Draw the instances using a camera.
+ * Draws the instances using a camera. The results will be saved in canvas.
  *
  * \param c camera
  * \param s shader
  * \param i instances
- * \param t the textures of instances
  * \param size the size of instances
  * \param canvas canvas
  */
-void draw_instances(const Camera& c, Shader& s, const Instance* const* i,
-					const Image** const* t, size_t size, Vec4* canvas);
+void draw_instances(const Camera& c, Shader& s, const Instance* const* i, size_t size, Vec4* canvas);
 
-static std::vector<double> zbuffer;
+static std::vector<double> z_buffer;
 
 }

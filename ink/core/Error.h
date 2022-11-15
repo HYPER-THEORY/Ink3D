@@ -29,39 +29,37 @@ namespace Ink {
 
 using ErrorCallback = std::function<void(const std::string&)>;
 
-static std::string error;
-
-static ErrorCallback error_callback;
-
-/**
- * Returns the current error message.
- */
-std::string get_error();
-
-/**
- * Sets the error message.
- *
- * \param e error message
- */
-int set_error(const char* e);
-
-/**
- * Sets the error message.
- *
- * \param e error message
- */
-int set_error(const std::string& e);
-
-/**
- * Sets the error callback to receive error messages.
- *
- * \param f error callback
- */
-void set_error_callback(const ErrorCallback& f);
-
-/**
- * Clear error.
- */
-void clear_error();
+class Error {
+public:
+	/**
+	 * Returns the specific string describing the error.
+	 */
+	static std::string get();
+	
+	/**
+	 * Sets the string describing the error. calling this function will replace
+	 * the previous error message.
+	 *
+	 * \param e error message
+	 */
+	static void set(const std::string& e);
+	
+	/**
+	 * Clears the current error message.
+	 */
+	static void clear();
+	
+	/**
+	 * Sets the callback that will be triggered when a new error occurred.
+	 *
+	 * \param f error callback function
+	 */
+	static void set_callback(const ErrorCallback& f);
+	
+private:
+	static std::string message;
+	
+	static ErrorCallback callback;
+};
 
 }

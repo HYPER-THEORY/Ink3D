@@ -29,7 +29,7 @@ namespace Ink {
 class PlaneMesh {
 public:
 	/**
-	 * Returns a plane shaped mesh.
+	 * Returns a plane shaped mesh with 1 unit width and 1 unit height.
 	 */
 	static Mesh create();
 };

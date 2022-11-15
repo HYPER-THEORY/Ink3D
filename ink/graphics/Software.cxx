@@ -32,7 +32,7 @@
 
 namespace Ink::Soft {
 
-constexpr float eps = 1E-6;
+constexpr float EPS = 1E-6;
 
 Vec3 nearest_map(const Image& t, float u, float v) {
 	int x = u * t.width;
@@ -200,10 +200,10 @@ void rasterize(const PointList& p, const Vec3* d, Shader& s, double* zb, Vec4* c
 				double dot12 = v1.dot(v2);
 				double u = (dot11 * dot02 - dot01 * dot12) * inverse;
 				double v = (dot00 * dot12 - dot01 * dot02) * inverse;
-				if (UNLIKELY(u < -eps || v < -eps || u + v > 1 + eps)) continue;
+				if (UNLIKELY(u < -EPS || v < -EPS || u + v > 1 + EPS)) continue;
 				double z = vertex_a.z * (1 - u - v) + vertex_b.z * v + vertex_c.z * u;
 				int location = x + y * viewport_w;
-				if (z > -1 && z < 1 && z < zb[location] + eps) {
+				if (z > -1 && z < 1 && z < zb[location] + EPS) {
 					zb[location] = z;
 					barycenter.x = (1 - u - v) * fixed_barycenter.x;
 					barycenter.y = v * fixed_barycenter.y;
@@ -256,10 +256,10 @@ void rasterize(const PointList& p, const Vec3* d, double* zb) {
 				double dot12 = v1.dot(v2);
 				double u = (dot11 * dot02 - dot01 * dot12) * inverse;
 				double v = (dot00 * dot12 - dot01 * dot02) * inverse;
-				if (UNLIKELY(u < -eps || v < -eps || u + v > 1 + eps)) continue;
+				if (UNLIKELY(u < -EPS || v < -EPS || u + v > 1 + EPS)) continue;
 				double z = vertex_a.z * (1 - u - v) + vertex_b.z * v + vertex_c.z * u;
 				int location = x + y * viewport_w;
-				if (z > -1 && z < 1 && z < zb[location] + eps) zb[location] = z;
+				if (z > -1 && z < 1 && z < zb[location] + EPS) zb[location] = z;
 			}
 		}
 	}
@@ -270,20 +270,20 @@ void draw(const Camera& c, Shader& s, const Mesh& m, double* zb, Vec4* canvas) {
 	size_t length = m.vertex.size();
 	for (int i = 0; i < length; i += 3) {
 		
-		/* vertex shader */
+		/* vertex shader & geometry shader */
 		Vec4 vertices[3];
 		for (int j = 0; j < 3; ++j) {
 			s.vextex(m, i + j, j, vertices[j]);
 		}
-		
-		/* geometry shader */
 		s.geometry(vertices);
 		
-		/* znear & zfar clipping */
+		/* do Z-near clipping */
 		Vec4 clip_vertices[4];
 		Vec3 clip_barycenters[4];
 		PointList clip_primitive = {0, clip_vertices, clip_barycenters};
 		znear_clip({3, vertices, barycenters}, c.near, clip_primitive);
+		
+		/* do Z-far clipping */
 		Vec4 primitive_vertices[5];
 		Vec3 primitive_barycenters[5];
 		PointList primitive = {0, primitive_vertices, primitive_barycenters};
@@ -309,20 +309,18 @@ void draw(const Camera& c, Shader& s, const Mesh& m, double* zb, Vec4* canvas) {
 		
 		/* rasterization */
 		if (canvas == nullptr) {
-			rasterize(primitive, device_vertices, zb);
-			return;
+			return rasterize(primitive, device_vertices, zb);
 		}
 		rasterize(primitive, device_vertices, s, zb, canvas);
 	}
 }
 
-void draw_instances(const Camera& c, Shader& s, const Instance* const* i,
-					const Image** const* t, size_t size, Vec4* canvas) {
+void draw_instances(const Camera& c, Shader& s, const Instance* const* i, size_t size, Vec4* canvas) {
 	size_t buffer_size = viewport_w * viewport_h;
-	if (zbuffer.size() != buffer_size) {
-		zbuffer.resize(buffer_size);
+	if (z_buffer.size() != buffer_size) {
+		z_buffer.resize(buffer_size);
 	}
-	std::fill(zbuffer.begin(), zbuffer.end(), 1);
+	std::fill(z_buffer.begin(), z_buffer.end(), 1);
 	auto& instances = i;
 	for (int i = 0; i < size; ++i) {
 		s.model = instances[i]->matrix_global;
@@ -330,9 +328,8 @@ void draw_instances(const Camera& c, Shader& s, const Instance* const* i,
 		s.proj = c.projection;
 		s.model_view = s.view * s.model;
 		s.model_view_proj = s.proj * s.model_view;
-		s.textures = t[i];
 		s.camera_pos = c.position;
-		draw(c, s, *instances[i]->mesh, zbuffer.data(), canvas);
+		draw(c, s, *instances[i]->mesh, z_buffer.data(), canvas);
 	}
 }
 

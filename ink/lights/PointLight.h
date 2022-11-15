@@ -33,12 +33,12 @@ public:
 	float distance = 0;    /**< the maximum distance affected by the light */
 	
 	/**
-	 * Create a new PointLight with its color and intensity.
+	 * Creates a new PointLight and initializes it with color and intensity.
 	 *
 	 * \param c the color of light
 	 * \param i the intensity of light
 	 */
-	PointLight(const Vec3& c = {1, 1, 1}, float i = 1);
+	explicit PointLight(const Vec3& c = {1, 1, 1}, float i = 1);
 };
 
 }

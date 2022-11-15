@@ -29,28 +29,28 @@ namespace Ink {
 class ColorTransform {
 public:
 	/**
-	 * Transform hex color to RGB color.
+	 * Transforms from hex color code to RGB color.
 	 *
 	 * \param c hex color code
 	 */
 	static Vec3 to_rgb(unsigned int c);
 	
 	/**
-	 * Transform hex color to RGBA color.
+	 * Transforms from hex color code to RGBA color.
 	 *
 	 * \param c hex color code
 	 */
 	static Vec4 to_rgba(unsigned int c);
 	
 	/**
-	 * Transform RGB color to hex color.
+	 * Transforms from RGB color to hex color code.
 	 *
 	 * \param c RGB color
 	 */
 	static unsigned int to_hex(const Vec3& c);
 	
 	/**
-	 * Transform RGBA color to hex color.
+	 * Transforms from RGBA color to hex color code.
 	 *
 	 * \param c RGBA color
 	 */

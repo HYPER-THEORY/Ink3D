@@ -26,34 +26,56 @@
 
 namespace Ink {
 
-struct Date {
-	int year = 0;				/**< the full year */
-	int month = 0;				/**< the month (0 for January) */
-	int day = 0;				/**< the day of month, from 1 to 31 */
-	int hours = 0;				/**< the hours from 0 to 23 */
-	int minutes = 0;			/**< the minutes from 0 to 59 */
-	int seconds = 0;			/**< the seconds from 0 to 59 */
-	int milliseconds = 0;		/**< the seconds from 0 to 999 */
+class Date {
+public:
+	int year = 0;                /**< the full year, start from 1900 */
+	int month = 0;               /**< the month, 0 for January */
+	int day = 0;                 /**< the day of month, range from 1 to 31 */
+	int hours = 0;               /**< the hours, range from 0 to 23 */
+	int minutes = 0;             /**< the minutes, range from 0 to 59 */
+	int seconds = 0;             /**< the seconds, range from 0 to 59 */
+	int milliseconds = 0;        /**< the milliseconds, range from 0 to 999 */
+	
+	/**
+	 * Creates a new Date.
+	 */
+	explicit Date() = default;
+	
+	/**
+	 * Creates a new Date and initializes it with year, month, day, hour,
+	 * minute, secoud, millisecond.
+	 *
+	 * \param year the full year, start from 1900
+	 * \param month the month, 0 for January
+	 * \param day the day of month, range from 1 to 31
+	 * \param h the hours, range from 0 to 23
+	 * \param m the minutes, range from 0 to 59
+	 * \param s the seconds, range from 0 to 59
+	 * \param ms the milliseconds, range from 0 to 999
+	 */
+	explicit Date(int year, int month, int day, int h, int m, int s, int ms);
+	
+	/**
+	 * Returns a string represents the date in YYYY-MM-DD HH:MM:SS format.
+	 */
+	std::string format() const;
+	
+	/**
+	 * Returns the specified number of milliseconds since January 1, 1970,
+	 * 00:00:00.
+	 */
+	static long long get_time();
+	
+	/**
+	 * Returns the date that is initialized according to local time.
+	 */
+	static Date get_local();
+	
+	/**
+	 * Returns the date that is initialized according to coordinated universal
+	 * time (UTC) time.
+	 */
+	static Date get_utc();
 };
-
-/**
- * Returns the milliseconds since midnight January 1, 1970.
- */
-long long get_time();
-
-/**
- * Returns the date according to local time.
- */
-Date get_date();
-
-/**
- * Returns the date according to universal time.
- */
-Date get_utc_date();
-
-/**
- * Returns a string for the date in YYYY-MM-DD HH:MM:SS format.
- */
-std::string format_date(const Date& d);
 
 }

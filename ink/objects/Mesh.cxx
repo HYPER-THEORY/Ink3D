@@ -45,7 +45,7 @@ void Mesh::create_normals() {
 		Vec3 face_normal = v1.cross(v2);
 		if (face_normal.magnitude() < 1E-4) continue;
 		for (int j = i; j < i + 3; ++j) {
-			std::string hash = (vertex[j] + Vec3(.005)).to_string(2);
+			std::string hash = (vertex[j] + Vec3(0.005)).to_string(2);
 			if (normals.count(hash) == 0) normals.insert({hash, {}});
 			normals[hash] += face_normal.normalize();
 		}
@@ -54,7 +54,7 @@ void Mesh::create_normals() {
 		v = v.normalize();
 	}
 	for (int i = 0; i < size; ++i) {
-		std::string hash = (vertex[i] + Vec3(.005)).to_string(2);
+		std::string hash = (vertex[i] + Vec3(0.005)).to_string(2);
 		normal[i] = normals[hash];
 	}
 }

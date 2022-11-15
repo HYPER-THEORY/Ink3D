@@ -29,7 +29,8 @@ namespace Ink {
 class BoxMesh {
 public:
 	/**
-	 * Returns a box shaped mesh.
+	 * Returns a box shaped mesh with 1 unit width, 1 unit height and 1 unit
+	 * depth.
 	 */
 	static Mesh create();
 };

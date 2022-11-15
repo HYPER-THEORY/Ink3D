@@ -14,18 +14,18 @@ const mat3 aces_output = mat3(
 );
 
 /* Linear tonemapping operator. */
-vec3 linear_tone_mapping(vec3 color, float exposure) {
+vec3 linear_tone_map(vec3 color, float exposure) {
 	return color * exposure;
 }
 
 /* Reinhard tonemapping operator. */
-vec3 reinhard_tone_mapping(vec3 color, float exposure) {
+vec3 reinhard_tone_map(vec3 color, float exposure) {
 	color *= exposure;
 	return saturate(color / (vec3(1.) + color));
 }
 
 /* Optimized operator of the Haarm-Peter Duiker’s curve. */
-vec3 optimized_tone_mapping(vec3 color, float exposure) {
+vec3 optimized_tone_map(vec3 color, float exposure) {
 	color *= exposure;
 	color = max(vec3(0.), color - 0.004);
 	color = (color * (6.2 * color + 0.5)) / (color * (6.2 * color + 1.7) + 0.06);
@@ -40,7 +40,7 @@ vec3 rtt_and_odt_fit(vec3 v) {
 }
 
 /* ACES filmic tonemapping operator. */
-vec3 aces_filmic_tone_mapping(vec3 color, float exposure) {
+vec3 aces_filmic_tone_map(vec3 color, float exposure) {
 	color = aces_input * (color * exposure);
 	color = aces_output * rtt_and_odt_fit(color);
 	return saturate(color);

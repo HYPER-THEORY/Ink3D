@@ -38,7 +38,7 @@
 #include "../math/Ray.h"
 
 /* objects part */
-#include "../objects/Constants.h"
+#include "../objects/Enums.h"
 #include "../objects/Uniforms.h"
 #include "../objects/Defines.h"
 #include "../objects/Mesh.h"
@@ -65,36 +65,38 @@
 #include "../graphics/Gpu.h"
 
 /* lights part */
+#include "../lights/LinearFog.h"
+#include "../lights/Exp2Fog.h"
 #include "../lights/Shadow.h"
 #include "../lights/Light.h"
 #include "../lights/PointLight.h"
 #include "../lights/SpotLight.h"
 #include "../lights/DirectionalLight.h"
-#include "../lights/AmbientLight.h"
 #include "../lights/HemisphereLight.h"
-#include "../lights/IBLPrefilter.h"
-#include "../lights/LightProbe.h"
-#include "../lights/EnvProbe.h"
-#include "../lights/ExpFog.h"
-#include "../lights/LinearFog.h"
+
+/* probes part */
+#include "../probes/IBLFilter.h"
+#include "../probes/LightProbe.h"
+#include "../probes/ReflectionProbe.h"
 
 /* scene part */
 #include "../scene/Scene.h"
 
 /* renderer part */
-#include "../renderer/RenderPass.h"
 #include "../renderer/Renderer.h"
+#include "../renderer/RenderPass.h"
 #include "../renderer/CopyPass.h"
 #include "../renderer/BlendPass.h"
-#include "../renderer/BlurPass.h"
 #include "../renderer/LightPass.h"
 
 /* postprocess part */
+#include "../postprocess/BlurPass.h"
 #include "../postprocess/SSAOPass.h"
+#include "../postprocess/SSRPass.h"
 #include "../postprocess/BloomPass.h"
 #include "../postprocess/FXAAPass.h"
-#include "../postprocess/ToneMappingPass.h"
-#include "../postprocess/ColorGradingPass.h"
+#include "../postprocess/ToneMapPass.h"
+#include "../postprocess/ColorGradePass.h"
 
 /* audio part */
 #include "../audio/Audio.h"

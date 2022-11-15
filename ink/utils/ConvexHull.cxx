@@ -36,16 +36,16 @@ size_t ConvexHull::get_vertex_count() const {
 	return vertices.size();
 }
 
-const Vec3* ConvexHull::get_vertices() const {
-	return vertices.data();
+Vec3 ConvexHull::get_vertex(int i) const {
+	return vertices[i];
 }
 
 size_t ConvexHull::get_face_count() const {
 	return faces.size();
 }
 
-const std::array<int, 3>* ConvexHull::get_faces() const {
-	return faces.data();
+std::array<int, 3> ConvexHull::get_face(int i) const {
+	return faces[i];
 }
 
 void ConvexHull::compute() {
@@ -68,9 +68,9 @@ void ConvexHull::compute() {
 				long long v = (*face_iter)[(k + 1) % 3];
 				long long uv = v << 32 | u;
 				if (new_faces.count(uv) != 0) {
-				   new_faces.erase(uv);
+					new_faces.erase(uv);
 				} else {
-				   new_faces.insert(u << 32 | v);
+					new_faces.insert(u << 32 | v);
 				}
 			}
 			face_iter = faces.erase(face_iter);

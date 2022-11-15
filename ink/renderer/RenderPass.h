@@ -32,29 +32,29 @@ namespace Ink {
 class RenderPass {
 public:
 	/**
-	 * Create a new RenderPass.
+	 * Creates a new RenderPass.
 	 */
-	RenderPass() = default;
+	explicit RenderPass() = default;
 	
 	/**
-	 * Initialize the render pass and prepare the resources for rendering.
+	 * Initializes the render pass and prepare the resources for rendering.
 	 */
 	virtual void init() = 0;
 	
 	/**
-	 * Compile if the shaders are not compiled yet. It will be automatically
+	 * Compiles if the shaders are not compiled yet. It will be automatically
 	 * invoked by the process method.
 	 */
 	virtual void compile() = 0;
 	
 	/**
-	 * Render to the render target after the shaders are compiled. It will be
+	 * Renders to the render target after the shaders are compiled. It will be
 	 * automatically invoked by the process method.
 	 */
 	virtual void render() const = 0;
 	
 	/**
-	 * Compile the shaders and render to the render target.
+	 * Compiles the shaders and render to the render target.
 	 */
 	virtual void process();
 	
@@ -73,29 +73,21 @@ public:
 	void set_target(const Gpu::FrameBuffer* t);
 	
 	/**
-	 * Returns the current viewport region.
+	 * Returns the viewport region.
 	 */
 	static Gpu::Rect get_viewport();
 	
 	/**
-	 * Sets the current viewport region.
+	 * Sets the viewport region to render from (x, y) to (x + width, y +
+	 * height).
 	 *
-	 * \param v viewport
+	 * \param v viewport region
 	 */
 	static void set_viewport(const Gpu::Rect& v);
 	
 	/**
-	 * Sets the blend factors when applying blending.
-	 *
-	 * \param srgb RGB source blend function
-	 * \param drgb RGB source destination function
-	 * \param sa alpha source blend function
-	 * \param da alpha source destination function
-	*/
-	static void set_blend_factor(int srgb, int drgb, int sa, int da);
-	
-	/**
-	 * Render full screen to the specified render target.
+	 * Renders the full screen triangle with shader. The result will be rendered
+	 * to the specified render target.
 	 *
 	 * \param s shader
 	 * \param t render target

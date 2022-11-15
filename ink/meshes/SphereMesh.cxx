@@ -37,7 +37,7 @@ const std::vector<Vec2> sphere_mesh_uv = {
 };
 
 Mesh SphereMesh::create() {
-	Mesh mesh = {"Sphere"};
+	Mesh mesh = Mesh("Sphere");
 	mesh.groups = {{"default", 0, 672}};
 	mesh.vertex = sphere_mesh_vertex;
 	mesh.normal = sphere_mesh_normal;

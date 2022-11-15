@@ -26,22 +26,9 @@
 
 #include "../math/Maths.h"
 
-namespace Ink {
+#include "Enums.h"
 
-enum ColorConversion {
-	COLOR_RGB_TO_BGR,
-	COLOR_BGR_TO_RGB,
-	COLOR_SRGB_TO_RGB,
-	COLOR_RGB_TO_SRGB,
-	COLOR_RGB_TO_XYZ,
-	COLOR_XYZ_TO_RGB,
-	COLOR_RGB_TO_HSV,
-	COLOR_HSV_TO_RGB,
-	COLOR_RGB_TO_HSL,
-	COLOR_HSL_TO_RGB,
-	COLOR_RGB_TO_HCY,
-	COLOR_HCY_TO_RGB,
-};
+namespace Ink {
 
 class Image {
 public:
@@ -53,22 +40,23 @@ public:
 	std::vector<uint8_t> data;    /**< the data of image */
 	
 	/**
-	 * Create a new Image.
+	 * Creates a new Image.
 	 */
-	Image() = default;
+	explicit Image() = default;
 	
 	/**
-	 * Create a new Image with its size, channel and bytes.
+	 * Creates a new Image and initializes it with the size, channel and bytes.
 	 *
 	 * \param w the width of image
 	 * \param h the height of image
 	 * \param c the channel of image
 	 * \param b the bytes of image
 	 */
-	Image(int w, int h, int c, int b = 1);
+	explicit Image(int w, int h, int c, int b = 1);
 	
 	/**
-	 * Returns a sub-image sliced of the current image.
+	 * Returns a sub-image sliced of the current image. The new image region is
+	 * set from (x1, y1) to (x2, y2).
 	 *
 	 * \param x1 the x-coordinate of left upper corner
 	 * \param y1 the y-coordinate of left upper corner
@@ -78,95 +66,96 @@ public:
 	Image subimage(int x1, int y1, int x2, int y2);
 	
 	/**
-	 * Filp image vertically.
+	 * Flips the image vertically.
 	 */
 	void flip_vertical();
 	
 	/**
-	 * Filp image horizontally.
+	 * Flips the image horizontally. Notes that this function is slower than
+	 * flip_vertical.
 	 */
 	void flip_horizontal();
 	
 	/**
-	 * Returns a list of image splitted by channel.
+	 * Returns a vector of the images split by channel.
 	 */
 	std::vector<Image> split() const;
 	
 	/**
-	 * Convert from one color space to another.
+	 * Converts colors in the image from one color space to another color space.
 	 *
 	 * \param c color conversion
 	 */
 	void convert(int c);
 	
 	/**
-	 * Convert from RGB color space to BGR color space.
+	 * Converts colors in the image from RGB color space to BGR color space.
 	 */
 	template <typename Type>
 	void convert_rgb_to_bgr();
 	
 	/**
-	 * Convert from BGR color space to RGB color space.
+	 * Converts colors in the image from BGR color space to RGB color space.
 	 */
 	template <typename Type>
 	void convert_bgr_to_rgb();
 	
 	/**
-	 * Convert from RGB color space to SRGB color space.
+	 * Converts colors in the image from RGB color space to SRGB color space.
 	 */
 	template <typename Type>
 	void convert_rgb_to_srgb();
 	
 	/**
-	 * Convert from SRGB color space to RGB color space.
+	 * Converts colors in the image from SRGB color space to RGB color space.
 	 */
 	template <typename Type>
 	void convert_srgb_to_rgb();
 	
 	/**
-	 * Convert from RGB color space to XYZ color space.
+	 * Converts colors in the image from RGB color space to XYZ color space.
 	 */
 	template <typename Type>
 	void convert_rgb_to_xyz();
 	
 	/**
-	 * Convert from XYZ color space to RGB color space.
+	 * Converts colors in the image from XYZ color space to RGB color space.
 	 */
 	template <typename Type>
 	void convert_xyz_to_rgb();
 	
 	/**
-	 * Convert from RGB color space to HSV color space.
+	 * Converts colors in the image from RGB color space to HSV color space.
 	 */
 	template <typename Type>
 	void convert_rgb_to_hsv();
 	
 	/**
-	 * Convert from HSV color space to RGB color space.
+	 * Converts colors in the image from HSV color space to RGB color space.
 	 */
 	template <typename Type>
 	void convert_hsv_to_rgb();
 	
 	/**
-	 * Convert from RGB color space to HSL color space.
+	 * Converts colors in the image from RGB color space to HSL color space.
 	 */
 	template <typename Type>
 	void convert_rgb_to_hsl();
 	
 	/**
-	 * Convert from HSL color space to RGB color space.
+	 * Converts colors in the image from HSL color space to RGB color space.
 	 */
 	template <typename Type>
 	void convert_hsl_to_rgb();
 	
 	/**
-	 * Convert from RGB color space to HCY color space.
+	 * Converts colors in the image from RGB color space to HCY color space.
 	 */
 	template <typename Type>
 	void convert_rgb_to_hcy();
 	
 	/**
-	 * Convert from HCY color space to RGB color space.
+	 * Converts colors in the image from HCY color space to RGB color space.
 	 */
 	template <typename Type>
 	void convert_hcy_to_rgb();

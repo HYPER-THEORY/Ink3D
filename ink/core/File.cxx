@@ -23,47 +23,42 @@
 #include "File.h"
 
 #include <fstream>
+#include <cstring>
 
 namespace Ink {
 
-int read_file(const char* s, std::string& c) {
-	std::ifstream stream(s, std::fstream::in);
-	if (!stream) return set_error("File: Error reading from file");
+std::string File::read(const std::string& p) {
+	std::string content;
+	std::ifstream stream(p, std::fstream::in);
+	if (!stream) {
+		Error::set("File: Error reading from file");
+		return std::string();
+	}
 	stream.seekg(0, stream.end);
 	size_t length = stream.tellg();
-	c.resize(length);
+	content.resize(length);
 	stream.seekg(0, stream.beg);
-	stream.read(c.data(), length);
+	stream.read(content.data(), length);
 	stream.close();
-	return 0;
+	return content;
 }
 
-int read_file(const std::string& s, std::string& c) {
-	std::ifstream stream(s, std::fstream::in);
-	if (!stream) return set_error("File: Error reading from file");
-	stream.seekg(0, stream.end);
-	size_t length = stream.tellg();
-	c.resize(length);
-	stream.seekg(0, stream.beg);
-	stream.read(c.data(), length);
-	stream.close();
-	return 0;
-}
-
-int write_file(const char* s, const std::string& c) {
-	std::ofstream stream(s, std::fstream::out);
+void File::write(const std::string& p, const std::string& c) {
+	std::ofstream stream(p, std::fstream::out);
 	stream.write(c.data(), c.size());
 	stream.close();
-	if (!stream) return set_error("File: Error writing to file");
-	return 0;
+	if (!stream) {
+		Error::set("File: Error writing to file");
+	}
 }
 
-int write_file(const std::string& s, const std::string& c) {
-	std::ofstream stream(s, std::fstream::out);
-	stream.write(c.data(), c.size());
+void File::write(const std::string& p, const char* c) {
+	std::ofstream stream(p, std::fstream::out);
+	stream.write(c, std::strlen(c));
 	stream.close();
-	if (!stream) return set_error("File: Error writing to file");
-	return 0;
+	if (!stream) {
+		Error::set("File: Error writing to file");
+	}
 }
 
 }

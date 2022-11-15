@@ -54,11 +54,11 @@ public:
 	
 	void operator/=(float v);
 	
-	operator FVec2();
+	explicit operator FVec2();
 	
-	operator FVec3();
+	explicit operator FVec3();
 	
-	operator FVec4();
+	explicit operator FVec4();
 	
 	FMat<c, r> transpose() const;
 	
@@ -155,11 +155,11 @@ public:
 	
 	void operator/=(double v);
 	
-	operator DVec2();
+	explicit operator DVec2();
 	
-	operator DVec3();
+	explicit operator DVec3();
 	
-	operator DVec4();
+	explicit operator DVec4();
 	
 	DMat<c, r> transpose() const;
 	
@@ -227,8 +227,6 @@ DMat2 inverse_2x2(const DMat2& m);
 DMat3 inverse_3x3(const DMat3& m);
 
 DMat4 inverse_4x4(const DMat4& m);
-
-/* template implementations */
 
 template <int r, int c>
 float* FMat<r, c>::operator[](size_t k) {
@@ -321,9 +319,10 @@ FMat<c, r> FMat<r, c>::transpose() const {
 
 template <int r, int c>
 std::string FMat<r, c>::to_string(int p) const {
-	std::stringstream stream;
-	stream.precision(p);
+	static std::stringstream stream;
 	stream.setf(std::ios::fixed, std::ios::floatfield);
+	stream.precision(p);
+	stream.str(std::string());
 	for (int i = 0; i < r; ++i) {
 		stream << "[ ";
 		for (int j = 0; j < c - 1; ++j) {
@@ -556,9 +555,10 @@ DMat<c, r> DMat<r, c>::transpose() const {
 
 template <int r, int c>
 std::string DMat<r, c>::to_string(int p) const {
-	std::stringstream stream;
-	stream.precision(p);
+	static std::stringstream stream;
 	stream.setf(std::ios::fixed, std::ios::floatfield);
+	stream.precision(p);
+	stream.str(std::string());
 	for (int i = 0; i < r; ++i) {
 		stream << "[ ";
 		for (int j = 0; j < c - 1; ++j) {

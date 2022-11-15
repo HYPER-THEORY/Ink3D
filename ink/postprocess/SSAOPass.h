@@ -31,86 +31,86 @@ class SSAOPass : public RenderPass {
 public:
 	int width = 0;           /**< the width of screen */
 	int height = 0;          /**< the height of screen */
+	int samples = 32;        /**< sample numbers, must be 16, 32 or 64 */
 	float radius = 0;        /**< radius to search for occluders */
 	float max_radius = 0;    /**< the maximum radius from occluder to shading point */
-	float darkness = 1;      /**< the darkness of ambient occlusion, range is 0 to 1 */
-	float bias = 0.2;        /**< bias to avoid unrealistic effects */
-	int samples = 32;        /**< sample times, must be 16, 32 or 64 */
+	float intensity = 1;     /**< the intensity of ambient occlusion, range is 0 to 1 */
+	float bias = 0.1;        /**< bias to avoid unrealistic effects */
 	
 	/**
-	 * Create a new SSAOPass (Screen Space Ambient Occlusion).
+	 * Creates a new SSAOPass (Screen Space Ambient Occlusion).
 	 */
-	SSAOPass() = default;
+	explicit SSAOPass() = default;
 	
 	/**
-	 * Create a new SSAOPass (Screen Space Ambient Occlusion) with the specified
-	 * parameters.
+	 * Creates a new SSAOPass (Screen Space Ambient Occlusion) and initializes
+	 * it with the specified parameters.
 	 *
 	 * \param w the width of screen
 	 * \param h the height of screen
 	 * \param r radius to search for occluders
 	 * \param m the maximum radius from occluder to shading point
-	 * \param d the darkness of ambient occlusion, range is 0 to 1
+	 * \param i the intensity of ambient occlusion, range is 0 to 1
 	 */
-	SSAOPass(int w, int h, float r = 0, float m = 0, float d = 1);
+	explicit SSAOPass(int w, int h, float r, float m, float i = 1);
 	
 	/**
-	 * Initialize the render pass and prepare the resources for rendering.
+	 * Initializes the render pass and prepare the resources for rendering.
 	 */
 	void init() override;
 	
 	/**
-	 * Compile if the shaders are not compiled yet. It will be automatically
+	 * Compiles if the shaders are not compiled yet. It will be automatically
 	 * invoked by the process method.
 	 */
 	void compile() override;
 	
 	/**
-	 * Render to the render target after the shaders are compiled. It will be
+	 * Renders to the render target after the shaders are compiled. It will be
 	 * automatically invoked by the process method.
 	 */
 	void render() const override;
 	
 	/**
-	 * Compile the shaders and render to the render target.
+	 * Compiles the shaders and render to the render target.
 	 */
 	void process(const Camera& c);
 	
 	/**
-	 * Returns the G-Buffer normal texture.
-	 */
-	const Gpu::Texture* get_buffer_n() const;
-	
-	/**
-	 * Sets the G-Buffer normal texture.
-	 *
-	 * \param n G-Buffer normal texture
-	 */
-	void set_buffer_n(const Gpu::Texture* n);
-	
-	/**
-	 * Returns the G-Buffer depth texture.
-	 */
-	const Gpu::Texture* get_buffer_d() const;
-	
-	/**
-	 * Sets the G-Buffer depth texture.
-	 *
-	 * \param d G-Buffer depth texture
-	 */
-	void set_buffer_d(const Gpu::Texture* d);
-	
-	/**
-	 * Returns the texture as the input of post processing.
+	 * Returns the 2D texture represents the input of rendering pass.
 	 */
 	const Gpu::Texture* get_texture() const;
 	
 	/**
-	 * Sets the texture as the input of post processing.
+	 * Sets the specified 2D texture as the input of rendering pass.
 	 *
 	 * \param t input texture
 	 */
 	void set_texture(const Gpu::Texture* t);
+	
+	/**
+	 * Returns the 2D texture represents the world normal buffer in G-Buffers.
+	 */
+	const Gpu::Texture* get_buffer_n() const;
+	
+	/**
+	 * Sets the specified 2D texture as the world normal buffer in G-Buffers.
+	 *
+	 * \param n normal buffer texture
+	 */
+	void set_buffer_n(const Gpu::Texture* n);
+	
+	/**
+	 * Returns the 2D texture represents the depth buffer in G-Buffers.
+	 */
+	const Gpu::Texture* get_buffer_d() const;
+	
+	/**
+	 * Sets the specified 2D texture as the depth buffer in G-Buffers.
+	 *
+	 * \param d depth buffer texture
+	 */
+	void set_buffer_d(const Gpu::Texture* d);
 	
 private:
 	const Camera* camera = nullptr;

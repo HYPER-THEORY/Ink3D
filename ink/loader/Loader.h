@@ -31,33 +31,33 @@ namespace Ink {
 class Loader {
 public:
 	/**
-	 * Load an image file into image.
+	 * Loads the image data from the specified file into a image.
 	 *
-	 * \param f the URL to the file
+	 * \param p the path to the file
 	 */
-	static Image load_image(const std::string& f);
+	static Image load_image(const std::string& p);
 	
 	/**
-	 * Load an HDR image file into image.
+	 * Loads the image data from the specified file into a HDR image.
 	 *
-	 * \param f the URL to the file
+	 * \param p the path to the file
 	 */
-	static Image load_image_hdr(const std::string& f);
+	static Image load_image_hdr(const std::string& p);
 	
 	/**
-	 * Load an OBJ file into mesh array.
+	 * Loads the mesh data from the specified OBJ file into mesh vector.
 	 *
-	 * \param f the URL to the file
+	 * \param p the path to the file
 	 * \param g grouping keyword, default is "o"
 	 */
-	static std::vector<Mesh> load_obj(const std::string& f, const std::string& g = "o");
+	static std::vector<Mesh> load_obj(const std::string& p, const std::string& g = "o");
 	
 	/**
-	 * Load a MTL file into materials.
+	 * Loads the material data from the specified MTL file into material vector.
 	 *
-	 * \param f the URL to the file
+	 * \param p the path to the file
 	 */
-	static std::vector<Material> load_mtl(const std::string& f);
+	static std::vector<Material> load_mtl(const std::string& p);
 };
 
 }

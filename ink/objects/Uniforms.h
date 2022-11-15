@@ -33,18 +33,9 @@ public:
 	std::unordered_map<std::string, const void*> vars;
 	
 	/**
-	 * Create a new Uniforms.
+	 * Creates a new Uniforms.
 	 */
-	Uniforms() = default;
-	
-	using UniformPair = std::pair<std::string, const void*>;
-	
-	/**
-	 * Create a new Uniforms with uniform variable pairs.
-	 *
-	 * \param l uniform variable list
-	 */
-	Uniforms(const std::initializer_list<UniformPair>& l);
+	explicit Uniforms() = default;
 	
 	/**
 	 * Returns the value of the specified uniform variable. Use suffix in name
@@ -52,6 +43,7 @@ public:
 	 *
 	 * \param n variable name
 	 *
+	 * ==============================
 	 * |  Suffix  |  Variable Type  |
 	 * |    _i    |      int        |
 	 * |    _u    |      uint       |
@@ -62,20 +54,13 @@ public:
 	 * |    _m2   |      mat2       |
 	 * |    _m3   |      mat3       |
 	 * |    _m4   |      mat4       |
+	 * ==============================
 	 */
 	const void* get(const std::string& n) const;
 	
 	/**
-	 * Returns the value of the specified uniform variable. Use suffix in name
-	 * to determine the variable type.
-	 *
-	 * \param n variable name
-	 */
-	template <typename type>
-	const type* get(const std::string& n) const;
-	
-	/**
-	 * Sets a value for the specified uniform variable.
+	 * Sets the specified value for the specified uniform variable. These values
+	 * will be passed to vertex, geometry and fragment shaders.
 	 *
 	 * \param n variable name
 	 * \param v value
@@ -83,18 +68,11 @@ public:
 	void set(const std::string& n, const void* v);
 	
 	/**
-	 * Determines whether there is an uniform variable.
+	 * Returns true if there is a value for the specified uniform variable.
 	 *
 	 * \param n variable name
 	 */
 	bool has(const std::string& n) const;
 };
-
-/* template implementations */
-
-template <typename Type>
-const Type* Uniforms::get(const std::string& n) const {
-	return static_cast<const Type*>(vars.at(n));
-}
 
 }

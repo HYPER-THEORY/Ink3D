@@ -24,32 +24,26 @@
 
 namespace Ink {
 
-void update_error(const std::string& e) {
-	if (error_callback) std::invoke(error_callback, e);
-	error = e;
+std::string Error::get() {
+	if (message.empty()) return message;
+	return message + '\n';
 }
 
-std::string get_error() {
-	if (error.empty()) return "";
-	return error + '\n';
+void Error::set(const std::string& e) {
+	if (callback) std::invoke(callback, e);
+	message = e;
 }
 
-int set_error(const char* e) {
-	update_error(e);
-	return -1;
+void Error::clear() {
+	message.clear();
 }
 
-int set_error(const std::string& e) {
-	update_error(e);
-	return -1;
+void Error::set_callback(const ErrorCallback& f) {
+	callback = f;
 }
 
-void set_error_callback(const ErrorCallback& f) {
-	error_callback = f;
-}
+std::string Error::message;
 
-void clear_error() {
-	error.clear();
-}
+ErrorCallback Error::callback;
 
 }

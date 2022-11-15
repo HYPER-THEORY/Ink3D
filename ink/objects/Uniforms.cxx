@@ -24,12 +24,6 @@
 
 namespace Ink {
 
-Uniforms::Uniforms(const std::initializer_list<UniformPair>& l) {
-	for (auto& [name, value] : l) {
-		vars.insert_or_assign(name, value);
-	}
-}
-
 const void* Uniforms::get(const std::string& n) const {
 	return vars.at(n);
 }

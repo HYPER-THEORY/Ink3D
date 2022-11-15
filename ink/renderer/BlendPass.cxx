@@ -31,25 +31,25 @@ void BlendPass::init() {
 }
 
 void BlendPass::compile() {
-	Defines defines;
+	Defines blend_defines;
 	if (map_a != nullptr) {
-		defines.set("USE_A");
-		defines.set("A_SWIZZLE", swizzle_a);
+		blend_defines.set("USE_A");
+		blend_defines.set("A_SWIZZLE", swizzle_a);
 	}
 	if (map_b != nullptr) {
-		defines.set("USE_B");
-		defines.set("B_SWIZZLE", swizzle_b);
+		blend_defines.set("USE_B");
+		blend_defines.set("B_SWIZZLE", swizzle_b);
 	}
 	if (map_c != nullptr) {
-		defines.set("USE_C");
-		defines.set("C_SWIZZLE", swizzle_c);
+		blend_defines.set("USE_C");
+		blend_defines.set("C_SWIZZLE", swizzle_c);
 	}
 	if (map_d != nullptr) {
-		defines.set("USE_D");
-		defines.set("D_SWIZZLE", swizzle_d);
+		blend_defines.set("USE_D");
+		blend_defines.set("D_SWIZZLE", swizzle_d);
 	}
-	defines.set("OP(a, b)", operation);
-	blend_shader->set_define(defines);
+	blend_defines.set("OP(a, b)", operation);
+	blend_shader->set_defines(blend_defines);
 	blend_shader->compile();
 }
 

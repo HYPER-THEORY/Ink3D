@@ -33,12 +33,12 @@ public:
 	Vec3 color = {1, 1, 1};    /**< the color of light */
 	
 	/**
-	 * Create a new Light with its color and intensity.
+	 * Creates a new Light and initializes it with color and intensity.
 	 *
 	 * \param c the color of light
 	 * \param i the intensity of light
 	 */
-	Light(const Vec3& c = {1, 1, 1}, float i = 1);
+	explicit Light(const Vec3& c = {1, 1, 1}, float i = 1);
 };
 
 }

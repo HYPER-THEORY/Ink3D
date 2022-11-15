@@ -22,59 +22,85 @@
 
 #include "Audio.h"
 
+#include "../core/Error.h"
+
 namespace Ink {
 
 void Audio::init() {
 	SDL_Init(SDL_INIT_AUDIO);
 }
 
-Audio::Audio(float v) : volume(v) {}
-
-bool Audio::load(const std::string& f) {
-	if (SDL_LoadWAV(f.c_str(), &spec, &buffer, &length) == nullptr) return false;
+Audio::Audio(const std::string& p) {
+	if (SDL_LoadWAV(p.c_str(), &spec, &buffer, &length) == nullptr) {
+		auto error = SDL_GetError();
+		printf("%s\n", error);
+		Error::set("Audio: Error reading from WAVE file");
+	}
+	ratio = spec.channels * spec.freq * (spec.format >> 3 & 0x1F);
 	spec.userdata = this;
-	spec.callback = [](void* ud, uint8_t* s, int l) -> void {
-		SDL_memset(s, 0, l);
-		auto* data = static_cast<Audio*>(ud);
-		if (data->position + l < data->length) {
-			SDL_MixAudioFormat(s, data->buffer + data->position, data->spec.format,
-							   l, SDL_MIX_MAXVOLUME * data->volume);
-			data->position += l;
+	spec.callback = [](void* u, uint8_t* s, int l) -> void {
+		auto* a = static_cast<Audio*>(u);
+		uint8_t* buffer = a->buffer + a->position;
+		uint32_t length = 0;
+		uint32_t volume = SDL_MIX_MAXVOLUME * a->volume;
+		if (a->position + l < a->length) {
+			length = l;
+			a->position += l;
 		} else {
-			SDL_MixAudioFormat(s, data->buffer + data->position, data->spec.format,
-							   data->length - data->position, SDL_MIX_MAXVOLUME * data->volume);
-			data->position = 0;
-			if (!data->loop) data->stop();
+			length = a->length - a->position;
+			a->position = 0;
+			if (!a->loop) SDL_PauseAudioDevice(a->device, 1);
 		}
+		SDL_memset(s, 0, l);
+		SDL_MixAudioFormat(s, buffer, a->spec.format, length, volume);
 	};
 	device = SDL_OpenAudioDevice(nullptr, 0, &spec, nullptr, 0);
-	return true;
 }
 
-void Audio::unload() const {
+Audio::~Audio() {
 	SDL_CloseAudioDevice(device);
 	SDL_FreeWAV(buffer);
 }
 
-int Audio::get_position() const {
-	return position;
-}
-
-void Audio::set_position(int p) {
-	position = p;
-}
-
-void Audio::play() {
+void Audio::play() const {
 	SDL_PauseAudioDevice(device, 0);
 }
 
-void Audio::pause() {
+void Audio::pause() const {
 	SDL_PauseAudioDevice(device, 1);
 }
 
 void Audio::stop() {
 	SDL_PauseAudioDevice(device, 1);
 	position = 0;
+}
+
+float Audio::get_duration() const {
+	return length / ratio;
+}
+
+bool Audio::get_loop() const {
+	return loop;
+}
+
+void Audio::set_loop(bool l) {
+	loop = l;
+}
+
+float Audio::get_volume() const {
+	return volume;
+}
+
+void Audio::set_volume(float v) {
+	volume = v;
+}
+
+float Audio::get_position() const {
+	return position / ratio;
+}
+
+void Audio::set_position(float p) {
+	position = p * ratio;
 }
 
 }

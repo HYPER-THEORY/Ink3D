@@ -28,31 +28,33 @@ namespace Ink {
 
 class PerspCamera : public Camera {
 public:
-	float fov_y = 0;     /**< the field of view angle in y-axis */
-	float aspect = 0;    /**< the aspect ratio of field of view in x-axis */
+	float fov_y = 0;     /**< the field of view in y-axis */
+	float aspect = 0;    /**< the aspect ratio of field of view */
 	
 	/**
-	 * Create a new PerspCamera.
+	 * Creates a new PerspCamera.
 	 */
-	PerspCamera() = default;
+	explicit PerspCamera() = default;
 	
 	/**
-	 * Create a new PerspCamera.
+	 * Creates a new PerspCamera and initializes it with FOV, aspect, near and
+	 * far.
 	 *
-	 * \param fov the field of view angle in y-axis
-	 * \param a the aspect ratio of field of view in x-axis
-	 * \param n distance to the nearer depth clipping plane
-	 * \param f distance to the nearer depth clipping plane
+	 * \param fov the field of view in y-axis
+	 * \param a the aspect ratio of field of view
+	 * \param n distance to the nearer clipping plane
+	 * \param f distance to the farther clipping plane
 	 */
-	PerspCamera(float fov, float a, float n, float f);
+	explicit PerspCamera(float fov, float a, float n, float f);
 	
 	/**
-	 * Sets the perspective projection matrix of camera.
+	 * Sets the FOV, aspect, near and far. Updates the projection matrix of
+	 * camera.
 	 *
-	 * \param fov the field of view angle in y-axis
-	 * \param a the aspect ratio of field of view in x-axis
-	 * \param n distance to the nearer depth clipping plane
-	 * \param f distance to the nearer depth clipping plane
+	 * \param fov the field of view in y-axis
+	 * \param a the aspect ratio of field of view
+	 * \param n distance to the nearer clipping plane
+	 * \param f distance to the farther clipping plane
 	 */
 	void set(float fov, float a, float n, float f);
 };

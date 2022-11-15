@@ -24,43 +24,37 @@
 
 #include "../scene/Scene.h"
 
+#include "Renderer.h"
 #include "RenderPass.h"
 
 namespace Ink {
 
-enum ToneMappingMode {
-	TONE_MAPPING_LINEAR,
-	TONE_MAPPING_REINHARD,
-	TONE_MAPPING_OPTIMIZED,
-	TONE_MAPPING_ACES_FILMIC,
-};
-
 class LightPass : public RenderPass {
 public:
 	/**
-	 * Create a new LightPass.
+	 * Creates a new LightPass.
 	 */
-	LightPass() = default;
+	explicit LightPass() = default;
 	
 	/**
-	 * Initialize the render pass and prepare the resources for rendering.
+	 * Initializes the render pass and prepare the resources for rendering.
 	 */
 	void init() override;
 	
 	/**
-	 * Compile if the shaders are not compiled yet. It will be automatically
+	 * Compiles if the shaders are not compiled yet. It will be automatically
 	 * invoked by the process method.
 	 */
 	void compile() override;
 	
 	/**
-	 * Render to the render target after the shaders are compiled. It will be
+	 * Renders to the render target after the shaders are compiled. It will be
 	 * automatically invoked by the process method.
 	 */
 	void render() const override;
 	
 	/**
-	 * Compile the shaders and render to the render target.
+	 * Compiles the shaders and render to the render target.
 	 *
 	 * \param s scene
 	 * \param c camera
@@ -68,75 +62,86 @@ public:
 	void process(const Scene& s, const Camera& c);
 	
 	/**
-	 * Returns the G-Buffer diffuse color texture.
+	 * Returns the mode in tone mapping.
 	 */
-	const Gpu::Texture* get_buffer_c() const;
+	int get_tone_mapping_mode() const;
 	
 	/**
-	 * Sets the G-Buffer diffuse color texture.
-	 *
-	 * \param t diffuse color texture
+	 * Returns the exposure in tone mapping.
 	 */
-	void set_buffer_c(const Gpu::Texture* t);
+	float get_tone_mapping_exposure() const;
 	
 	/**
-	 * Returns the G-Buffer world normal texture.
-	 */
-	const Gpu::Texture* get_buffer_n() const;
-	
-	/**
-	 * Sets the G-Buffer world normal texture.
-	 *
-	 * \param t world normal texture
-	 */
-	void set_buffer_n(const Gpu::Texture* t);
-	
-	/**
-	 * Returns the G-Buffer material texture.
-	 */
-	const Gpu::Texture* get_buffer_m() const;
-	
-	/**
-	 * Sets the G-Buffer material texture.
-	 *
-	 * \param t material texture
-	 */
-	void set_buffer_m(const Gpu::Texture* t);
-	
-	/**
-	 * Returns the G-Buffer light color texture.
-	 */
-	const Gpu::Texture* get_buffer_l() const;
-	
-	/**
-	 * Sets the G-Buffer light color texture.
-	 *
-	 * \param t light color texture
-	 */
-	void set_buffer_l(const Gpu::Texture* t);
-	
-	/**
-	 * Returns the G-Buffer depth texture.
-	 */
-	const Gpu::Texture* get_buffer_d() const;
-	
-	/**
-	 * Sets the G-Buffer depth texture.
-	 *
-	 * \param d depth texture
-	 */
-	void set_buffer_d(const Gpu::Texture* d);
-	
-	/**
-	 * Sets the mode and exposure of tone mapping.
+	 * Sets the specified mode and exposure in tone mapping. Default is
+	 * LINEAR_TONE_MAP and 1.
 	 *
 	 * \param m tone mapping mode
 	 * \param e tone mapping exposure
 	 */
 	void set_tone_mapping(int m, float e);
 	
+	/**
+	 * Returns the 2D texture represents the diffuse color buffer in G-Buffers.
+	 */
+	const Gpu::Texture* get_buffer_c() const;
+	
+	/**
+	 * Sets the specified 2D texture as the diffuse color buffer in G-Buffers.
+	 *
+	 * \param t color buffer texture
+	 */
+	void set_buffer_c(const Gpu::Texture* t);
+	
+	/**
+	 * Returns the 2D texture represents the world normal buffer in G-Buffers.
+	 */
+	const Gpu::Texture* get_buffer_n() const;
+	
+	/**
+	 * Sets the specified 2D texture as the world normal buffer in G-Buffers.
+	 *
+	 * \param t normal buffer texture
+	 */
+	void set_buffer_n(const Gpu::Texture* t);
+	
+	/**
+	 * Returns the 2D texture represents the material buffer in G-Buffers.
+	 */
+	const Gpu::Texture* get_buffer_m() const;
+	
+	/**
+	 * Sets the specified 2D texture as the material buffer in G-Buffers.
+	 *
+	 * \param t material buffer texture
+	 */
+	void set_buffer_m(const Gpu::Texture* t);
+	
+	/**
+	 * Returns the 2D texture represents the additional buffer in G-Buffers.
+	 */
+	const Gpu::Texture* get_buffer_a() const;
+	
+	/**
+	 * Sets the specified 2D texture as the additional buffer in G-Buffers.
+	 *
+	 * \param t additional buffer texture
+	 */
+	void set_buffer_a(const Gpu::Texture* t);
+	
+	/**
+	 * Returns the 2D texture represents the depth buffer in G-Buffers.
+	 */
+	const Gpu::Texture* get_buffer_d() const;
+	
+	/**
+	 * Sets the specified 2D texture as the depth buffer in G-Buffers.
+	 *
+	 * \param d depth buffer texture
+	 */
+	void set_buffer_d(const Gpu::Texture* d);
+	
 private:
-	int tone_mapping = TONE_MAPPING_LINEAR;
+	int tone_mapping_mode = LINEAR_TONE_MAP;
 	
 	float tone_mapping_exposure = 1;
 	
@@ -150,7 +155,7 @@ private:
 	
 	const Gpu::Texture* buffer_m = nullptr;
 	
-	const Gpu::Texture* buffer_l = nullptr;
+	const Gpu::Texture* buffer_a = nullptr;
 	
 	const Gpu::Texture* buffer_d = nullptr;
 	

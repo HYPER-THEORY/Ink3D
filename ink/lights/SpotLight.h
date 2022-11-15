@@ -41,12 +41,12 @@ public:
 	Shadow shadow;               /**< the shadow of light */
 	
 	/**
-	 * Create a new SpotLight with its color and intensity.
+	 * Creates a new SpotLight and initializes it with color and intensity.
 	 *
 	 * \param c the color of light
 	 * \param i the intensity of light
 	 */
-	SpotLight(const Vec3& c = {1, 1, 1}, float i = 1);
+	explicit SpotLight(const Vec3& c = {1, 1, 1}, float i = 1);
 };
 
 }

@@ -22,10 +22,10 @@
 
 #pragma once
 
-#include "Constants.h"    /**< math constants */
+#include "Constants.h"    /**< common constants in math */
 #include "Random.h"       /**< random number generator */
 #include "Vector2.h"      /**< 2 dimension vector */
 #include "Vector3.h"      /**< 3 dimension vector */
 #include "Vector4.h"      /**< 4 dimension vector */
 #include "Matrix.h"       /**< 2-4 dimension matrices */
-#include "Ray.h"          /**< ray intersections */
+#include "Ray.h"          /**< 3 dimension ray */

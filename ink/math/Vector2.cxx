@@ -104,16 +104,16 @@ FVec2 FVec2::rotate(float a) const {
 }
 
 std::string FVec2::to_string(int p) const {
-	std::stringstream stream;
-	stream.precision(p);
+	static std::stringstream stream;
 	stream.setf(std::ios::fixed, std::ios::floatfield);
+	stream.precision(p);
+	stream.str(std::string());
 	stream << "(" << x << ", " << y << ")";
-	
 	return stream.str();
 }
 
 FVec2 FVec2::random() {
-	float angle = random_float() * PI * 2;
+	float angle = Random::random_f() * PI * 2;
 	return {cosf(angle), sinf(angle)};
 }
 
@@ -243,15 +243,16 @@ DVec2 DVec2::rotate(double a) const {
 }
 
 std::string DVec2::to_string(int p) const {
-	std::stringstream stream;
-	stream.precision(p);
+	static std::stringstream stream;
 	stream.setf(std::ios::fixed, std::ios::floatfield);
+	stream.precision(p);
+	stream.str(std::string());
 	stream << "(" << x << ", " << y << ")";
 	return stream.str();
 }
 
 DVec2 DVec2::random() {
-	double angle = random_double() * PI * 2;
+	double angle = Random::random() * PI * 2;
 	return {cos(angle), sin(angle)};
 }
 

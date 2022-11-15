@@ -24,22 +24,22 @@
 
 namespace Ink {
 
-OrthoCamera::OrthoCamera(float l, float r, float low, float up, float n, float f) {
-	set(l, r, low, up, n, f);
+OrthoCamera::OrthoCamera(float lv, float rv, float lh, float uh, float n, float f) {
+	set(lv, rv, lh, uh, n, f);
 }
 
-void OrthoCamera::set(float l, float r, float low, float up, float n, float f) {
-	left = l;
-	right = r;
-	lower = low;
-	upper = up;
+void OrthoCamera::set(float lv, float rv, float lh, float uh, float n, float f) {
+	left = lv;
+	right = rv;
+	lower = lh;
+	upper = uh;
 	far = f;
 	near = n;
 	projection = {
-		2 / (r - l)            , 0                      , 0                      , (r + l) / (l - r)      ,
-		0                      , 2 / (up - low)         , 0                      , (up + low) / (low - up),
-		0                      , 0                      , 2 / (n - f)            , (f + n) / (n - f)      ,
-		0                      , 0                      , 0                      , 1                      ,
+		2 / (rv - lv)        , 0                    , 0                    , (rv + lv) / (lv - rv),
+		0                    , 2 / (uh - lh)        , 0                    , (uh + lh) / (lh - uh),
+		0                    , 0                    , 2 / (n - f)          , (f + n) / (n - f)    ,
+		0                    , 0                    , 0                    , 1                    ,
 	};
 }
 

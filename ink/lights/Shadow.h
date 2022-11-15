@@ -44,17 +44,22 @@ public:
 	Camera camera;            /**< light's view camera of shadow */
 	
 	/**
-	 * Create a new Shadow.
+	 * Creates a new Shadow.
 	 */
-	Shadow() = default;
+	explicit Shadow() = default;
 	
 	/**
-	 * Activate shadow and assign an unique id for it.
+	 * The copy constructor is deleted.
+	 */
+	Shadow(const Shadow&) = delete;
+	
+	/**
+	 * Activates this shadow and assigns an unique id for it.
 	 */
 	void activate();
 	
 	/**
-	 * Deactivate shadow and collect the unique id.
+	 * Deactivates this shadow and retrieves the unique id from it.
 	 */
 	void deactivate();
 	
@@ -64,34 +69,49 @@ public:
 	int get_unique_id() const;
 	
 	/**
-	 * Returns the render target of shadow map.
+	 * Returns the render target of the shadow texture (shadow map).
 	 */
 	const Gpu::FrameBuffer* get_target() const;
 	
 	/**
-	 * Sets the resolution of shadow map and the number of max shadows.
-	 * Initialize shadows.
+	 * Sets the resolution of shadow map and the max number of shadows.
+	 * Initializes shadows.
 	 *
 	 * \param w the width of shadow map
 	 * \param h the height of shadow map
-	 * \param n the number of max shadows
+	 * \param n the max number of shadows
 	 */
 	static void init(int w = 1024, int h = 1024, int n = 16);
 	
 	/**
-	 * Sets the texture of shadow maps active.
+	 * Activates the shadow texture (shadow map) at the specified location.
 	 *
 	 * \param l the location of texture
 	 */
 	static int activate_texture(int l);
 	
 	/**
-	 * Returns the resolution of shadow map.
+	 * Returns the resolution of shadow texture (shadow map).
 	 */
 	static Vec2 get_resolution();
 	
+	/**
+	 * Returns the sample numbers when using PCF / PCSS shadow.
+	 */
+	static int get_samples();
+	
+	/**
+	 * Sets the sample numbers when using PCF / PCSS shadow. Must be 16, 32 or
+	 * 64. Default is 32.
+	 *
+	 * \param s sample numbers
+	 */
+	static void set_samples(int s);
+	
 private:
 	int unique_id = -1;
+	
+	static int samples;
 	
 	static Vec2 resolution;
 	
@@ -100,8 +120,6 @@ private:
 	static std::unique_ptr<Gpu::Texture> shadow_map;
 	
 	static std::unique_ptr<Gpu::FrameBuffer> shadow_target;
-	
-	Shadow(const Shadow&) = delete;
 };
 
 }

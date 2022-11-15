@@ -6,17 +6,17 @@ const float unpack_downscale = 255. / 256.;
 const vec4 pack_factors = vec4(16777216., 65536., 256., 1.);
 const vec4 unpack_factors = unpack_downscale / pack_factors;
 
-/* Pack normal to rgb. */
+/* Packs normal to RGB. */
 vec3 pack_normal(vec3 normal) {
 	return normal * .5 + .5;
 }
 
-/* Unpack rgb to normal. */
+/* Unpacks RGB to normal. */
 vec3 unpack_normal(vec3 rgb) {
 	return rgb * 2. - 1.;
 }
 
-/* Pack float to rgba. */
+/* Packs float to RGBA. */
 vec4 pack_float(float v) {
 	const float one_by_256 = 1. / 256.;
 	vec4 r = fract(v * pack_factors);
@@ -24,18 +24,18 @@ vec4 pack_float(float v) {
 	return r * pack_upscale;
 }
 
-/* Unpack rgba to float. */
+/* Unpacks RGBA to float. */
 float unpack_float(vec4 v) {
 	return dot(v, unpack_factors);
 }
 
-/* Pack vec2 to rgba. */
+/* Packs vec2 to RGBA. */
 vec4 pack_vec2(vec2 v) {
 	vec4 r = vec4(v.x, fract(v.x * 255.), v.y, fract(v.y * 255.));
 	return vec4(r.x - r.y / 255., r.y, r.z - r.w / 255., r.w);
 }
 
-/* Unpack rgba to vec2. */
+/* Unpacks RGBA to vec2. */
 vec2 unpack_vec2(vec4 v) {
 	return vec2(v.x + (v.y / 255.), v.z + (v.w / 255.));
 }
