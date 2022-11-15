@@ -25,7 +25,7 @@
 namespace Ink {
 
 DirectionalLight::DirectionalLight(const Vec3& c, float i) : Light(c, i) {
-	shadow.camera = OrthoCamera(-5, 5, -5, 5, 0.5, 500);
+	shadow.camera = static_cast<Camera>(OrthoCamera(-5, 5, -5, 5, 0.5, 500));
 }
 
 }

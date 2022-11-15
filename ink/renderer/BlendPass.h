@@ -29,98 +29,102 @@ namespace Ink {
 class BlendPass : public RenderPass {
 public:
 	/**
-	 * Create a new BlendPass.
+	 * Creates a new BlendPass.
 	 */
-	BlendPass() = default;
+	explicit BlendPass() = default;
 	
 	/**
-	 * Initialize the render pass and prepare the resources for rendering.
+	 * Initializes the render pass and prepare the resources for rendering.
 	 */
 	void init() override;
 	
 	/**
-	 * Compile if the shaders are not compiled yet. It will be automatically
+	 * Compiles if the shaders are not compiled yet. It will be automatically
 	 * invoked by the process method.
 	 */
 	void compile() override;
 	
 	/**
-	 * Render to the render target after the shaders are compiled. It will be
+	 * Renders to the render target after the shaders are compiled. It will be
 	 * automatically invoked by the process method.
 	 */
 	void render() const override;
 	
 	/**
-	 * Returns the texture A as the input of blending.
+	 * Returns the 2D texture A represents the input of rendering pass.
 	 */
 	const Gpu::Texture* get_texture_a() const;
 	
 	/**
-	 * Sets the texture A as the input of blending.
+	 * Sets the specified 2D texture A as the input of rendering pass.
 	 *
 	 * \param t texture A
 	 */
 	void set_texture_a(const Gpu::Texture* t);
 	
 	/**
-	 * Sets the swizzle of texture A as the multiplication factor when blending.
+	 * Sets the swizzle of texture A as the multiplication factor in blending.
+	 * Default is ".xyzw".
 	 *
 	 * \param s swizzle A
 	 */
 	void set_swizzle_a(const std::string& s);
 	
 	/**
-	 * Returns the texture B as the input of blending.
+	 * Returns the 2D texture B represents the input of rendering pass.
 	 */
 	const Gpu::Texture* get_texture_b() const;
 	
 	/**
-	 * Sets the texture B as the input of blending.
+	 * Sets the specified 2D texture B as the input of rendering pass.
 	 *
 	 * \param t texture B
 	 */
 	void set_texture_b(const Gpu::Texture* t);
 	
 	/**
-	 * Sets the swizzle of texture A as the multiplication factor when blending.
+	 * Sets the swizzle of texture B as the multiplication factor in blending.
+	 * Default is ".xyzw".
 	 *
 	 * \param s swizzle B
 	 */
 	void set_swizzle_b(const std::string& s);
 	
 	/**
-	 * Returns the texture C as the input of blending.
+	 * Returns the 2D texture C represents the input of rendering pass.
 	 */
 	const Gpu::Texture* get_texture_c() const;
 	
 	/**
-	 * Sets the texture C as the input of blending.
+	 * Sets the specified 2D texture C as the input of rendering pass.
 	 *
 	 * \param t texture C
 	 */
 	void set_texture_c(const Gpu::Texture* t);
 	
 	/**
-	 * Sets the swizzle of texture A as the multiplication factor when blending.
+	 * Sets the swizzle of texture C as the multiplication factor in blending.
+	 * Default is ".xyzw".
 	 *
 	 * \param s swizzle C
 	 */
 	void set_swizzle_c(const std::string& s);
 	
 	/**
-	 * Returns the texture D as the input of blending.
+	 * Returns the 2D texture D represents the input of rendering pass.
 	 */
 	const Gpu::Texture* get_texture_d() const;
 	
 	/**
-	 * Sets the texture D as the input of blending.
+	 * Sets the specified 2D texture D as the input of rendering pass.
 	 *
 	 * \param t texture D
 	 */
 	void set_texture_d(const Gpu::Texture* t);
 	
 	/**
-	 * Sets the swizzle of texture A as the multiplication factor when blending.
+	 * Sets the swizzle of texture D as the multiplication factor in blending.
+	 * Default is ".xyzw".
 	 *
 	 * \param s swizzle D
 	 */

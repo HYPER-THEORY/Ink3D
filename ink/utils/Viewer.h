@@ -45,43 +45,45 @@ public:
 	int key_right = SDLK_d;       /**< the key controls camera move right */
 	
 	/**
-	 * Create a new Viewer with moving speed.
+	 * Creates a new Viewer and initializes it with camera and moving speed.
 	 *
 	 * \param c camera
 	 * \param s moving speed
 	 */
-	Viewer(const Camera& c = {}, float s = 1);
+	explicit Viewer(const Camera& c = Camera(), float s = 1);
 	
 	/**
-	 * Update the viewing camera.
+	 * Updates the viewing camera. This function should be called every frame.
 	 *
 	 * \param dt delta time
 	 */
 	void update(float dt);
 	
 	/**
-	 * Returns the viewing camera.
+	 * Returns the viewing camera. The camera will be updated after calling the
+	 * update function.
 	 */
 	const Camera& get_camera() const;
 	
 	/**
-	 * Sets the viewing camera.
+	 * Sets the specified viewing camera. All the parameters of camera will be
+	 * updated.
 	 *
 	 * \param c camera
 	 */
 	void set_camera(const Camera& c);
 	
 	/**
-	 * Sets the position of camera.
+	 * Sets the specified position parameter of viewing camera.
 	 *
 	 * \param p position
 	 */
 	void set_position(const Vec3& p);
 	
 	/**
-	 * Sets the viewing direction of camera.
+	 * Sets the specified direction parameter of viewing camera.
 	 *
-	 * \param d viewing direction
+	 * \param d direction
 	 */
 	void set_direction(const Vec3& d);
 	

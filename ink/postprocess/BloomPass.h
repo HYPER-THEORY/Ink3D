@@ -32,16 +32,16 @@ public:
 	int height = 0;           /**< the height of screen */
 	float threshold = 1;      /**< the threshold of luminance to affect bloom */
 	float intensity = 1;      /**< the intensity of bloom effect */
-	float radius = 1;         /**< the radius of bloom effect, range is 0 to 1 */
+	float radius = 0.5;       /**< the radius of bloom effect, range is 0 to 1 */
 	Vec3 tint = {1, 1, 1};    /**< the tint modify the bloom color */
 	
 	/**
-	 * Create a new BloomPass.
+	 * Creates a new BloomPass.
 	 */
-	BloomPass() = default;
+	explicit BloomPass() = default;
 	
 	/**
-	 * Create a new BloomPass with the specified parameters.
+	 * Creates a new BloomPass and initializes it with the specified parameters.
 	 *
 	 * \param w the width of screen
 	 * \param h the height of screen
@@ -49,32 +49,32 @@ public:
 	 * \param i the intensity of bloom effect
 	 * \param r the radius of bloom effect, range is 0 to 1
 	 */
-	BloomPass(int w, int h, float t = 1, float i = 1, float r = 1);
+	explicit BloomPass(int w, int h, float t = 1, float i = 1, float r = 1);
 	
 	/**
-	 * Initialize the render pass and prepare the resources for rendering.
+	 * Initializes the render pass and prepare the resources for rendering.
 	 */
 	void init() override;
 	
 	/**
-	 * Compile if the shaders are not compiled yet. It will be automatically
+	 * Compiles if the shaders are not compiled yet. It will be automatically
 	 * invoked by the process method.
 	 */
 	void compile() override;
 	
 	/**
-	 * Render to the render target after the shaders are compiled. It will be
+	 * Renders to the render target after the shaders are compiled. It will be
 	 * automatically invoked by the process method.
 	 */
 	void render() const override;
 	
 	/**
-	 * Returns the texture as the input of post processing.
+	 * Returns the 2D texture represents the input of rendering pass.
 	 */
 	const Gpu::Texture* get_texture() const;
 	
 	/**
-	 * Sets the texture as the input of post processing.
+	 * Sets the specified 2D texture as the input of rendering pass.
 	 *
 	 * \param t input texture
 	 */

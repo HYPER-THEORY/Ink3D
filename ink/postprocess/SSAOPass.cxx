@@ -24,8 +24,8 @@
 
 namespace Ink {
 
-SSAOPass::SSAOPass(int w, int h, float r, float m, float d) :
-width(w), height(h), radius(r), max_radius(m), darkness(d) {}
+SSAOPass::SSAOPass(int w, int h, float r, float m, float i) :
+width(w), height(h), radius(r), max_radius(m), intensity(i) {}
 
 void SSAOPass::init() {
 	/* prepare blur map 1 */
@@ -67,34 +67,28 @@ void SSAOPass::init() {
 }
 
 void SSAOPass::compile() {
-	/* get the parameters of SSAO */
-	std::string samples_str = std::to_string(samples);
-	std::string camera_type = "ORTHO_CAMERA";
-	if (camera->is_perspective()) camera_type = "PERSP_CAMERA";
-	
-	/* compile SSAO shader */
-	ssao_shader->set_define({{
-		{camera_type, ""         },
-		{"SAMPLES"  , samples_str},
-	}});
+	/* update and compile SSAO shader */
+	Defines ssao_defines;
+	ssao_defines.set("SAMPLES", std::to_string(samples));
+	ssao_shader->set_defines(ssao_defines);
 	ssao_shader->compile();
 	
-	/* compile blur shader */
-	blur_shader->set_define({{
-		{"BLUR_BILATERAL", ""     },
-		{"TYPE"          , "float"},
-		{"SWIZZLE"       , ".x"   },
-	}});
+	/* update and compile blur shader */
+	Defines blur_defines;
+	blur_defines.set("BLUR_BILATERAL");
+	blur_defines.set("TYPE", "float");
+	blur_defines.set("SWIZZLE", ".x");
+	blur_shader->set_defines(blur_defines);
 	blur_shader->compile();
 	
-	/* compile blend shader */
-	blend_shader->set_define({{
-		{"USE_A"    , ""     },
-		{"A_SWIZZLE", ".xyzw"},
-		{"USE_B"    , ""     },
-		{"B_SWIZZLE", ".xxxx"},
-		{"OP(a, b)" , "a * b"},
-	}});
+	/* update and compile blend shader */
+	Defines blend_defines;
+	blend_defines.set("USE_A");
+	blend_defines.set("A_SWIZZLE", ".xyzw");
+	blend_defines.set("USE_B");
+	blend_defines.set("B_SWIZZLE", ".xxxx");
+	blend_defines.set("OP(a, b)", "a * b");
+	blend_shader->set_defines(blend_defines);
 	blend_shader->compile();
 }
 
@@ -113,7 +107,7 @@ void SSAOPass::render() const {
 	ssao_shader->set_uniform_f("radius", radius);
 	ssao_shader->set_uniform_f("max_radius", max_radius);
 	ssao_shader->set_uniform_f("bias", bias);
-	ssao_shader->set_uniform_f("darkness", darkness);
+	ssao_shader->set_uniform_f("intensity", intensity);
 	ssao_shader->set_uniform_f("camera_near", camera->near);
 	ssao_shader->set_uniform_f("camera_far", camera->far);
 	ssao_shader->set_uniform_m4("view_proj", view_proj);
@@ -128,7 +122,6 @@ void SSAOPass::render() const {
 		/* blur texture horizontally */
 		blur_shader->use_program();
 		blur_shader->set_uniform_v2("direction", Vec2(1 / screen_size.x, 0));
-		blur_shader->set_uniform_f("lod", 0);
 		blur_shader->set_uniform_i("radius", 7);
 		blur_shader->set_uniform_f("sigma_s", 2);
 		blur_shader->set_uniform_f("sigma_r", 0.25);
@@ -138,7 +131,6 @@ void SSAOPass::render() const {
 		/* blur texture vertically */
 		blur_shader->use_program();
 		blur_shader->set_uniform_v2("direction", Vec2(0, 1 / screen_size.y));
-		blur_shader->set_uniform_f("lod", 0);
 		blur_shader->set_uniform_i("radius", 7);
 		blur_shader->set_uniform_f("sigma_s", 2);
 		blur_shader->set_uniform_f("sigma_r", 0.25);
@@ -146,7 +138,7 @@ void SSAOPass::render() const {
 		RenderPass::render_to(blur_shader.get(), blur_target_1.get());
 	}
 	
-	/* set back to the original viewport */
+	/* set back to the initial viewport */
 	RenderPass::set_viewport(viewport);
 	
 	/* 3. render results to target (upsampling) */
@@ -160,6 +152,14 @@ void SSAOPass::render() const {
 void SSAOPass::process(const Camera& c) {
 	camera = &c;
 	process();
+}
+
+const Gpu::Texture* SSAOPass::get_texture() const {
+	return map;
+}
+
+void SSAOPass::set_texture(const Gpu::Texture* t) {
+	map = t;
 }
 
 const Gpu::Texture* SSAOPass::get_buffer_n() const {
@@ -176,14 +176,6 @@ const Gpu::Texture* SSAOPass::get_buffer_d() const {
 
 void SSAOPass::set_buffer_d(const Gpu::Texture* d) {
 	buffer_d = d;
-}
-
-const Gpu::Texture* SSAOPass::get_texture() const {
-	return map;
-}
-
-void SSAOPass::set_texture(const Gpu::Texture* t) {
-	map = t;
 }
 
 }

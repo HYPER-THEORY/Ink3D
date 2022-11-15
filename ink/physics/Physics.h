@@ -31,24 +31,24 @@ namespace Ink {
 
 class CollisionBox {
 public:
-	Vec3 v1;    /**< vertex 1 */
-	Vec3 v2;    /**< vertex 2 */
+	Vec3 v1;    /**< upper-left-front vertex */
+	Vec3 v2;    /**< lower-right-back vertex */
 	
 	/**
-	 * Create a new CollisionBox.
+	 * Creates a new CollisionBox.
 	 */
-	CollisionBox() = default;
+	explicit CollisionBox() = default;
 	
 	/**
-	 * Create a new CollisionBox.
+	 * Creates a new CollisionBox and initializes it with vertices.
 	 *
 	 * \param v1 upper-left-front vertex
 	 * \param v2 lower-right-back vertex
 	 */
-	CollisionBox(const Vec3& v1, const Vec3& v2);
+	explicit CollisionBox(const Vec3& v1, const Vec3& v2);
 	
 	/**
-	 * Sets position and size to the box.
+	 * Sets the specified position and size of the box.
 	 *
 	 * \param v the center of box
 	 * \param w the width of box
@@ -58,14 +58,14 @@ public:
 	void set(const Vec3& v, float w, float h, float d);
 	
 	/**
-	 * Determines whether the point is contained within the box region.
+	 * Returns true if the point is contained within the box region.
 	 *
 	 * \param v point
 	 */
 	bool contain(const Vec3& v) const;
 	
 	/**
-	 * Determines whether the point is contained within the box region.
+	 * Returns true if the point is contained within the box region.
 	 *
 	 * \param x the x-coordinate of point
 	 * \param y the y-coordinate of point
@@ -74,11 +74,11 @@ public:
 	bool contain(float x, float y, float z) const;
 	
 	/**
-	 * Determines whether the box is hitted by another box.
+	 * Returns true if this box is hit by the specified box.
 	 *
 	 * \param b collision box
 	 */
-	bool hittest(const CollisionBox& b);
+	bool hittest(const CollisionBox& b) const;
 };
 
 class Solid {
@@ -94,45 +94,46 @@ public:
 	/**
 	 * Create a new Solid.
 	 */
-	Solid() = default;
+	explicit Solid() = default;
 	
 	/**
-	 * Create a new Solid.
+	 * Create a new Solid and initializes it with position, width, height and
+	 * depth.
 	 *
-	 * \param p center point
-	 * \param w the width of cuboid
-	 * \param h the height of cuboid
-	 * \param d the depth of cuboid
+	 * \param p center position
+	 * \param w the width of box
+	 * \param h the height of box
+	 * \param d the depth of box
 	 */
-	Solid(const Vec3& p, float w, float h, float d);
+	explicit Solid(const Vec3& p, float w, float h, float d);
 	
 	/**
-	 * Activate solid.
+	 * Activates this solid.
 	 */
 	void activate();
 	
 	/**
-	 * Deactivate solid.
+	 * Deactivates this solid.
 	 */
 	void deactivate();
 	
 	/**
-	 * Refresh the collision box with updated position and size.
+	 * Refreshes the collision box with updated position and size.
 	 */
 	void refresh();
 	
 	/**
-	 * Move the collision box in one direction.
+	 * Moves the soild along with a single direction.
 	 *
 	 * \param s soild
-	 * \param x x-axis direction
-	 * \param y y-axis direction
-	 * \param z z-axis direction
+	 * \param x X-axis direction
+	 * \param y Y-axis direction
+	 * \param z Z-axis direction
 	 */
 	void collide(Solid* s, float x, float y, float z);
 	
 	/**
-	 * Move the collision box in the specified direction.
+	 * Moves the soild along with the specified direction.
 	 *
 	 * \param d direction
 	 */

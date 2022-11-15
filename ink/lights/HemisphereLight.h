@@ -32,13 +32,15 @@ public:
 	Vec3 direction = {0, 1, 0};       /**< the direction from ground to sky */
 	
 	/**
-	 * Create a new HemisphereLight with its colors and intensity.
+	 * Creates a new HemisphereLight and initializes it with color and
+	 * intensity.
 	 *
 	 * \param s the sky color
 	 * \param g the ground color
 	 * \param i the intensity of light
 	 */
-	HemisphereLight(const Vec3& s = {1, 1, 1}, const Vec3& g = {1, 1, 1}, float i = 1);
+	explicit HemisphereLight(const Vec3& s = {1, 1, 1},
+							 const Vec3& g = {1, 1, 1}, float i = 1);
 };
 
 }

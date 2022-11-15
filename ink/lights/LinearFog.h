@@ -34,13 +34,13 @@ public:
 	float far = 1000;          /**< the farthest distance of fog */
 	
 	/**
-	 * Create a new Fog with its color and distances.
+	 * Creates a new Fog and initializes it with color and distances.
 	 *
 	 * \param c the color of fog
 	 * \param n the nearest distance of fog
 	 * \param f the farthest distance of fog
 	 */
-	LinearFog(const Vec3& c = {1, 1, 1}, float n = 1, float f = 1000);
+	explicit LinearFog(const Vec3& c = {1, 1, 1}, float n = 1, float f = 1000);
 };
 
 }

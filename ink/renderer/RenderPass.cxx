@@ -61,9 +61,9 @@ void RenderPass::render_to(const Gpu::Shader* s, const Gpu::FrameBuffer* t) {
 	/* disable blending & wireframe & culling */
 	Gpu::disable_blending();
 	Gpu::disable_wireframe();
-	Gpu::disable_cull_face();
+	Gpu::disable_culling();
 	
-	/* set the viewport */
+	/* set the viewport region */
 	Gpu::set_viewport(viewport);
 	
 	/* draw the plane with shader */
@@ -76,7 +76,7 @@ void RenderPass::render_to(const Gpu::Shader* s, const Gpu::FrameBuffer* t) {
 
 bool RenderPass::init_render_to() {
 	/* prepare plane mesh */
-	Mesh plane_mesh = {"plane"};
+	Mesh plane_mesh = Mesh("plane");
 	plane_mesh.groups = {{"default", 0, 3}};
 	plane_mesh.vertex = {{-1, 3, 0}, {-1, -1, 0}, {3, -1, 0}};
 	plane_mesh.uv = {{0, 2}, {0, 0}, {2, 0}};
@@ -89,7 +89,7 @@ bool RenderPass::init_render_to() {
 	return true;
 }
 
-Gpu::Rect RenderPass::viewport = {0, 0, 0, 0};
+Gpu::Rect RenderPass::viewport;
 
 std::unique_ptr<Gpu::VertexObject> RenderPass::plane;
 

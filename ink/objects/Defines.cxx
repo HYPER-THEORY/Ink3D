@@ -24,14 +24,12 @@
 
 namespace Ink {
 
-Defines::Defines(const std::initializer_list<DefinePair>& l) {
-	for (auto& [n, v] : l) {
-		defines += "#define " + n + " " + v + "\n";
-	}
-}
-
 std::string Defines::get() const {
 	return defines;
+}
+
+void Defines::set(const Defines& d) {
+	defines += d.get();
 }
 
 void Defines::set(const std::string& n) {
@@ -40,6 +38,22 @@ void Defines::set(const std::string& n) {
 
 void Defines::set(const std::string& n, const std::string& v) {
 	defines += "#define " + n + " " + v + "\n";
+}
+
+void Defines::set_i(const std::string& n, int v) {
+	defines += "#define " + n + " " + std::to_string(v) + "\n";
+}
+
+void Defines::set_l(const std::string& n, long v) {
+	defines += "#define " + n + " " + std::to_string(v) + "\n";
+}
+
+void Defines::set_ll(const std::string& n, long long v) {
+	defines += "#define " + n + " " + std::to_string(v) + "\n";
+}
+
+void Defines::set_if(const std::string& n, bool f) {
+	if (f) defines += "#define " + n + "\n";
 }
 
 }

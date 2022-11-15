@@ -34,6 +34,8 @@ public:
 	
 	bool cast_shadow = true;       /**< whether the instance will cast shadows */
 	
+	int priority = 0;              /**< the sorting priority in rendering */
+	
 	Vec3 position = {0, 0, 0};     /**< the position vector of instance */
 	
 	Vec3 rotation = {0, 0, 0};     /**< the rotation vector of instance */
@@ -47,68 +49,70 @@ public:
 	const Mesh* mesh = nullptr;    /**< the linked mesh of instance */
 	
 	/**
-	 * Create a new Instance, which is the minimum unit of rendering.
+	 * Creates a new Instance, which is the minimum unit of rendering.
 	 *
 	 * \param n instance name
 	 */
 	static Instance* create(const std::string& n = "");
 	
 	/**
-	 * Destroy Instance.
+	 * Destroys the specified Instance.
 	 *
 	 * \param i instance
 	 */
 	static void destroy(const Instance* i);
 	
 	/**
-	 * Add an instance as the child of this instance.
+	 * Adds the specified instance as the child of the instance. The index
+	 * starts from zero.
 	 *
 	 * \param i instance
 	 */
 	void add(Instance* i);
 	
 	/**
-	 * Add instances as the children of this instance.
+	 * Adds the specified instances as the children of the instance. The index
+	 * starts from zero.
 	 *
 	 * \param l instance list
 	 */
 	void add(const std::initializer_list<Instance*>& l);
 	
 	/**
-	 * Remove the instance as the child of this instance.
+	 * Removes the specified instance as the child of the instance.
 	 *
 	 * \param i instance
 	 */
 	void remove(Instance* i);
 	
 	/**
-	 * Remove the instances as the children of this instance.
+	 * Removes the specified instances as the children of the instance.
 	 *
 	 * \param l instance list
 	 */
 	void remove(const std::initializer_list<Instance*>& l);
 	
 	/**
-	 * Remove all the children.
+	 * Removes all the children from the instance.
 	 */
 	void clear();
 	
 	/**
-	 * Returns the child at the index.
+	 * Returns the child at the specified index in the instance.
 	 *
 	 * \param i the index of child
 	 */
 	Instance* get_child(int i) const;
 	
 	/**
-	 * Returns the first child matching the name.
+	 * Returns the first child matching the specified name in the instance.
 	 *
 	 * \param n the name of child
 	 */
 	Instance* get_child(const std::string& n) const;
 	
 	/**
-	 * Returns the number of its children.
+	 * Returns the number of its children in the instance.
 	 */
 	size_t get_child_count() const;
 	
@@ -118,7 +122,8 @@ public:
 	Instance* get_parent() const;
 	
 	/**
-	 * Sets the transform components (position, rotation and scaling).
+	 * Sets the transform vectors (position, rotation and scaling) of the
+	 * instance.
 	 *
 	 * \param p position vector
 	 * \param r rotation vector
@@ -127,31 +132,47 @@ public:
 	void set_transform(const Vec3& p, const Vec3& r, const Vec3& s);
 	
 	/**
-	 * Update the local transform matrix.
+	 * Updates the local transform matrix. This function is equivalent to
+	 * "matrix_local = transform();".
 	 */
 	void update_matrix_local();
 	
 	/**
-	 * Update the global transform matrix.
+	 * Updates the global transform matrix. This function is equivalent to
+	 * "matrix_global = transform_global();".
 	 */
 	void update_matrix_global();
 	
 	/**
-	 * Convert the vector from global space to local space.
+	 * Converts the specified vector from global space to local space. This
+	 * function only works when matrix_global is correct.
 	 *
 	 * \param v vector
 	 */
 	Vec3 global_to_local(const Vec3& v) const;
 	
 	/**
-	 * Convert the vector from local space to global space.
+	 * Converts the specified vector from local space to global space. This
+	 * function only works when matrix_global is correct.
 	 *
 	 * \param v vector
 	 */
 	Vec3 local_to_global(const Vec3& v) const;
 	
 	/**
-	 * Returns a transform matrix with the position, rotation and scale.
+	 * Returns a local transform matrix by calculating the position, rotation
+	 * and scale of instance.
+	 */
+	Mat4 transform() const;
+	
+	/**
+	 * Returns a global transform matrix by multiplying its ancestors' transform
+	 * matrices recursively.
+	 */
+	Mat4 transform_global() const;
+	
+	/**
+	 * Returns a transform matrix by calculating position, rotation and scale.
 	 *
 	 * \param p position vector
 	 * \param r rotation vector
@@ -159,23 +180,12 @@ public:
 	 */
 	static Mat4 transform(const Vec3& p, const Vec3& r, const Vec3& s);
 	
-	/**
-	 * Returns a transform matrix with the local position, rotation and scale
-	 * of the instance.
-	 */
-	Mat4 transform() const;
-	
-	/**
-	 * Returns a transform matrix with the global position, rotation and scale.
-	 */
-	Mat4 transform_global() const;
-	
 protected:
 	Instance* parent = nullptr;
 	
 	std::vector<Instance*> children;
 	
-	Instance(const std::string& n);
+	explicit Instance(const std::string& n);
 };
 
 }

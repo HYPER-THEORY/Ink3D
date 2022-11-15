@@ -22,6 +22,7 @@
 
 #include "Gpu.h"
 
+#include <array>
 #include <iostream>
 #include <memory>
 
@@ -86,6 +87,13 @@ constexpr uint32_t GL_IMAGE_TYPES[] = {
 	GL_UNSIGNED_INT_24_8,                                     /**< IMAGE_UINT_24_8 */
 };
 
+constexpr uint32_t GL_IMAGE_FORMATS[] = {
+	GL_RED,                                                   /**< Image::channel is 1 */
+	GL_RG,                                                    /**< Image::channel is 2 */
+	GL_RGB,                                                   /**< Image::channel is 3 */
+	GL_RGBA,                                                  /**< Image::channel is 4 */
+};
+
 constexpr uint32_t GL_TEXTURE_TYPES[] = {
 	GL_TEXTURE_1D,                                            /**< TEXTURE_1D */
 	GL_TEXTURE_2D,                                            /**< TEXTURE_2D */
@@ -96,73 +104,73 @@ constexpr uint32_t GL_TEXTURE_TYPES[] = {
 	GL_TEXTURE_CUBE_MAP_ARRAY,                                /**< TEXTURE_CUBE_ARRAY */
 };
 
-constexpr std::pair<uint32_t, int32_t> GL_TEXTURE_FORMATS[] = {
-	{GL_RED            , GL_R8                },              /**< TEXTURE_R8_UNORM */
-	{GL_RED            , GL_R8_SNORM          },              /**< TEXTURE_R8_SNORM */
-	{GL_RED            , GL_R16               },              /**< TEXTURE_R16_UNORM */
-	{GL_RED            , GL_R16_SNORM         },              /**< TEXTURE_R16_SNORM */
-	{GL_RG             , GL_RG8               },              /**< TEXTURE_R8G8_UNORM */
-	{GL_RG             , GL_RG8_SNORM         },              /**< TEXTURE_R8G8_SNORM */
-	{GL_RG             , GL_RG16              },              /**< TEXTURE_R16G16_UNORM */
-	{GL_RG             , GL_RG16_SNORM        },              /**< TEXTURE_R16G16_SNORM */
-	{GL_RGB            , GL_R3_G3_B2          },              /**< TEXTURE_R3G3B2_UNORM */
-	{GL_RGB            , GL_RGB4              },              /**< TEXTURE_R4G4B4_UNORM */
-	{GL_RGB            , GL_RGB5              },              /**< TEXTURE_R5G5B5_UNORM */
-	{GL_RGB            , GL_RGB8              },              /**< TEXTURE_R8G8B8_UNORM */
-	{GL_RGB            , GL_RGB8_SNORM        },              /**< TEXTURE_R8G8B8_SNORM */
-	{GL_RGB            , GL_RGB10             },              /**< TEXTURE_R10G10B10_UNORM */
-	{GL_RGB            , GL_RGB12             },              /**< TEXTURE_R12G12B12_UNORM */
-	{GL_RGB            , GL_RGB16_SNORM       },              /**< TEXTURE_R16G16B16_UNORM */
-	{GL_RGB            , GL_RGBA2             },              /**< TEXTURE_R2G2B2A2_UNORM */
-	{GL_RGB            , GL_RGBA4             },              /**< TEXTURE_R4G4B4A4_UNORM */
-	{GL_RGBA           , GL_RGB5_A1           },              /**< TEXTURE_R5G5B5A1_UNORM */
-	{GL_RGBA           , GL_RGBA8             },              /**< TEXTURE_R8G8B8A8_UNORM */
-	{GL_RGBA           , GL_RGBA8_SNORM       },              /**< TEXTURE_R8G8B8A8_SNORM */
-	{GL_RGBA           , GL_RGB10_A2          },              /**< TEXTURE_R10G10B10A2_UNORM */
-	{GL_RGBA           , GL_RGB10_A2UI        },              /**< TEXTURE_R10G10B10A2_UINT */
-	{GL_RGBA           , GL_RGBA12            },              /**< TEXTURE_R12G12B12A12_UNORM */
-	{GL_RGBA           , GL_RGBA16            },              /**< TEXTURE_R16G16B16A16_UNORM */
-	{GL_RGB            , GL_SRGB8             },              /**< TEXTURE_R8G8B8_SRGB */
-	{GL_RGBA           , GL_SRGB8_ALPHA8      },              /**< TEXTURE_R8G8B8A8_SRGB */
-	{GL_RED            , GL_R16F              },              /**< TEXTURE_R16_SFLOAT */
-	{GL_RG             , GL_RG16F             },              /**< TEXTURE_R16G16_SFLOAT */
-	{GL_RGB            , GL_RGB16F            },              /**< TEXTURE_R16G16B16_SFLOAT */
-	{GL_RGBA           , GL_RGBA16F           },              /**< TEXTURE_R16G16B16A16_SFLOAT */
-	{GL_RED            , GL_R32F              },              /**< TEXTURE_R32_SFLOAT */
-	{GL_RG             , GL_RG32F             },              /**< TEXTURE_R32G32_SFLOAT */
-	{GL_RGB            , GL_RGB32F            },              /**< TEXTURE_R32G32B32_SFLOAT */
-	{GL_RGBA           , GL_RGBA32F           },              /**< TEXTURE_R32G32B32A32_SFLOAT */
-	{GL_RGB            , GL_R11F_G11F_B10F    },              /**< TEXTURE_R11G11B10_SFLOAT */
-	{GL_RGB            , GL_RGB9_E5           },              /**< TEXTURE_R9G9B9E5_UNORM */
-	{GL_RED            , GL_R8I               },              /**< TEXTURE_R8_SINT */
-	{GL_RED            , GL_R8UI              },              /**< TEXTURE_R8_UINT */
-	{GL_RED            , GL_R16I              },              /**< TEXTURE_R16_SINT */
-	{GL_RED            , GL_R16UI             },              /**< TEXTURE_R16_UINT */
-	{GL_RED            , GL_R32I              },              /**< TEXTURE_R32_SINT */
-	{GL_RED            , GL_R32UI             },              /**< TEXTURE_R32_UINT */
-	{GL_RG             , GL_RG8I              },              /**< TEXTURE_R8G8_SINT */
-	{GL_RG             , GL_RG8UI             },              /**< TEXTURE_R8G8_UINT */
-	{GL_RG             , GL_RG16I             },              /**< TEXTURE_R16G16_SINT */
-	{GL_RG             , GL_RG16UI            },              /**< TEXTURE_R16G16_UINT */
-	{GL_RG             , GL_RG32I             },              /**< TEXTURE_R32G32_SINT */
-	{GL_RG             , GL_RG32UI            },              /**< TEXTURE_R32G32_UINT */
-	{GL_RGB            , GL_RGB8I             },              /**< TEXTURE_R8G8B8_SINT */
-	{GL_RGB            , GL_RGB8UI            },              /**< TEXTURE_R8G8B8_UINT */
-	{GL_RGB            , GL_RGB16I            },              /**< TEXTURE_R16G16B16_SINT */
-	{GL_RGB            , GL_RGB16UI           },              /**< TEXTURE_R16G16B16_UINT */
-	{GL_RGB            , GL_RGB32I            },              /**< TEXTURE_R32G32B32_SINT */
-	{GL_RGB            , GL_RGB32UI           },              /**< TEXTURE_R32G32B32_UINT */
-	{GL_RGBA           , GL_RGBA8I            },              /**< TEXTURE_R8G8B8A8_SINT */
-	{GL_RGBA           , GL_RGBA8UI           },              /**< TEXTURE_R8G8B8A8_UINT */
-	{GL_RGBA           , GL_RGBA16I           },              /**< TEXTURE_R16G16B16A16_SINT */
-	{GL_RGBA           , GL_RGBA16UI          },              /**< TEXTURE_R16G16B16A16_UINT */
-	{GL_RGBA           , GL_RGBA32I           },              /**< TEXTURE_R32G32B32A32_SINT */
-	{GL_RGBA           , GL_RGBA32UI          },              /**< TEXTURE_R32G32B32A32_UINT */
-	{GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT16 },              /**< TEXTURE_D16_UNORM */
-	{GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT24 },              /**< TEXTURE_D24_UNORM */
-	{GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT32F},              /**< TEXTURE_D32_SFLOAT */
-	{GL_DEPTH_STENCIL  , GL_DEPTH24_STENCIL8  },              /**< TEXTURE_D24_UNORM_S8_UINT */
-	{GL_DEPTH_STENCIL  , GL_DEPTH32F_STENCIL8 },              /**< TEXTURE_D32_SFLOAT_S8_UINT */
+constexpr std::pair<int32_t, uint32_t> GL_TEXTURE_FORMATS[] = {
+	{GL_R8                , GL_RED            },              /**< TEXTURE_R8_UNORM */
+	{GL_R8_SNORM          , GL_RED            },              /**< TEXTURE_R8_SNORM */
+	{GL_R16               , GL_RED            },              /**< TEXTURE_R16_UNORM */
+	{GL_R16_SNORM         , GL_RED            },              /**< TEXTURE_R16_SNORM */
+	{GL_RG8               , GL_RG             },              /**< TEXTURE_R8G8_UNORM */
+	{GL_RG8_SNORM         , GL_RG             },              /**< TEXTURE_R8G8_SNORM */
+	{GL_RG16              , GL_RG             },              /**< TEXTURE_R16G16_UNORM */
+	{GL_RG16_SNORM        , GL_RG             },              /**< TEXTURE_R16G16_SNORM */
+	{GL_R3_G3_B2          , GL_RGB            },              /**< TEXTURE_R3G3B2_UNORM */
+	{GL_RGB4              , GL_RGB            },              /**< TEXTURE_R4G4B4_UNORM */
+	{GL_RGB5              , GL_RGB            },              /**< TEXTURE_R5G5B5_UNORM */
+	{GL_RGB8              , GL_RGB            },              /**< TEXTURE_R8G8B8_UNORM */
+	{GL_RGB8_SNORM        , GL_RGB            },              /**< TEXTURE_R8G8B8_SNORM */
+	{GL_RGB10             , GL_RGB            },              /**< TEXTURE_R10G10B10_UNORM */
+	{GL_RGB12             , GL_RGB            },              /**< TEXTURE_R12G12B12_UNORM */
+	{GL_RGB16_SNORM       , GL_RGB            },              /**< TEXTURE_R16G16B16_UNORM */
+	{GL_RGBA2             , GL_RGB            },              /**< TEXTURE_R2G2B2A2_UNORM */
+	{GL_RGBA4             , GL_RGB            },              /**< TEXTURE_R4G4B4A4_UNORM */
+	{GL_RGB5_A1           , GL_RGBA           },              /**< TEXTURE_R5G5B5A1_UNORM */
+	{GL_RGBA8             , GL_RGBA           },              /**< TEXTURE_R8G8B8A8_UNORM */
+	{GL_RGBA8_SNORM       , GL_RGBA           },              /**< TEXTURE_R8G8B8A8_SNORM */
+	{GL_RGB10_A2          , GL_RGBA           },              /**< TEXTURE_R10G10B10A2_UNORM */
+	{GL_RGB10_A2UI        , GL_RGBA           },              /**< TEXTURE_R10G10B10A2_UINT */
+	{GL_RGBA12            , GL_RGBA           },              /**< TEXTURE_R12G12B12A12_UNORM */
+	{GL_RGBA16            , GL_RGBA           },              /**< TEXTURE_R16G16B16A16_UNORM */
+	{GL_SRGB8             , GL_RGB            },              /**< TEXTURE_R8G8B8_SRGB */
+	{GL_SRGB8_ALPHA8      , GL_RGBA           },              /**< TEXTURE_R8G8B8A8_SRGB */
+	{GL_R16F              , GL_RED            },              /**< TEXTURE_R16_SFLOAT */
+	{GL_RG16F             , GL_RG             },              /**< TEXTURE_R16G16_SFLOAT */
+	{GL_RGB16F            , GL_RGB            },              /**< TEXTURE_R16G16B16_SFLOAT */
+	{GL_RGBA16F           , GL_RGBA           },              /**< TEXTURE_R16G16B16A16_SFLOAT */
+	{GL_R32F              , GL_RED            },              /**< TEXTURE_R32_SFLOAT */
+	{GL_RG32F             , GL_RG             },              /**< TEXTURE_R32G32_SFLOAT */
+	{GL_RGB32F            , GL_RGB            },              /**< TEXTURE_R32G32B32_SFLOAT */
+	{GL_RGBA32F           , GL_RGBA           },              /**< TEXTURE_R32G32B32A32_SFLOAT */
+	{GL_R11F_G11F_B10F    , GL_RGB            },              /**< TEXTURE_R11G11B10_SFLOAT */
+	{GL_RGB9_E5           , GL_RGB            },              /**< TEXTURE_R9G9B9E5_UNORM */
+	{GL_R8I               , GL_RED            },              /**< TEXTURE_R8_SINT */
+	{GL_R8UI              , GL_RED            },              /**< TEXTURE_R8_UINT */
+	{GL_R16I              , GL_RED            },              /**< TEXTURE_R16_SINT */
+	{GL_R16UI             , GL_RED            },              /**< TEXTURE_R16_UINT */
+	{GL_R32I              , GL_RED            },              /**< TEXTURE_R32_SINT */
+	{GL_R32UI             , GL_RED            },              /**< TEXTURE_R32_UINT */
+	{GL_RG8I              , GL_RG             },              /**< TEXTURE_R8G8_SINT */
+	{GL_RG8UI             , GL_RG             },              /**< TEXTURE_R8G8_UINT */
+	{GL_RG16I             , GL_RG             },              /**< TEXTURE_R16G16_SINT */
+	{GL_RG16UI            , GL_RG             },              /**< TEXTURE_R16G16_UINT */
+	{GL_RG32I             , GL_RG             },              /**< TEXTURE_R32G32_SINT */
+	{GL_RG32UI            , GL_RG             },              /**< TEXTURE_R32G32_UINT */
+	{GL_RGB8I             , GL_RGB            },              /**< TEXTURE_R8G8B8_SINT */
+	{GL_RGB8UI            , GL_RGB            },              /**< TEXTURE_R8G8B8_UINT */
+	{GL_RGB16I            , GL_RGB            },              /**< TEXTURE_R16G16B16_SINT */
+	{GL_RGB16UI           , GL_RGB            },              /**< TEXTURE_R16G16B16_UINT */
+	{GL_RGB32I            , GL_RGB            },              /**< TEXTURE_R32G32B32_SINT */
+	{GL_RGB32UI           , GL_RGB            },              /**< TEXTURE_R32G32B32_UINT */
+	{GL_RGBA8I            , GL_RGBA           },              /**< TEXTURE_R8G8B8A8_SINT */
+	{GL_RGBA8UI           , GL_RGBA           },              /**< TEXTURE_R8G8B8A8_UINT */
+	{GL_RGBA16I           , GL_RGBA           },              /**< TEXTURE_R16G16B16A16_SINT */
+	{GL_RGBA16UI          , GL_RGBA           },              /**< TEXTURE_R16G16B16A16_UINT */
+	{GL_RGBA32I           , GL_RGBA           },              /**< TEXTURE_R32G32B32A32_SINT */
+	{GL_RGBA32UI          , GL_RGBA           },              /**< TEXTURE_R32G32B32A32_UINT */
+	{GL_DEPTH_COMPONENT16 , GL_DEPTH_COMPONENT},              /**< TEXTURE_D16_UNORM */
+	{GL_DEPTH_COMPONENT24 , GL_DEPTH_COMPONENT},              /**< TEXTURE_D24_UNORM */
+	{GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT},              /**< TEXTURE_D32_SFLOAT */
+	{GL_DEPTH24_STENCIL8  , GL_DEPTH_STENCIL  },              /**< TEXTURE_D24_UNORM_S8_UINT */
+	{GL_DEPTH32F_STENCIL8 , GL_DEPTH_STENCIL  },              /**< TEXTURE_D32_SFLOAT_S8_UINT */
 };
 
 constexpr int32_t GL_TEXTURE_WRAPPINGS[] = {
@@ -235,6 +243,22 @@ Rect::Rect(int w, int h) : width(w), height(h) {}
 
 Rect::Rect(int x, int y, int w, int h) : x(x), y(y), width(w), height(h) {}
 
+std::string get_device_info() {
+	std::string info = "Vender: ";
+	const uint8_t* vender = glGetString(GL_VENDOR);
+	info += reinterpret_cast<const char*>(vender);
+	info += "\nRenderer: ";
+	const uint8_t* renderer = glGetString(GL_RENDERER);
+	info += reinterpret_cast<const char*>(renderer);
+	info += "\nVersion: ";
+	const uint8_t* version = glGetString(GL_VERSION);
+	info += reinterpret_cast<const char*>(version);
+	info += "\nGLSL Version: ";
+	const uint8_t* glsl = glGetString(GL_SHADING_LANGUAGE_VERSION);
+	info += reinterpret_cast<const char*>(glsl);
+	return info + "\n";
+}
+
 void finish() {
 	glFinish();
 }
@@ -265,6 +289,17 @@ void set_clear_color(const Vec4& c) {
 	glClearColor(c.x, c.y, c.z, c.w);
 }
 
+Vec4 get_color_writemask() {
+	int color_writemasks[4];
+	glGetIntegerv(GL_COLOR_WRITEMASK, &color_writemasks[0]);
+	return Vec4(color_writemasks[0], color_writemasks[1],
+				color_writemasks[2], color_writemasks[3]);
+}
+
+void set_color_writemask(bool r, bool g, bool b, bool a) {
+	glColorMask(r, g, b, a);
+}
+
 void enable_depth_test() {
 	glEnable(GL_DEPTH_TEST);
 }
@@ -281,6 +316,16 @@ int get_depth_func() {
 
 void set_depth_func(int f) {
 	glDepthFunc(GL_COMPARISON_FUNCTIONS[f]);
+}
+
+bool get_depth_writemask() {
+	int depth_writemask = 0;
+	glGetIntegerv(GL_DEPTH_WRITEMASK, &depth_writemask);
+	return depth_writemask;
+}
+
+void set_depth_writemask(bool m) {
+	glDepthMask(m);
 }
 
 void enable_stencil_test() {
@@ -355,16 +400,20 @@ void disable_blending() {
 	glDisable(GL_BLEND);
 }
 
-int get_blend_op() {
-	int blend_op = 0;
-	glGetIntegerv(GL_BLEND_EQUATION_RGB, &blend_op);
-	return get_blend_equations(blend_op);
+int get_blend_op_rgb() {
+	int blend_op_rgb = 0;
+	glGetIntegerv(GL_BLEND_EQUATION_RGB, &blend_op_rgb);
+	return get_blend_equations(blend_op_rgb);
 }
 
 int get_blend_op_alpha() {
-	int blend_op = 0;
-	glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &blend_op);
-	return get_blend_equations(blend_op);
+	int blend_op_alpha = 0;
+	glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &blend_op_alpha);
+	return get_blend_equations(blend_op_alpha);
+}
+
+void set_blend_op(int o) {
+	glBlendEquation(GL_BLEND_OPERATIONS[o]);
 }
 
 void set_blend_op(int rgb, int a) {
@@ -372,35 +421,47 @@ void set_blend_op(int rgb, int a) {
 							GL_BLEND_OPERATIONS[a]);
 }
 
-int get_blend_src() {
-	int blend_func = 0;
-	glGetIntegerv(GL_BLEND_SRC_RGB, &blend_func);
-	return get_blend_functions(blend_func);
+int get_blend_src_rgb() {
+	int blend_src_rgb = 0;
+	glGetIntegerv(GL_BLEND_SRC_RGB, &blend_src_rgb);
+	return get_blend_functions(blend_src_rgb);
 }
 
 int get_blend_src_alpha() {
-	int blend_func = 0;
-	glGetIntegerv(GL_BLEND_SRC_ALPHA, &blend_func);
-	return get_blend_functions(blend_func);
+	int blend_src_alpha = 0;
+	glGetIntegerv(GL_BLEND_SRC_ALPHA, &blend_src_alpha);
+	return get_blend_functions(blend_src_alpha);
 }
 
-int get_blend_dst() {
-	int blend_func = 0;
-	glGetIntegerv(GL_BLEND_DST_RGB, &blend_func);
-	return get_blend_functions(blend_func);
+int get_blend_dst_rgb() {
+	int blend_dst_rgb = 0;
+	glGetIntegerv(GL_BLEND_DST_RGB, &blend_dst_rgb);
+	return get_blend_functions(blend_dst_rgb);
 }
 
 int get_blend_dst_alpha() {
-	int blend_func = 0;
-	glGetIntegerv(GL_BLEND_DST_ALPHA, &blend_func);
-	return get_blend_functions(blend_func);
+	int blend_dst_alpha = 0;
+	glGetIntegerv(GL_BLEND_DST_ALPHA, &blend_dst_alpha);
+	return get_blend_functions(blend_dst_alpha);
+}
+
+void set_blend_factor(int s, int d) {
+	glBlendFunc(GL_BLEND_FACTORS[s], GL_BLEND_FACTORS[d]);
 }
 
 void set_blend_factor(int srgb, int drgb, int sa, int da) {
-	glBlendFuncSeparate(GL_BLEND_FACTORS[srgb],
-						GL_BLEND_FACTORS[drgb],
-						GL_BLEND_FACTORS[sa],
-						GL_BLEND_FACTORS[da]);
+	glBlendFuncSeparate(GL_BLEND_FACTORS[srgb], GL_BLEND_FACTORS[drgb],
+						GL_BLEND_FACTORS[sa], GL_BLEND_FACTORS[da]);
+}
+
+Rect get_viewport() {
+	Rect viewport_rect;
+	glGetIntegerv(GL_VIEWPORT, &viewport_rect.x);
+	return viewport_rect;
+}
+
+void set_viewport(const Rect& v) {
+	glViewport(v.x, v.y, v.width, v.height);
 }
 
 void enable_scissor_test() {
@@ -429,23 +490,23 @@ void disable_wireframe() {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void enable_cull_face() {
+void enable_culling() {
 	glEnable(GL_CULL_FACE);
 }
 
-void disable_cull_face() {
+void disable_culling() {
 	glDisable(GL_CULL_FACE);
 }
 
-int get_cull_face() {
-	int cull_face = 0;
-	glGetIntegerv(GL_CULL_FACE, &cull_face);
-	if (cull_face == GL_FRONT) return FRONT_SIDE;
-	if (cull_face == GL_BACK ) return BACK_SIDE;
+int get_cull_side() {
+	int cull_side = 0;
+	glGetIntegerv(GL_CULL_FACE, &cull_side);
+	if (cull_side == GL_FRONT) return FRONT_SIDE;
+	if (cull_side == GL_BACK ) return BACK_SIDE;
 	return DOUBLE_SIDE;
 }
 
-void set_cull_face(int s) {
+void set_cull_side(int s) {
 	if (s == FRONT_SIDE) {
 		glCullFace(GL_FRONT);
 	} else if (s == BACK_SIDE) {
@@ -455,14 +516,36 @@ void set_cull_face(int s) {
 	}
 }
 
-Rect get_viewport() {
-	Rect viewport_rect;
-	glGetIntegerv(GL_VIEWPORT, &viewport_rect.x);
-	return viewport_rect;
+void enable_polygon_offset() {
+	glEnable(GL_POLYGON_OFFSET_FILL);
 }
 
-void set_viewport(const Rect& v) {
-	glViewport(v.x, v.y, v.width, v.height);
+void disable_polygon_offset() {
+	glDisable(GL_POLYGON_OFFSET_FILL);
+}
+
+float get_polygon_offset_factor() {
+	float polygon_offset_factor = 0;
+	glGetFloatv(GL_POLYGON_OFFSET_FACTOR, &polygon_offset_factor);
+	return polygon_offset_factor;
+}
+
+float get_polygon_offset_units() {
+	float polygon_offset_units = 0;
+	glGetFloatv(GL_POLYGON_OFFSET_UNITS, &polygon_offset_units);
+	return polygon_offset_units;
+}
+
+void set_polygon_offset(float f, float u) {
+	glPolygonOffset(f, u);
+}
+
+void enable_dithering() {
+	glEnable(GL_DITHER);
+}
+
+void disable_dithering() {
+	glDisable(GL_DITHER);
 }
 
 void enable_multisample() {
@@ -471,6 +554,14 @@ void enable_multisample() {
 
 void disable_multisample() {
 	glDisable(GL_MULTISAMPLE);
+}
+
+void enable_alpha_to_coverage() {
+	glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
+}
+
+void disable_alpha_to_coverage() {
+	glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 }
 
 void enable_texture_cube_seamless() {
@@ -509,25 +600,25 @@ void apply_material_wireframe(const Material& m) {
 
 void apply_material_side(const Material& m) {
 	if (m.side == FRONT_SIDE) {
-		enable_cull_face();
-		set_cull_face(BACK_SIDE);
+		enable_culling();
+		set_cull_side(BACK_SIDE);
 	} else if (m.side == BACK_SIDE) {
-		enable_cull_face();
-		set_cull_face(FRONT_SIDE);
+		enable_culling();
+		set_cull_side(FRONT_SIDE);
 	} else if (m.side == DOUBLE_SIDE) {
-		disable_cull_face();
+		disable_culling();
 	}
 }
 
 void apply_material_shadow_side(const Material& m) {
 	if (m.shadow_side == FRONT_SIDE) {
-		enable_cull_face();
-		set_cull_face(BACK_SIDE);
+		enable_culling();
+		set_cull_side(BACK_SIDE);
 	} else if (m.shadow_side == BACK_SIDE) {
-		enable_cull_face();
-		set_cull_face(FRONT_SIDE);
+		enable_culling();
+		set_cull_side(FRONT_SIDE);
 	} else if (m.shadow_side == DOUBLE_SIDE) {
-		disable_cull_face();
+		disable_culling();
 	}
 }
 
@@ -591,59 +682,19 @@ void Shader::load_frag(const std::string& s) {
 	resolve_include(frag_shader);
 }
 
-void Shader::load(const char* v, const char* f) {
-	load_vert(v);
-	load_frag(f);
-}
-
-void Shader::load(const char* v, const char* f, const char* g) {
-	load_vert(v);
-	load_frag(f);
-	load_geom(g);
-}
-
-void Shader::load(const std::string& v, const std::string& f) {
-	load_vert(v);
-	load_frag(f);
-}
-
-void Shader::load(const std::string& v, const std::string& f, const std::string& g) {
-	load_vert(v);
-	load_frag(f);
-	load_geom(g);
-}
-
-int Shader::load_vert_file(const std::string& s) {
-	int return_value = read_file(s, vert_shader);
+void Shader::load_vert_file(const std::string& p) {
+	vert_shader = File::read(p);
 	resolve_include(vert_shader);
-	return return_value;
 }
 
-int Shader::load_geom_file(const std::string& s) {
-	int return_value = read_file(s, geom_shader);
+void Shader::load_geom_file(const std::string& p) {
+	geom_shader = File::read(p);
 	resolve_include(geom_shader);
-	return return_value;
 }
 
-int Shader::load_frag_file(const std::string& s) {
-	int return_value = read_file(s, frag_shader);
+void Shader::load_frag_file(const std::string& p) {
+	frag_shader = File::read(p);
 	resolve_include(frag_shader);
-	return return_value;
-}
-
-int Shader::load_files(const std::string& v, const std::string& f) {
-	int return_value = 0;
-	return_value |= load_vert_file(v);
-	return_value |= load_frag_file(f);
-	return return_value;
-}
-
-int Shader::load_files(const std::string& v, const std::string& f, const std::string& g) {
-	int return_value = 0;
-	return_value |= load_vert_file(v);
-	return_value |= load_frag_file(f);
-	return_value |= load_geom_file(g);
-	return return_value;
 }
 
 void Shader::compile() {
@@ -656,7 +707,7 @@ void Shader::use_program() const {
 	glUseProgram(program);
 }
 
-void Shader::set_define(const Defines& d) {
+void Shader::set_defines(const Defines& d) {
 	defines = d.get();
 }
 
@@ -697,69 +748,79 @@ void Shader::set_uniform_m4(const std::string& n, const Mat4& v) const {
 }
 
 void Shader::set_uniforms(const Uniforms& u) const {
-	for (auto var : u.vars) {
+	for (auto& [name_with_suffix, value] : u.vars) {
 		
-		/* analyse the name and suffix of variable */
-		const std::string& name_with_suffix = var.first;
-		const void* value = var.second;
-		size_t last_index = name_with_suffix.rfind('_');
-		if (last_index == -1) {
-			set_error("Shader: Variable suffix not found");
-			continue;
+		/* analyse the suffix of variable */
+		size_t length = name_with_suffix.size();
+		char suffix_1 = name_with_suffix[length - 1];
+		char suffix_2 = name_with_suffix[length - 2];
+		
+		/* analyse the name of variable */
+		std::string name = name_with_suffix;
+		if (suffix_2 == '_') {
+			name[length - 2] = '\0';
+		} else {
+			name[length - 3] = '\0';
 		}
-		std::string name = name_with_suffix.substr(0, last_index);
-		std::string suffix = name_with_suffix.substr(last_index + 1);
 		
 		/* convert variable into int data type */
-		if (suffix == "i") {
+		if (suffix_1 == 'i') {
 			set_uniform_i(name, *static_cast<const int*>(value));
 		}
 		
 		/* convert variable into unsigned int data type */
-		else if (suffix == "u") {
+		else if (suffix_1 == 'u') {
 			set_uniform_u(name, *static_cast<const unsigned int*>(value));
 		}
 		
 		/* convert variable into float data type */
-		else if (suffix == "f") {
+		else if (suffix_1 == 'f') {
 			set_uniform_f(name, *static_cast<const float*>(value));
 		}
 		
 		/* convert variable into Vec2 data type */
-		else if (suffix == "v2") {
+		else if (suffix_1 == '2' && suffix_2 == 'v') {
 			set_uniform_v2(name, *static_cast<const Vec2*>(value));
 		}
 		
 		/* convert variable into Vec3 data type */
-		else if (suffix == "v3") {
+		else if (suffix_1 == '3' && suffix_2 == 'v') {
 			set_uniform_v3(name, *static_cast<const Vec3*>(value));
 		}
 		
 		/* convert variable into Vec4 data type */
-		else if (suffix == "v4") {
+		else if (suffix_1 == '4' && suffix_2 == 'v') {
 			set_uniform_v4(name, *static_cast<const Vec4*>(value));
 		}
 		
 		/* convert variable into Mat2 data type */
-		else if (suffix == "m2") {
+		else if (suffix_1 == '2' && suffix_2 == 'm') {
 			set_uniform_m2(name, *static_cast<const Mat2*>(value));
 		}
 		
 		/* convert variable into Mat3 data type */
-		else if (suffix == "m3") {
+		else if (suffix_1 == '3' && suffix_2 == 'm') {
 			set_uniform_m3(name, *static_cast<const Mat3*>(value));
 		}
 		
 		/* convert variable into Mat4 data type */
-		else if (suffix == "m4") {
+		else if (suffix_1 == '4' && suffix_2 == 'm') {
 			set_uniform_m4(name, *static_cast<const Mat4*>(value));
 		}
 		
 		/* unknown variable suffix */
 		else {
-			set_error("Shader: Unknown variable suffix");
+			Error::set("Shader: Unknown variable suffix");
 		}
 	}
+}
+
+void Shader::set_include_path(const std::string& p) {
+	include_path = p;
+}
+
+void Shader::set_glsl_version(const std::string& v) {
+	glsl_version = v;
 }
 
 uint32_t Shader::compile_shader(const std::string& s, int32_t t) const {
@@ -784,10 +845,10 @@ void Shader::compile_shaders() const {
 	bool has_geom = !geom_shader.empty();
 	bool has_frag = !frag_shader.empty();
 	if (!has_vert) {
-		return void(set_error("Shader: Vertex shader is missing"));
+		return Error::set("Shader: Vertex shader is missing");
 	}
 	if (!has_frag) {
-		return void(set_error("Shader: Fragment shader is missing"));
+		return Error::set("Shader: Fragment shader is missing");
 	}
 	
 	/* compile shaders */
@@ -813,22 +874,6 @@ void Shader::compile_shaders() const {
 	/* has_vert */ glDeleteShader(vert_id);
 	if (has_geom)  glDeleteShader(geom_id);
 	/* has_frag */ glDeleteShader(frag_id);
-}
-
-std::string Shader::get_compile_info(uint32_t s, uint32_t t) const {
-	int32_t success;
-	glGetShaderiv(s, GL_COMPILE_STATUS, &success);
-	if (success) return "";
-	std::string info(1024, '\0');
-	glGetShaderInfoLog(s, 1024, nullptr, info.data());
-	if (t == GL_VERTEX_SHADER) {
-		info = "Shader: Vertex shader compile error\n" + info;
-	} else if (t == GL_GEOMETRY_SHADER) {
-		info = "Shader: Geometry shader compile error\n" + info;
-	} else if (t == GL_FRAGMENT_SHADER) {
-		info = "Shader: Fragment shader compile error\n" + info;
-	}
-	return info;
 }
 
 std::string Shader::get_link_info() const {
@@ -872,8 +917,7 @@ std::string Shader::get_error_info(const std::string& c, const std::string& s) {
 		std::string error_line = s.substr(error_begin, error_end - error_begin);
 		
 		/* add code line to error information */
-		info += error_line + '\n';
-		info += '\n';
+		info += error_line + "\n\n";
 		++error_sum;
 	}
 	
@@ -910,19 +954,15 @@ void Shader::resolve_include(std::string& s) {
 		std::string include = line.substr(char_3 + 1, char_4 - char_3 - 1);
 		
 		/* read included file into content */
-		std::string content;
-		int success = read_file(include_path + include + ".glsl", content);
-		if (success == -1) {
-			return void(set_error("Shader: Included file does not exist"));
-		}
+		std::string content = File::read(include_path + include + ".glsl");
 		
-		/* replace content */
+		/* replace with content */
 		s.replace(line_begin, line_end - line_begin, content);
 		line_end = line_begin - 1;
 		
 		/* check if there is circular include */
 		if (include_times++ == /* max include times */ 1024) {
-			return void(set_error("Shader: Circular include"));
+			return Error::set("Shader: Circular include");
 		}
 	}
 }
@@ -935,8 +975,20 @@ void Shader::resolve_version(std::string& s) {
 	s = "#version " + glsl_version + "\n" + s;
 }
 
-void Shader::set_include_path(const std::string& p) {
-	include_path = p;
+std::string Shader::get_compile_info(uint32_t s, uint32_t t) {
+	int32_t success;
+	glGetShaderiv(s, GL_COMPILE_STATUS, &success);
+	if (success) return "";
+	std::string info(1024, '\0');
+	glGetShaderInfoLog(s, 1024, nullptr, info.data());
+	if (t == GL_VERTEX_SHADER) {
+		info = "Shader: Vertex shader compile error\n" + info;
+	} else if (t == GL_GEOMETRY_SHADER) {
+		info = "Shader: Geometry shader compile error\n" + info;
+	} else if (t == GL_FRAGMENT_SHADER) {
+		info = "Shader: Fragment shader compile error\n" + info;
+	}
+	return info;
 }
 
 std::string Shader::include_path = "ink/shaders/inc/";
@@ -1015,7 +1067,7 @@ void VertexObject::load(const Mesh& m, unsigned int g) {
 	glBindBuffer(GL_ARRAY_BUFFER, buffer.id);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
 	for (int i = 0; i < sizes.size(); ++i) {
-		GLvoid* pointer = reinterpret_cast<void*>(sizeof(float) * locations[i]);
+		void* pointer = reinterpret_cast<void*>(sizeof(float) * locations[i]);
 		glVertexAttribPointer(i, sizes[i], GL_FLOAT, GL_FALSE, sizeof(float) * stride, pointer);
 		glEnableVertexAttribArray(i);
 	}
@@ -1028,7 +1080,7 @@ void VertexObject::attach(const Shader& s) const {
 	for (int i = 0; i < sizes.size(); ++i) {
 		int32_t attrib = glGetAttribLocation(s.program, names[i].c_str());
 		if (attrib == -1) continue;
-		GLvoid* pointer = reinterpret_cast<void*>(sizeof(float) * locations[i]);
+		void* pointer = reinterpret_cast<void*>(sizeof(float) * locations[i]);
 		glVertexAttribPointer(attrib, sizes[i], GL_FLOAT, GL_FALSE, sizeof(float) * stride, pointer);
 		glEnableVertexAttribArray(attrib);
 	}
@@ -1048,8 +1100,8 @@ Texture::~Texture() {
 }
 
 void Texture::init_1d(int w, int f, int t) {
-	uint32_t external = GL_TEXTURE_FORMATS[f].first;
-	int32_t internal = GL_TEXTURE_FORMATS[f].second;
+	int32_t internal = GL_TEXTURE_FORMATS[f].first;
+	uint32_t external = GL_TEXTURE_FORMATS[f].second;
 	uint32_t data = GL_IMAGE_TYPES[t];
 	glBindTexture(GL_TEXTURE_1D, id);
 	glTexImage1D(GL_TEXTURE_1D, 0, internal, w, 0, external, data, nullptr);
@@ -1057,8 +1109,8 @@ void Texture::init_1d(int w, int f, int t) {
 }
 
 void Texture::init_2d(int w, int h, int f, int t) {
-	uint32_t external = GL_TEXTURE_FORMATS[f].first;
-	int32_t internal = GL_TEXTURE_FORMATS[f].second;
+	int32_t internal = GL_TEXTURE_FORMATS[f].first;
+	uint32_t external = GL_TEXTURE_FORMATS[f].second;
 	uint32_t data = GL_IMAGE_TYPES[t];
 	glBindTexture(GL_TEXTURE_2D, id);
 	glTexImage2D(GL_TEXTURE_2D, 0, internal, w, h, 0, external, data, nullptr);
@@ -1066,8 +1118,8 @@ void Texture::init_2d(int w, int h, int f, int t) {
 }
 
 void Texture::init_2d(const Image& i, int f) {
-	uint32_t external = GL_TEXTURE_FORMATS[f].first;
-	int32_t internal = GL_TEXTURE_FORMATS[f].second;
+	int32_t internal = GL_TEXTURE_FORMATS[f].first;
+	uint32_t external = GL_IMAGE_FORMATS[i.channel - 1];
 	uint32_t data = GL_IMAGE_TYPES[i.bytes == 1 ? IMAGE_UBYTE : IMAGE_FLOAT];
 	glBindTexture(GL_TEXTURE_2D, id);
 	glTexImage2D(GL_TEXTURE_2D, 0, internal, i.width, i.height, 0, external, data, i.data.data());
@@ -1075,8 +1127,8 @@ void Texture::init_2d(const Image& i, int f) {
 }
 
 void Texture::init_3d(int w, int h, int d, int f, int t) {
-	uint32_t external = GL_TEXTURE_FORMATS[f].first;
-	int32_t internal = GL_TEXTURE_FORMATS[f].second;
+	int32_t internal = GL_TEXTURE_FORMATS[f].first;
+	uint32_t external = GL_TEXTURE_FORMATS[f].second;
 	uint32_t data = GL_IMAGE_TYPES[t];
 	glBindTexture(GL_TEXTURE_3D, id);
 	glTexImage3D(GL_TEXTURE_3D, 0, internal, w, h, d, 0, external, data, nullptr);
@@ -1084,12 +1136,12 @@ void Texture::init_3d(int w, int h, int d, int f, int t) {
 }
 
 void Texture::init_cube(int w, int h, int f, int t) {
-	uint32_t external = GL_TEXTURE_FORMATS[f].first;
-	int32_t internal = GL_TEXTURE_FORMATS[f].second;
+	int32_t internal = GL_TEXTURE_FORMATS[f].first;
+	uint32_t external = GL_TEXTURE_FORMATS[f].second;
 	uint32_t data = GL_IMAGE_TYPES[t];
 	glBindTexture(GL_TEXTURE_CUBE_MAP, id);
-	for (int f = 0; f < 6; ++f) {
-		uint32_t target = GL_TEXTURE_CUBE_MAP_POSITIVE_X + f;
+	for (int i = 0; i < 6; ++i) {
+		uint32_t target = GL_TEXTURE_CUBE_MAP_POSITIVE_X + i;
 		glTexImage2D(target, 0, internal, w, h, 0, external, data, nullptr);
 	}
 	set_parameters(TEXTURE_CUBE, f, w, h, 0);
@@ -1097,28 +1149,28 @@ void Texture::init_cube(int w, int h, int f, int t) {
 
 void Texture::init_cube(const Image& px, const Image& nx, const Image& py,
 						const Image& ny, const Image& pz, const Image& nz, int f) {
-	uint32_t external = GL_TEXTURE_FORMATS[f].first;
-	int32_t internal = GL_TEXTURE_FORMATS[f].second;
+	int32_t internal = GL_TEXTURE_FORMATS[f].first;
+	uint32_t external = GL_IMAGE_FORMATS[px.channel - 1];
 	uint32_t data = GL_IMAGE_TYPES[px.bytes == 1 ? IMAGE_UBYTE : IMAGE_FLOAT];
 	glBindTexture(GL_TEXTURE_CUBE_MAP, id);
-	uint32_t target_px = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
-	glTexImage2D(target_px, 0, internal, px.width, px.height, 0, external, data, px.data.data());
-	uint32_t target_nx = GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
-	glTexImage2D(target_nx, 0, internal, nx.width, nx.height, 0, external, data, nx.data.data());
-	uint32_t target_py = GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
-	glTexImage2D(target_py, 0, internal, py.width, py.height, 0, external, data, py.data.data());
-	uint32_t target_ny = GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
-	glTexImage2D(target_ny, 0, internal, ny.width, ny.height, 0, external, data, ny.data.data());
-	uint32_t target_pz = GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
-	glTexImage2D(target_pz, 0, internal, pz.width, pz.height, 0, external, data, pz.data.data());
-	uint32_t target_nz = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
-	glTexImage2D(target_nz, 0, internal, nz.width, nz.height, 0, external, data, nz.data.data());
+	uint32_t target = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+	glTexImage2D(target, 0, internal, px.width, px.height, 0, external, data, px.data.data());
+	target = GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
+	glTexImage2D(target, 0, internal, nx.width, nx.height, 0, external, data, nx.data.data());
+	target = GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
+	glTexImage2D(target, 0, internal, py.width, py.height, 0, external, data, py.data.data());
+	target = GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
+	glTexImage2D(target, 0, internal, ny.width, ny.height, 0, external, data, ny.data.data());
+	target = GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
+	glTexImage2D(target, 0, internal, pz.width, pz.height, 0, external, data, pz.data.data());
+	target = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
+	glTexImage2D(target, 0, internal, nz.width, nz.height, 0, external, data, nz.data.data());
 	set_parameters(TEXTURE_CUBE, f, width, height, 0);
 }
 
 void Texture::init_1d_array(int w, int l, int f, int t) {
-	uint32_t external = GL_TEXTURE_FORMATS[f].first;
-	int32_t internal = GL_TEXTURE_FORMATS[f].second;
+	int32_t internal = GL_TEXTURE_FORMATS[f].first;
+	uint32_t external = GL_TEXTURE_FORMATS[f].second;
 	uint32_t data = GL_IMAGE_TYPES[t];
 	glBindTexture(GL_TEXTURE_1D_ARRAY, id);
 	glTexImage2D(GL_TEXTURE_1D_ARRAY, 0, internal, w, l, 0, external, data, nullptr);
@@ -1126,8 +1178,8 @@ void Texture::init_1d_array(int w, int l, int f, int t) {
 }
 
 void Texture::init_2d_array(int w, int h, int l, int f, int t) {
-	uint32_t external = GL_TEXTURE_FORMATS[f].first;
-	int32_t internal = GL_TEXTURE_FORMATS[f].second;
+	int32_t internal = GL_TEXTURE_FORMATS[f].first;
+	uint32_t external = GL_TEXTURE_FORMATS[f].second;
 	uint32_t data = GL_IMAGE_TYPES[t];
 	glBindTexture(GL_TEXTURE_2D_ARRAY, id);
 	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internal, w, h, l, 0, external, data, nullptr);
@@ -1135,8 +1187,8 @@ void Texture::init_2d_array(int w, int h, int l, int f, int t) {
 }
 
 void Texture::init_cube_array(int w, int h, int l, int f, int t) {
-	uint32_t external = GL_TEXTURE_FORMATS[f].first;
-	int32_t internal = GL_TEXTURE_FORMATS[f].second;
+	int32_t internal = GL_TEXTURE_FORMATS[f].first;
+	uint32_t external = GL_TEXTURE_FORMATS[f].second;
 	uint32_t data = GL_IMAGE_TYPES[t];
 	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, id);
 	for (int i = 0; i < l * 6; ++i) {
@@ -1167,28 +1219,23 @@ int Texture::get_depth() const {
 
 int Texture::get_layer() const {
 	/* texture 1D (width) */
-	if (type == TEXTURE_1D_ARRAY) {
-		return height;
-	}
+	if (type == TEXTURE_1D_ARRAY) return height;
 	
 	/* texture 2D (width x height) */
-	if (type == TEXTURE_2D_ARRAY) {
-		return depth;
-	}
+	if (type == TEXTURE_2D_ARRAY) return depth;
 	
 	/* texture cube (width x height) */
-	if (type == TEXTURE_CUBE_ARRAY) {
-		return depth;
-	}
+	if (type == TEXTURE_CUBE_ARRAY) return depth;
 	
-	/* other textures */
-	return set_error("Texture: Cannot get layer from an non-array texture");
+	/* illegal texture */
+	Error::set("Texture: Cannot get layer from an non-array texture");
+	return -1;
 }
 
 Image Texture::get_image() const {
 	/* check whether the texture is 2D */
 	if (type != TEXTURE_2D) {
-		set_error("Texture: Cannot get image from an non-2D texture");
+		Error::set("Texture: Cannot get image from an non-2D texture");
 		return Image();
 	}
 	
@@ -1249,14 +1296,22 @@ void Texture::set_filters(int mag, int min) const {
 	glTexParameteri(gl_type, GL_TEXTURE_MIN_FILTER, GL_TEXTURE_FILTERS[min]);
 }
 
+void Texture::set_border_color(const Vec4& c) const {
+	uint32_t gl_type = GL_TEXTURE_TYPES[type];
+	glBindTexture(gl_type, id);
+	glTexParameterfv(gl_type, GL_TEXTURE_BORDER_COLOR, &c.x);
+}
+
+void Texture::set_mipmap_range(int min, int max) const {
+	uint32_t gl_type = GL_TEXTURE_TYPES[type];
+	glBindTexture(gl_type, id);
+	glTexParameteri(gl_type, GL_TEXTURE_BASE_LEVEL, min);
+	glTexParameteri(gl_type, GL_TEXTURE_MAX_LEVEL, max);
+}
+
 void Texture::generate_mipmap() const {
 	uint32_t gl_type = GL_TEXTURE_TYPES[type];
 	glGenerateMipmap(gl_type);
-}
-
-void Texture::set_border_color(const Vec4& c) const {
-	uint32_t gl_type = GL_TEXTURE_TYPES[type];
-	glTexParameterfv(gl_type, GL_TEXTURE_BORDER_COLOR, &c.x);
 }
 
 int Texture::activate(int l) const {
@@ -1307,7 +1362,7 @@ FrameBuffer::~FrameBuffer() {
 void FrameBuffer::activate() const {
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		set_error("FrameBuffer: FrameBuffer is not complete");
+		Error::set("FrameBuffer: FrameBuffer is not complete");
 	}
 }
 
@@ -1315,15 +1370,15 @@ void FrameBuffer::activate(const FrameBuffer* f) {
 	uint32_t id = f == nullptr ? 0 : f->id;
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		set_error("FrameBuffer: FrameBuffer is not complete");
+		Error::set("FrameBuffer: FrameBuffer is not complete");
 	}
 }
 
 void FrameBuffer::draw_attachments(const std::initializer_list<int>& l) const {
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
 	std::vector<uint32_t> buffers;
-	for (auto& i : l) {
-		buffers.emplace_back(GL_COLOR_ATTACHMENT0 + i);
+	for (auto& index : l) {
+		buffers.emplace_back(GL_COLOR_ATTACHMENT0 + index);
 	}
 	glDrawBuffers(static_cast<int>(buffers.size()), buffers.data());
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -1372,7 +1427,7 @@ void FrameBuffer::set_texture_attachment(const Texture& t, uint32_t a, int l, in
 	} else if (t.type == TEXTURE_CUBE_ARRAY) {
 		glFramebufferTextureLayer(GL_FRAMEBUFFER, a, t.id, l, p);
 	} else {
-		set_error("FrameBuffer: Texture type is not supported");
+		Error::set("FrameBuffer: Texture type is not supported");
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

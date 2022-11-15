@@ -29,7 +29,7 @@
 
 namespace Ink {
 
-void Window::init(const std::string& t, int x, int y, int w, int h, bool opengl, bool dpi) {
+void Window::init(const std::string& t, int x, int y, int w, int h, bool d) {
 	/* whether to center the window */
 	if (x == -1) x = SDL_WINDOWPOS_CENTERED;
 	if (y == -1) y = SDL_WINDOWPOS_CENTERED;
@@ -37,20 +37,11 @@ void Window::init(const std::string& t, int x, int y, int w, int h, bool opengl,
 	/* initialize keydown with false */
 	std::fill_n(keydown, 512, false);
 	
-	/* check whether to enable OpenGL */
-	Window::opengl = opengl;
-	
-	/* create a SDL window */
+	/* create a window in SDL system */
 	SDL_Init(SDL_INIT_VIDEO);
-	uint32_t flags = SDL_WINDOW_SHOWN;
-	flags |= SDL_WINDOW_OPENGL * opengl;
-	flags |= SDL_WINDOW_ALLOW_HIGHDPI * dpi;
+	uint32_t flags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL;
+	if (d) flags |= SDL_WINDOW_ALLOW_HIGHDPI;
 	sdl_window = SDL_CreateWindow(t.c_str(), x, y, w, h, flags);
-}
-
-void Window::init_canvas() {
-	surface = SDL_GetWindowSurface(sdl_window);
-	canvas = static_cast<uint32_t*>(surface->pixels);
 }
 
 void Window::init_opengl(int v, int d, int s, int m, bool a) {
@@ -65,13 +56,12 @@ void Window::init_opengl(int v, int d, int s, int m, bool a) {
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, a);
 	context = SDL_GL_CreateContext(sdl_window);
 	SDL_GL_SetSwapInterval(v);
-	int status = gladLoadGL();
-	if (status == 0) set_error("Window: Failed to load OpenGL");
+	if (gladLoadGL() == 0) Error::set("Window: Failed to load OpenGL");
 }
 
 void Window::close() {
 	open = false;
-	opengl ? SDL_GL_DeleteContext(context) : SDL_FreeSurface(surface);
+	SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow(sdl_window);
 	SDL_Quit();
 }
@@ -85,33 +75,30 @@ void Window::update() {
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
 		int32_t keycode = event.key.keysym.sym;
+		if (keycode > 127) keycode -= 1073741696;
 		if (event.type == SDL_QUIT) {
 			close();
 			return;
 		} else if (event.type == SDL_KEYDOWN) {
-			if (keycode < 512) {
-				keypressed[keycode] = !keydown[keycode];
-				keydown[keycode] = true;
-			}
+			keypressed[keycode] = !keydown[keycode];
+			keydown[keycode] = true;
 		} else if (event.type == SDL_KEYUP) {
-			if (keycode < 512) {
-				keyreleased[keycode] = true;
-				keydown[keycode] = false;
-			}
+			keyreleased[keycode] = keydown[keycode];
+			keydown[keycode] = false;
 		} else if (event.type == SDL_MOUSEBUTTONDOWN) {
 			if (event.button.button == SDL_BUTTON_LEFT) {
-				keypressed[1] = true;
+				keypressed[1] = !keydown[1];
 				keydown[1] = true;
 			} else if (event.button.button == SDL_BUTTON_RIGHT) {
-				keypressed[2] = true;
+				keypressed[2] = !keydown[2];
 				keydown[2] = true;
 			}
 		} else if (event.type == SDL_MOUSEBUTTONUP) {
 			if (event.button.button == SDL_BUTTON_LEFT) {
-				keypressed[1] = true;
+				keyreleased[1] = keydown[1];
 				keydown[1] = false;
 			} else if (event.button.button == SDL_BUTTON_RIGHT) {
-				keypressed[2] = true;
+				keyreleased[2] = keydown[2];
 				keydown[2] = false;
 			}
 		} else if (event.type == SDL_MOUSEMOTION) {
@@ -122,49 +109,26 @@ void Window::update() {
 	
 	/* lock cursor to the center of window */
 	if (cursor_locked && SDL_GetKeyboardFocus()) {
-		int dimensions[2];
-		SDL_GetWindowSize(sdl_window, &dimensions[0], &dimensions[1]);
-		SDL_WarpMouseInWindow(sdl_window, dimensions[0] / 2, dimensions[1] / 2);
+		std::pair<int, int> size;
+		SDL_GetWindowSize(sdl_window, &size.first, &size.second);
+		SDL_WarpMouseInWindow(sdl_window, size.first / 2, size.second / 2);
 	}
 	
 	/* refresh window */
-	if (opengl) {
-		SDL_GL_SwapWindow(sdl_window);
-	} else {
-		SDL_UpdateWindowSurface(sdl_window);
-	}
+	SDL_GL_SwapWindow(sdl_window);
 	
 	/* calculate delta time */
-	deltatime = SDL_GetTicks() - time;
+	uint32_t deltatime = SDL_GetTicks() - time;
 	if (deltatime <= interval) SDL_Delay(interval - deltatime);
 	time = SDL_GetTicks();
-	deltatime = std::max(interval, deltatime);
 }
 
 bool Window::is_open() {
 	return open;
 }
 
-std::pair<int, int> Window::get_size() {
-	int dimensions[2];
-	SDL_GetWindowSize(sdl_window, dimensions, dimensions + 1);
-	return {dimensions[0], dimensions[1]};
-}
-
-std::pair<int, int> Window::get_cursor_position() {
-	return {cursor_x, cursor_y};
-}
-
 unsigned int Window::get_time() {
 	return SDL_GetTicks();
-}
-
-unsigned int Window::get_deltatime() {
-	return deltatime;
-}
-
-uint32_t* Window::get_canvas() {
-	return canvas;
 }
 
 std::string Window::get_title() {
@@ -173,6 +137,12 @@ std::string Window::get_title() {
 
 void Window::set_title(const std::string& t) {
 	SDL_SetWindowTitle(sdl_window, t.c_str());
+}
+
+std::pair<int, int> Window::get_size() {
+	std::pair<int, int> size;
+	SDL_GetWindowSize(sdl_window, &size.first, &size.second);
+	return size;
 }
 
 std::pair<int, int> Window::get_position() {
@@ -205,71 +175,59 @@ void Window::set_min_size(int w, int h) {
 	SDL_SetWindowMinimumSize(sdl_window, w, h);
 }
 
-void Window::lock_cursor() {
-	cursor_locked = true;
-}
-
-void Window::unlock_cursor() {
-	cursor_locked = false;
-}
-
-void Window::move_cursor(int x, int y) {
-	SDL_WarpMouseInWindow(sdl_window, x, y);
-	cursor_x = x;
-	cursor_y = y;
-}
-
-void Window::show_cursor() {
-	SDL_ShowCursor(SDL_ENABLE);
-}
-
-void Window::hide_cursor() {
-	SDL_ShowCursor(SDL_DISABLE);
-}
-
-void Window::fullscreen() {
-	SDL_SetWindowFullscreen(sdl_window, SDL_WINDOW_FULLSCREEN);
-}
-
-void Window::fullscreen_desktop() {
-	SDL_SetWindowFullscreen(sdl_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-}
-
-void Window::exit_fullscreen() {
-	SDL_SetWindowFullscreen(sdl_window, 0);
+void Window::set_fullscreen(bool f) {
+	SDL_SetWindowFullscreen(sdl_window, f ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 }
 
 void Window::maximize() {
 	SDL_MaximizeWindow(sdl_window);
 }
 
+void Window::minimize() {
+	SDL_MinimizeWindow(sdl_window);
+}
+
+std::pair<int, int> Window::get_cursor_position() {
+	return {cursor_x, cursor_y};
+}
+
+void Window::set_cursor_position(int x, int y) {
+	SDL_WarpMouseInWindow(sdl_window, x, y);
+	cursor_x = x;
+	cursor_y = y;
+}
+
+void Window::set_cursor_visible(bool v) {
+	SDL_ShowCursor(v ? SDL_ENABLE : SDL_DISABLE);
+}
+
+void Window::set_cursor_locked(bool l) {
+	cursor_locked = l;
+}
+
 bool Window::is_down(unsigned int k) {
+	if (k > 127) k -= 1073741696;
 	return keydown[k];
 }
 
 bool Window::is_pressed(unsigned int k) {
+	if (k > 127) k -= 1073741696;
 	return keypressed[k];
 }
 
 bool Window::is_released(unsigned int k) {
+	if (k > 127) k -= 1073741696;
 	return keyreleased[k];
 }
 
-bool Window::opengl = false;
 bool Window::open = true;
-
 int Window::cursor_x = 0;
 int Window::cursor_y = 0;
 bool Window::cursor_locked = false;
-
-uint32_t Window::interval = 0;
 uint32_t Window::time = 0;
-uint32_t Window::deltatime = 0;
-
-uint32_t* Window::canvas = nullptr;
+uint32_t Window::interval = 0;
 
 SDL_Window* Window::sdl_window = nullptr;
-SDL_Surface* Window::surface = nullptr;
 SDL_GLContext Window::context = nullptr;
 
 bool Window::keydown[512];

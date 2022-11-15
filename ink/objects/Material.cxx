@@ -26,100 +26,6 @@ namespace Ink {
 
 Material::Material(const std::string& n) : name(n) {}
 
-Uniforms Material::get_uniforms() const {
-	/* create new uniforms */
-	Uniforms vars;
-	
-	/* set uniform from material */
-	vars.set("alpha_test_f", &alpha_test);
-	vars.set("color_v3"    , &color     );
-	vars.set("alpha_f"     , &alpha     );
-	vars.set("emissive_v3" , &emissive  );
-	vars.set("metalness_f" , &metalness );
-	vars.set("roughness_f" , &roughness );
-	vars.set("specular_f"  , &specular  );
-	
-	/* set normal scale if use normal map */
-	if (normal_map != nullptr) {
-		vars.set("normal_scale_f", &normal_scale);
-	}
-	
-	/* set normal scale if use normal map */
-	if (displacement_map != nullptr) {
-		vars.set("displacement_scale_f", &displacement_scale);
-	}
-	
-	/* return the uniforms */
-	return vars;
-}
-
-Defines Material::get_defines() const {
-	/* create new defines */
-	Defines defines;
-	
-	/* check whether to use normal map */
-	if (normal_map != nullptr) {
-		defines.set("USE_NORMAL_MAP");
-	}
-	
-	/* check whether to use tangent space */
-	if (normal_map != nullptr && tangent_space) {
-		defines.set("IN_TANGENT_SPACE");
-	}
-	
-	/* check whether to use object space */
-	if (normal_map != nullptr && !tangent_space) {
-		defines.set("IN_OBJECT_SPACE");
-	}
-	
-	/* check whether to use displacement map */
-	if (displacement_map != nullptr) {
-		defines.set("USE_DISPLACEMENT_MAP");
-	}
-	
-	/* check whether to use color map */
-	if (color_map != nullptr) {
-		defines.set("USE_COLOR_MAP");
-	}
-	
-	/* check whether to use emissive map */
-	if (emissive_map != nullptr) {
-		defines.set("USE_EMISSIVE_MAP");
-	}
-	
-	/* check whether to use metalness map */
-	if (metalness_map != nullptr) {
-		defines.set("USE_METALNESS_MAP");
-	}
-	
-	/* check whether to use roughness map */
-	if (roughness_map != nullptr) {
-		defines.set("USE_ROUGHNESS_MAP");
-	}
-	
-	/* check whether to use specular map */
-	if (specular_map != nullptr) {
-		defines.set("USE_SPECULAR_MAP");
-	}
-	
-	/* check whether to use light probe */
-	if (light_probe != nullptr) {
-		defines.set("USE_LIGHT_PROBE");
-	}
-	
-	/* check whether to use environment probe */
-	if (env_probe != nullptr) {
-		defines.set("USE_ENV_PROBE");
-	}
-	
-	/* return the defines */
-	return defines;
-}
-
-size_t Material::get_image_count() const {
-	return images.size();
-}
-
 void Material::add_image(const Image* i) {
 	images.emplace_back(i);
 }
@@ -132,32 +38,12 @@ void Material::clear_image() {
 	images.clear();
 }
 
+size_t Material::get_image_count() const {
+	return images.size();
+}
+
 const Image* Material::get_image(int i) const {
 	return images[i];
-}
-
-const void* Material::get_shader() const {
-	return shader;
-}
-
-void Material::set_shader(const void* s) {
-	shader = s;
-}
-
-const void* Material::get_light_probe() const {
-	return light_probe;
-}
-
-void Material::set_light_probe(const void* p) {
-	light_probe = p;
-}
-
-const void* Material::get_env_probe() const {
-	return env_probe;
-}
-
-void Material::set_env_probe(const void* p) {
-	env_probe = p;
 }
 
 }

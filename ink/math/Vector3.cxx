@@ -27,7 +27,7 @@
 namespace Ink {
 
 FVec3::FVec3(float x) : x(x), y(x), z(x) {}
-	
+
 FVec3::FVec3(float x, float y, float z) : x(x), y(y), z(z) {}
 
 FVec3::FVec3(const FVec2& v, float z) : x(v.x), y(v.y), z(z) {}
@@ -124,16 +124,17 @@ FVec3 FVec3::rotate(const FVec3& v, float a) const {
 }
 
 std::string FVec3::to_string(int p) const {
-	std::stringstream stream;
-	stream.precision(p);
+	static std::stringstream stream;
 	stream.setf(std::ios::fixed, std::ios::floatfield);
+	stream.precision(p);
+	stream.str(std::string());
 	stream << "(" << x << ", " << y << ", " << z << ")";
 	return stream.str();
 }
 
 FVec3 FVec3::random() {
-	float angle1 = random_float() * PI * 2;
-	float angle2 = random_float() * PI * 2;
+	float angle1 = Random::random_f() * PI * 2;
+	float angle2 = Random::random_f() * PI * 2;
 	return {cosf(angle1) * cosf(angle2), sinf(angle2), sinf(angle1) * cosf(angle2)};
 }
 
@@ -283,16 +284,17 @@ DVec3 DVec3::rotate(const DVec3& v, double a) const {
 }
 
 std::string DVec3::to_string(int p) const {
-	std::stringstream stream;
-	stream.precision(p);
+	static std::stringstream stream;
 	stream.setf(std::ios::fixed, std::ios::floatfield);
+	stream.precision(p);
+	stream.str(std::string());
 	stream << "(" << x << ", " << y << ", " << z << ")";
 	return stream.str();
 }
 
 DVec3 DVec3::random() {
-	double angle1 = random_double() * PI * 2;
-	double angle2 = random_double() * PI * 2;
+	double angle1 = Random::random() * PI * 2;
+	double angle2 = Random::random() * PI * 2;
 	return {cos(angle1) * cos(angle2), sin(angle2), sin(angle1) * cos(angle2)};
 }
 

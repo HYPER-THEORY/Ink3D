@@ -28,32 +28,33 @@ namespace Ink {
 
 class Camera {
 public:
-	float near = 0;     /**< distance to the nearer depth clipping plane */
-	float far = 0;      /**< distance to the farther depth clipping plane */
+	float near = 0;     /**< distance to the nearer clipping plane */
+	float far = 0;      /**< distance to the farther clipping plane */
 	
 	Vec3 position;      /**< the position of camera */
 	Vec3 direction;     /**< the viewing direction of camera */
 	Vec3 up;            /**< the view-up vector of camera */
 	
-	Mat4 viewing;       /**< viewing matrix */
-	Mat4 projection;    /**< projection matrix */
+	Mat4 viewing;       /**< the matrix of viewing transform */
+	Mat4 projection;    /**< the matrix of projection transform */
 	
 	/**
-	 * Create a new Camera.
+	 * Creates a new Camera.
 	 */
-	Camera() = default;
+	explicit Camera() = default;
 	
 	/**
-	 * Determines whether the camera is perspective.
+	 * Returns true if this camera is perspective.
 	 */
 	bool is_perspective() const;
 	
 	/**
-	 * Sets the pose of camera.
+	 * Sets the position, viewing direction, view-up vector of camera. Updates
+	 * the viewing matrix and projection matrix.
 	 *
 	 * \param p the position of camera
-	 * \param d direction vector (from object to camera)
-	 * \param u up vector
+	 * \param d viewing direction (from object to camera)
+	 * \param u view-up vector
 	 */
 	void lookat(const Vec3& p, const Vec3& d, const Vec3& u);
 };

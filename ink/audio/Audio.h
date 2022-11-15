@@ -29,74 +29,104 @@ namespace Ink {
 
 class Audio {
 public:
-	bool loop = false;    /**< whether the audio play consecutively */
-	float volume = 1;     /**< the current volume level, range is 0 to 1 */
-	
 	/**
-	 * Initialize SDL Audio system.
+	 * Initializes SDL audio system before using this class.
 	 */
 	static void init();
 	
 	/**
-	 * Create a new Audio with its volume.
+	 * Creates a new Audio and loads audio data from the specified WAVE file
+	 * into the audio.
 	 *
-	 * \param v volume level
+	 * \param p the path to the file
 	 */
-	Audio(float v = 1);
+	explicit Audio(const std::string& p);
 	
 	/**
-	 * Load a WAV file into audio.
-	 *
-	 * \param f the URL to the file
+	 * Deletes this Audio and releases resources.
 	 */
-	bool load(const std::string& f);
+	~Audio();
 	
 	/**
-	 * Unload audio and release recourse.
+	 * The copy constructor is deleted.
 	 */
-	void unload() const;
+	Audio(const Audio&) = delete;
 	
 	/**
-	 * Returns the current length the audio has been playing.
+	 * The copy assignment operator is deleted.
 	 */
-	int get_position() const;
+	Audio& operator=(const Audio&) = delete;
 	
 	/**
-	 * Sets the position where the audio starts playback.
-	 *
-	 * \param p audio position
+	 * Starts the audio playback.
 	 */
-	void set_position(int p);
+	void play() const;
 	
 	/**
-	 * Start playback from the position.
+	 * Pauses the audio playback.
 	 */
-	void play();
+	void pause() const;
 	
 	/**
-	 * Pause playback and record the position.
-	 */
-	void pause();
-	
-	/**
-	 * Stop playback and set the position to 0.
+	 * Stops the audio playback. The position of the audio will be set to 0.
 	 */
 	void stop();
 	
+	/**
+	 * Returns the duration of the audio in seconds.
+	 */
+	float get_duration() const;
+	
+	/**
+	 * Returns true if the audio must be replayed when the end of the audio is
+	 * reached.
+	 */
+	bool get_loop() const;
+	
+	/**
+	 * Determines whether the audio must be replayed when the end of the audio
+	 * is reached. Default is false.
+	 *
+	 * \param l looping
+	 */
+	void set_loop(bool l);
+	
+	/**
+	 * Returns the volume of the audio. Range is 0 to 1.
+	 */
+	float get_volume() const;
+	
+	/**
+	 * Sets the specified volume of the audio. Range is 0 to 1. Default is 1.
+	 *
+	 * \param v volume
+	 */
+	void set_volume(float v);
+	
+	/**
+	 * Returns the position indicates in seconds the current point that is being
+	 * played in the audio.
+	 */
+	float get_position() const;
+	
+	/**
+	 * Sets the position indicates in seconds the current point that is being
+	 * played in the audio.
+	 *
+	 * \param p position
+	 */
+	void set_position(float p);
+	
 private:
-	int position = 0;
-	
+	bool loop = false;
+	float volume = 1;
+	float ratio = 0;
+	uint32_t position = 0;
 	uint32_t length = 0;
-	
 	uint8_t* buffer = nullptr;
 	
 	SDL_AudioSpec spec;
-	
 	SDL_AudioDeviceID device;
-	
-	Audio(const Audio&) = delete;
-	
-	Audio& operator=(const Audio&) = delete;
 };
 
 }

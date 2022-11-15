@@ -24,14 +24,22 @@
 
 #include <cmath>
 
+#include "../core/Date.h"
+
 namespace Ink {
 
-float random_float() {
-	return rand() / (RAND_MAX + 1.f);
+double Random::random() {
+	return std::generate_canonical<double, 1>(generator);
 }
 
-double random_double() {
-	return rand() / (RAND_MAX + 1.);
+float Random::random_f() {
+	return std::generate_canonical<float, 1>(generator);
 }
+
+void Random::set_seed(unsigned int s) {
+	generator.seed(s);
+}
+
+std::mt19937 Random::generator;
 
 }

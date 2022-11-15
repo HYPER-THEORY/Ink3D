@@ -1,7 +1,7 @@
 #ifndef CUBEMAP_GLSL
 #define CUBEMAP_GLSL
 
-/* Convert face uv to unnormalized direction. */
+/* Converts face uv to unnormalized direction. */
 vec3 face_to_cube(vec2 uv, int face) {
 	vec3 dir = vec3(uv, 1.);
 	if (face == 0) return vec3(dir.z, -dir.y, -dir.x);
@@ -13,10 +13,10 @@ vec3 face_to_cube(vec2 uv, int face) {
 	return vec3(0, 0, 0);
 }
 
-/* Convert normalized direction to equirectangular uv. */
+/* Converts normalized direction to equirectangular uv. */
 vec2 cube_to_equirect(vec3 dir) {
-	float u = atan(dir.z, dir.x) * ONE_BY_PI * .5 + .5;
-	float v = asin(clamp(dir.y, -1., 1.)) * ONE_BY_PI + .5;
+	float u = atan(dir.z, dir.x) * INV_PI * .5 + .5;
+	float v = asin(clamp(dir.y, -1., 1.)) * INV_PI + .5;
 	return vec2(u, v);
 }
 

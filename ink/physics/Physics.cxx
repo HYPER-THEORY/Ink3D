@@ -25,7 +25,7 @@
 namespace Ink {
 
 CollisionBox::CollisionBox(const Vec3& v1, const Vec3& v2) :
-	v1(v1), v2(v2) {}
+v1(v1), v2(v2) {}
 
 void CollisionBox::set(const Vec3& v, float w, float h, float d) {
 	v1 = v;
@@ -44,7 +44,7 @@ bool CollisionBox::contain(float x, float y, float z) const {
 		y < v2.y && v1.z < z && z < v2.z;
 }
 
-bool CollisionBox::hittest(const CollisionBox& b) {
+bool CollisionBox::hittest(const CollisionBox& b) const {
 	return contain(b.v1.x, b.v1.y, b.v1.z) ||
 		contain(b.v1.x, b.v1.y, b.v2.z) ||
 		contain(b.v1.x, b.v2.y, b.v1.z) ||

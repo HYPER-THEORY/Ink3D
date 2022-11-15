@@ -39,32 +39,34 @@ class Mesh {
 public:
 	std::string name;                 /**< mesh name */
 	
-	std::vector<MeshGroup> groups;    /**< material groups */
+	std::vector<MeshGroup> groups;    /**< mesh groups */
 	
-	std::vector<Vec3> vertex;         /**< vertex array */
-	std::vector<Vec3> normal;         /**< normal array */
-	std::vector<Vec2> uv;             /**< uv array */
-	std::vector<Vec4> tangent;        /**< tangent array */
+	std::vector<Vec3> vertex;         /**< the position for each vertex */
+	std::vector<Vec3> normal;         /**< the normal for each vertex */
+	std::vector<Vec2> uv;             /**< the UV for each vertex */
+	std::vector<Vec4> tangent;        /**< the tangent for each vertex */
 	
 	/**
-	 * Create a new Mesh with its name.
+	 * Creates a new Mesh and initializes it with a name.
 	 *
 	 * \param n mesh name
 	 */
-	Mesh(const std::string& n = "");
+	explicit Mesh(const std::string& n = "");
 	
 	/**
-	 * Normalize normal vectors in the mesh.
+	 * Normalizes all the normal vectors in the mesh.
 	 */
 	void normalize();
 	
 	/**
-	 * Create and add normal array to the mesh.
+	 * Calculates normals and adds them to the mesh. Normals are calculated by
+	 * the vertices in the mesh.
 	 */
 	void create_normals();
 	
 	/**
-	 * Create and add tangent array to the mesh.
+	 * Calculates tangents and adds them to the mesh. Tangents are calculated by
+	 * the vertices, normals and UVs in the mesh.
 	 */
 	void create_tangents();
 };

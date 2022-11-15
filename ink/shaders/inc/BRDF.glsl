@@ -5,16 +5,16 @@
 
 /* Returns the value of Lambert BRDF. */
 vec3 brdf_lambert(vec3 diffuse) {
-	return diffuse * ONE_BY_PI;
+	return diffuse * INV_PI;
 }
 
-/* Calculate Fresnel with Schlick's approximation. */
+/* Calculates Fresnel with Schlick's approximation. */
 vec3 f_schlick(vec3 f0, float voh) {
 	float fresnel = exp2((-5.55473 * voh - 6.98316) * voh);
 	return f0 * (1. - fresnel) + fresnel;
 }
 
-/* Calculate Geometry with GGX-Smith model. */
+/* Calculates Geometry with GGX-Smith model. */
 float v_ggx(float a, float nol, float nov) {
 	float a2 = a * a;
 	float gv = nol * sqrt(a2 + (1. - a2) * nov * nov);
@@ -22,11 +22,11 @@ float v_ggx(float a, float nol, float nov) {
 	return 0.5 / max(gv + gl, EPS);
 }
 
-/* Calculate NDF with GGX model. */
+/* Calculates NDF with GGX model. */
 float d_ggx(float a, float noh) {
 	float a2 = a * a;
 	float d = noh * noh * (a2 - 1.) + 1.;
-	return ONE_BY_PI * a2 / (d * d);
+	return INV_PI * a2 / (d * d);
 }
 
 /* Returns the value of GGX BRDF (Schlick Fresnel, GGX-Smith Geometry, GGX NDF). */
@@ -57,15 +57,16 @@ vec3 brdf_env(vec3 normal, vec3 view_dir, vec3 f0, float roughness) {
 }
 
 /* Returns the value of multiple-scattering microfacet model. */
-void multiscatter(vec3 normal, vec3 view_dir, vec3 f0, float roughness, inout vec3 single, inout vec3 multi) {
+void multiscatter(vec3 normal, vec3 view_dir, vec3 f0, float roughness,
+				  inout vec3 single_scatter, inout vec3 multi_scatter) {
 	vec2 fab = lut_dfg(normal, view_dir, roughness);
 	vec3 fss_ess = f0 * fab.x + fab.y;
 	float ess = fab.x + fab.y;
 	float ems = 1. - ess;
 	vec3 favg = f0 + (1. - f0) * 0.047619;
 	vec3 fms = fss_ess * favg / (1. - ems * favg);
-	single += fss_ess;
-	multi += fms * ems;
+	single_scatter += fss_ess;
+	multi_scatter += fms * ems;
 }
 
 #endif

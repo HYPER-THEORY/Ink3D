@@ -22,10 +22,31 @@
 
 #pragma once
 
+#include <random>
+
 namespace Ink {
 
-float random_float();
-
-double random_double();
+class Random {
+public:
+	/**
+	 * Generates a random uniformly distributed number in range [0, 1).
+	 */
+	static double random();
+	
+	/**
+	 * Generates a random uniformly distributed number in range [0, 1).
+	 */
+	static float random_f();
+	
+	/**
+	 * Sets the seed of the random number generator. Default is zero.
+	 *
+	 * \param s seed
+	 */
+	static void set_seed(unsigned int s);
+	
+private:
+	static std::mt19937 generator;
+};
 
 }

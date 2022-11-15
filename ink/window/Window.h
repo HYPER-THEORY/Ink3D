@@ -31,26 +31,19 @@ namespace Ink {
 class Window {
 public:
 	/**
-	 * Initialize Window with parameters.
+	 * Initializes Window with title, positions, size and DPI.
 	 *
 	 * \param t the title of window
 	 * \param x the x-coordinate of the window's position
 	 * \param y the y-coordinate of the window's position
 	 * \param w the width of window
 	 * \param h the height of window
-	 * \param opengl whether to enable OpenGL
-	 * \param dpi whether to enable high-dpi mode
+	 * \param d whether to enable high-dpi mode
 	 */
-	static void init(const std::string& t, int x, int y, int w, int h,
-					 bool opengl = true, bool dpi = false);
+	static void init(const std::string& t, int x, int y, int w, int h, bool d = false);
 	
 	/**
-	 * Initialize canvas after the window is initialized.
-	 */
-	static void init_canvas();
-	
-	/**
-	 * Initialize OpenGL after the window is initialized.
+	 * Initializes OpenGL after the window is initialized.
 	 *
 	 * \param v vertical sync mode
 	 * \param d the size of depth buffer
@@ -61,44 +54,24 @@ public:
 	static void init_opengl(int v = 1, int d = 24, int s = 8, int m = 0, bool a = true);
 	
 	/**
-	 * Close window.
+	 * Closes window and releases all resources.
 	 */
 	static void close();
 	
 	/**
-	 * Update window in interval time.
+	 * Handles the window's events and refreshes the display of window.
 	 */
 	static void update();
 	
 	/**
-	 * Determines whether the window is open.
+	 * Returns true if the window is opening.
 	 */
 	static bool is_open();
 	
 	/**
-	 * Returns the size of the window.
-	 */
-	static std::pair<int, int> get_size();
-	
-	/**
-	 * Returns the coordinates of the cursor's position.
-	 */
-	static std::pair<int, int> get_cursor_position();
-	
-	/**
-	 * Returns the time scene the window is created.
+	 * Returns the number of milliseconds scene the window is initialized.
 	 */
 	static unsigned int get_time();
-	
-	/**
-	 * Returns the time between the current and previous frame.
-	 */
-	static unsigned int get_deltatime();
-	
-	/**
-	 * Returns the canvas displayed in the window.
-	 */
-	static uint32_t* get_canvas();
 	
 	/**
 	 * Returns the title of the window.
@@ -106,142 +79,142 @@ public:
 	static std::string get_title();
 	
 	/**
-	 * Sets the title of the window.
+	 * Sets the specified title of the window.
 	 */
 	static void set_title(const std::string& t);
 	
 	/**
-	 * Returns the coordinates of the window's position.
+	 * Returns the size of a window's client area.
+	 */
+	static std::pair<int, int> get_size();
+	
+	/**
+	 * Returns the coordinates represents the position of the window.
 	 */
 	static std::pair<int, int> get_position();
 	
 	/**
-	 * Sets the coordinate of the window's position.
+	 * Sets the coordinates represents the position of the window.
 	 *
-	 * \param x the x-coordinate of position
-	 * \param y the t-coordinate of position
+	 * \param x the X coordinate of position
+	 * \param y the Y coordinate of position
 	 */
 	static void set_position(int x, int y);
 	
 	/**
-	 * Returns the interval time of update.
+	 * Returns the interval time. If the time update function spends is less
+	 * than interval time, the program will wait for the time difference.
 	 */
 	static uint32_t get_interval();
 	
 	/**
-	 * Sets the interval time of update.
+	 * Sets the specified interval time. If the time update function spends is
+	 * less than interval time, the program will wait for the time difference.
 	 *
 	 * \param i interval time
 	 */
 	static void set_interval(uint32_t i);
 	
 	/**
-	 * Determines whether whether the window is borderless.
+	 * Sets the border state of the window.
 	 *
-	 * \param b whether the window is borderless
+	 * \param b borderless
 	 */
 	static void set_borderless(bool b);
 	
 	/**
-	 * Determines whether whether the window is resizable.
+	 * Sets the user-resizable state of the window.
 	 *
-	 * \param r whether the window is resizable
+	 * \param r resizable
 	 */
 	static void set_resizable(bool r);
 	
 	/**
-	 * Sets minimum window size if the window is resizable.
+	 * Sets the minimum size of the window's client area.
 	 *
-	 * \param w minimum window width
-	 * \param h minimum window height
+	 * \param w minimum width
+	 * \param h minimum height
 	 */
 	static void set_min_size(int w, int h);
 	
 	/**
-	 * Lock cursor to the center of window.
-	 */
-	static void lock_cursor();
-	
-	/**
-	 * Unlock cursor.
-	 */
-	static void unlock_cursor();
-	
-	/**
-	 * Move cursor to the specified position.
+	 * Enters or exits fullscreen state. The fullscreen mode is desktop.
 	 *
-	 * \param x the x-coordinate of position
-	 * \param y the y-coordinate of position
+	 * \param f fullscreen state
 	 */
-	static void move_cursor(int x, int y);
+	static void set_fullscreen(bool f);
 	
 	/**
-	 * Show system cursor.
-	 */
-	static void show_cursor();
-	
-	/**
-	 * Hide system cursor.
-	 */
-	static void hide_cursor();
-	
-	/**
-	 * Enter fullscreen.
-	 */
-	static void fullscreen();
-	
-	/**
-	 * Enter fullscreen desktop.
-	 */
-	static void fullscreen_desktop();
-	
-	/**
-	 * Exit fullscreen.
-	 */
-	static void exit_fullscreen();
-	
-	/**
-	 * Maximize window.
+	 * Makes a window as large as possible.
 	 */
 	static void maximize();
 	
 	/**
-	 * Determines whether the specified key is down.
+	 * Minimizes a window to an iconic representation.
+	 */
+	static void minimize();
+	
+	/**
+	 * Returns the coordinates represents the position of cursor.
+	 */
+	static std::pair<int, int> get_cursor_position();
+	
+	/**
+	 * Sets the coordinates represents the position of cursor.
+	 *
+	 * \param x the x coordinate of cursor
+	 * \param y the y coordinate of cursor
+	 */
+	static void set_cursor_position(int x, int y);
+	
+	/**
+	 * Sets the specified visibility of the cursor.
+	 *
+	 * \param v visibility
+	 */
+	static void set_cursor_visible(bool v);
+	
+	/**
+	 * Sets the lock state of the cursor. The cursor will be fixed at the center
+	 * of window if lock is enabled.
+	 *
+	 * \param l lock
+	 */
+	static void set_cursor_locked(bool l);
+	
+	/**
+	 * Returns true if the specified key is down. The key code of left mouse
+	 * button is 1 and right mouse button is 2.
 	 *
 	 * \param k key code
 	 */
 	static bool is_down(unsigned int k);
 	
 	/**
-	 * Determines whether the specified key is pressed.
+	 * Returns true if the specified key is pressed. The key code of left mouse
+	 * button is 1 and right mouse button is 2.
 	 *
 	 * \param k key code
 	 */
 	static bool is_pressed(unsigned int k);
 	
 	/**
-	 * Determines whether the specified key is released.
+	 * Returns true if the specified key is released. The key code of left mouse
+	 * button is 1 and right mouse button is 2.
 	 *
 	 * \param k key code
 	 */
 	static bool is_released(unsigned int k);
 	
 private:
-	static bool opengl;
 	static bool open;
-	
 	static int cursor_x;
 	static int cursor_y;
 	static bool cursor_locked;
-	
-	static uint32_t interval;
 	static uint32_t time;
-	static uint32_t deltatime;
-	
-	static uint32_t* canvas;
+	static uint32_t interval;
 	
 	static SDL_Window* sdl_window;
-	static SDL_Surface* surface;
 	static SDL_GLContext context;
 	
 	static bool keydown[512];

@@ -33,46 +33,50 @@ namespace Ink {
 class ConvexHull {
 public:
 	/**
-	 * Create a new ConvexHull.
+	 * Creates a new ConvexHull.
 	 */
-	ConvexHull() = default;
+	explicit ConvexHull() = default;
 	
 	/**
-	 * Add vertex to convex hull.
+	 * Adds the specified vertex to convex hull.
 	 *
 	 * \param v vertex
 	 */
 	void add_vertex(const Vec3& v);
 	
 	/**
-	 * Add vertex list to convex hull.
+	 * Adds the specified vertex list to convex hull.
 	 *
 	 * \param v vertex list
 	 */
 	void add_vertices(const std::initializer_list<Vec3>& v);
 	
 	/**
-	 * Returns the number of vertices.
+	 * Returns the number of vertices in convex hull.
 	 */
 	size_t get_vertex_count() const;
 	
 	/**
-	 * Returns the vertices of convex hull.
+	 * Returns the vertex at the specified index in convex hull.
+	 *
+	 * \param i vertex index
 	 */
-	const Vec3* get_vertices() const;
+	Vec3 get_vertex(int i) const;
 	
 	/**
-	 * Returns the number of faces.
+	 * Returns the number of faces in convex hull.
 	 */
 	size_t get_face_count() const;
 	
 	/**
-	 * Returns the faces of convex hull.
+	 * Returns the face at the specified index in convex hull.
+	 *
+	 * \param i face index
 	 */
-	const std::array<int, 3>* get_faces() const;
+	std::array<int, 3> get_face(int i) const;
 	
 	/**
-	 * Start the execution of convex hull algorithm.
+	 * Starts the execution of convex hull algorithm.
 	 */
 	void compute();
 	

@@ -28,21 +28,21 @@ BloomPass::BloomPass(int w, int h, float t, float i, float r) :
 width(w), height(h), threshold(t), intensity(i), radius(r) {}
 
 void BloomPass::init() {
-	/* prepare blur map 1 */
+	/* prepare bloom map 1 */
 	bloom_map_1 = std::make_unique<Gpu::Texture>();
 	bloom_map_1->init_2d(width / 2, height / 2, TEXTURE_R16G16B16_SFLOAT);
 	bloom_map_1->set_filters(TEXTURE_LINEAR, TEXTURE_LINEAR_MIPMAP_LINEAR);
 	bloom_map_1->set_wrap_all(TEXTURE_CLAMP_TO_EDGE);
 	bloom_map_1->generate_mipmap();
 	
-	/* prepare blur map 2 */
+	/* prepare bloom map 2 */
 	bloom_map_2 = std::make_unique<Gpu::Texture>();
 	bloom_map_2->init_2d(width / 2, height / 2, TEXTURE_R16G16B16_SFLOAT);
 	bloom_map_2->set_filters(TEXTURE_LINEAR, TEXTURE_LINEAR_MIPMAP_LINEAR);
 	bloom_map_2->set_wrap_all(TEXTURE_CLAMP_TO_EDGE);
 	bloom_map_2->generate_mipmap();
 	
-	/* prepare blur render target */
+	/* prepare bloom render target */
 	bloom_target = std::make_unique<Gpu::FrameBuffer>();
 	bloom_target->draw_attachments({0});
 	
@@ -66,12 +66,12 @@ void BloomPass::compile() {
 	/* compile bright pass shader */
 	bright_pass_shader->compile();
 	
-	/* compile blur shader */
-	blur_shader->set_define({{
-		{"BLUR_GAUSSIAN", ""    },
-		{"TYPE"         , "vec3"},
-		{"SWIZZLE"      , ".xyz"},
-	}});
+	/* update and compile blur shader */
+	Defines blur_defines;
+	blur_defines.set("BLUR_GAUSSIAN");
+	blur_defines.set("TYPE", "vec3");
+	blur_defines.set("SWIZZLE", ".xyz");
+	blur_shader->set_defines(blur_defines);
 	blur_shader->compile();
 	
 	/* compile bloom shader */
@@ -125,7 +125,7 @@ void BloomPass::render() const {
 		size_lod.y = fmax(1, floorf(size_lod.y / 2));
 	}
 	
-	/* set back to the original viewport */
+	/* set back to the initial viewport */
 	RenderPass::set_viewport(viewport);
 	
 	/* 3. blur texture on the mipmap chain */

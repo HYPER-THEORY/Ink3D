@@ -37,12 +37,13 @@ public:
 	Shadow shadow;               /**< the shadow of light */
 	
 	/**
-	 * Create a new DirectionalLight with its color and intensity.
+	 * Creates a new DirectionalLight and initializes it with color and
+	 * intensity.
 	 *
 	 * \param c the color of light
 	 * \param i the intensity of light
 	 */
-	DirectionalLight(const Vec3& c = {1, 1, 1}, float i = 1);
+	explicit DirectionalLight(const Vec3& c = {1, 1, 1}, float i = 1);
 };
 
 }

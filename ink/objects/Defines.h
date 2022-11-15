@@ -30,38 +30,75 @@ namespace Ink {
 class Defines {
 public:
 	/**
-	 * Create a new Defines.
+	 * Creates a new Defines.
 	 */
-	Defines() = default;
-	
-	using DefinePair = std::pair<std::string, std::string>;
+	explicit Defines() = default;
 	
 	/**
-	 * Create a new Defines with define pairs.
-	 *
-	 * \param l define list
-	 */
-	Defines(const std::initializer_list<DefinePair>& l);
-	
-	/**
-	 * Returns the value of the define directives.
+	 * Returns the specific string containing all the define directives.
 	 */
 	std::string get() const;
 	
 	/**
-	 * Sets the define directive.
+	 * Sets the defines object. These values will be defined in vertex, geometry
+	 * and fragment shaders.
 	 *
-	 * \param n define name
+	 * \param d defines
+	 */
+	void set(const Defines& d);
+	
+	/**
+	 * Sets the define directive consisted of a single name. These values will
+	 * be defined in vertex, geometry and fragment shaders.
+	 *
+	 * \param n macro name
 	 */
 	void set(const std::string& n);
 	
 	/**
-	 * Sets the define directive.
+	 * Sets the define directive consisted of a name and a value. These values
+	 * will be defined in vertex, geometry and fragment shaders.
 	 *
-	 * \param n define name
-	 * \param v define value
+	 * \param n macro name
+	 * \param v value
 	 */
 	void set(const std::string& n, const std::string& v);
+	
+	/**
+	 * Sets the define directive consisted of a name and a value. These values
+	 * will be defined in vertex, geometry and fragment shaders.
+	 *
+	 * \param n macro name
+	 * \param v value
+	 */
+	void set_i(const std::string& n, int v);
+	
+	/**
+	 * Sets the define directive consisted of a name and a value. These values
+	 * will be defined in vertex, geometry and fragment shaders.
+	 *
+	 * \param n macro name
+	 * \param v value
+	 */
+	void set_l(const std::string& n, long v);
+	
+	/**
+	 * Sets the define directive consisted of a name and a value. These values
+	 * will be defined in vertex, geometry and fragment shaders.
+	 *
+	 * \param n macro name
+	 * \param v value
+	 */
+	void set_ll(const std::string& n, long long v);
+	
+	/**
+	 * Sets the define directive consisted of a name if the flag is true. These
+	 * values will be defined in vertex, geometry and fragment shaders.
+	 *
+	 * \param n macro name
+	 * \param f flag
+	 */
+	void set_if(const std::string& n, bool f);
 	
 private:
 	std::string defines;

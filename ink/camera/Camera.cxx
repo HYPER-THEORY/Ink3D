@@ -34,7 +34,7 @@ void Camera::lookat(const Vec3& p, const Vec3& d, const Vec3& u) {
 	up = u.normalize();
 	Vec3& dn = direction;
 	Vec3& un = up;
-	Vec3 rn = (-direction).cross(up);
+	Vec3 rn = -dn.cross(un).normalize();
 	viewing = {
 		rn.x      , rn.y      , rn.z      , -p.dot(rn),
 		un.x      , un.y      , un.z      , -p.dot(un),

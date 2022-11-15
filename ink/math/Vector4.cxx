@@ -125,9 +125,10 @@ FVec4 FVec4::normalize() const {
 }
 
 std::string FVec4::to_string(int p) const {
-	std::stringstream stream;
-	stream.precision(p);
+	static std::stringstream stream;
 	stream.setf(std::ios::fixed, std::ios::floatfield);
+	stream.precision(p);
+	stream.str(std::string());
 	stream << "(" << x << ", " << y << ", " << z << ", " << w << ")";
 	return stream.str();
 }
@@ -279,9 +280,10 @@ DVec4 DVec4::normalize() const {
 }
 
 std::string DVec4::to_string(int p) const {
-	std::stringstream stream;
-	stream.precision(p);
+	static std::stringstream stream;
 	stream.setf(std::ios::fixed, std::ios::floatfield);
+	stream.precision(p);
+	stream.str(std::string());
 	stream << "(" << x << ", " << y << ", " << z << ", " << w << ")";
 	return stream.str();
 }

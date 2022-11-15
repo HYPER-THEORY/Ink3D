@@ -35,7 +35,7 @@ void FXAAPass::compile() {
 }
 
 void FXAAPass::render() const {
-	Gpu::Rect viewport = Gpu::get_viewport();
+	Gpu::Rect viewport = RenderPass::get_viewport();
 	Vec2 screen_size = Vec2(viewport.width, viewport.height);
 	fxaa_shader->use_program();
 	fxaa_shader->set_uniform_v2("screen_size", screen_size);

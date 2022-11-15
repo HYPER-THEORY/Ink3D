@@ -26,36 +26,30 @@
 
 namespace Ink {
 
-/**
- * Read a file into a string of content.
- *
- * \param s the URL to the file
- * \param c string of content
- */
-int read_file(const char* s, std::string& c);
-
-/**
- * Read a file into a string of content.
- *
- * \param s the URL to the file
- * \param c string of content
- */
-int read_file(const std::string& s, std::string& c);
-
-/**
- * Write the content into a local file.
- *
- * \param s the URL to the file
- * \param c string of content
- */
-int write_file(const char* s, const std::string& c);
-
-/**
- * Write the content into a local file.
- *
- * \param s the URL to the file
- * \param c string of content
- */
-int write_file(const std::string& s, const std::string& c);
+class File {
+public:
+	/**
+	 * Reads the content from the specified file into a string.
+	 *
+	 * \param p the path to the file
+	 */
+	static std::string read(const std::string& p);
+	
+	/**
+	 * Writes the content of string into the specified file.
+	 *
+	 * \param p the path to the file
+	 * \param c content string
+	 */
+	static void write(const std::string& p, const std::string& c);
+	
+	/**
+	 * Writes the content of string into the specified file.
+	 *
+	 * \param p the path to the file
+	 * \param c content string
+	 */
+	static void write(const std::string& p, const char* c);
+};
 
 }

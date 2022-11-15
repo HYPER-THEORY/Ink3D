@@ -1,5 +1,6 @@
 #include <common>
 #include <cubemap>
+#include <tonemapping>
 
 #ifdef USE_CUBEMAP
 uniform samplerCube map;
@@ -9,6 +10,7 @@ uniform samplerCube map;
 uniform sampler2D map;
 #endif
 
+uniform float exposure;
 uniform float intensity;
 
 in vec3 v_dir;
@@ -23,5 +25,6 @@ void main() {
 		vec2 uv = cube_to_equirect(normalize(v_dir));
 		out_color = textureLod(map, uv, 0);
 	#endif
-	out_color *= intensity;
+	out_color.xyz *= intensity;
+	out_color.xyz = TONE_MAP(out_color.xyz, exposure);
 }

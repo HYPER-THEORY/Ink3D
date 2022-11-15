@@ -29,18 +29,17 @@
 #include "../../libs/stb/stb_image.h"
 
 #include "../core/Error.h"
-#include "../core/File.h"
 
 namespace Ink {
 
-Image Loader::load_image(const std::string& f) {
+Image Loader::load_image(const std::string& p) {
 	/* create a new image */
 	Image image = Image(0, 0, 0, 1);
 	
 	/* get image data from file */
-	auto* image_ptr = stbi_load(f.c_str(), &image.width, &image.height, &image.channel, 0);
+	auto* image_ptr = stbi_load(p.c_str(), &image.width, &image.height, &image.channel, 0);
 	if (image_ptr == nullptr) {
-		set_error("Loader: Error reading from image");
+		Error::set("Loader: Error reading from image");
 		return Image();
 	}
 	
@@ -53,14 +52,14 @@ Image Loader::load_image(const std::string& f) {
 	return image;
 }
 
-Image Loader::load_image_hdr(const std::string& f) {
+Image Loader::load_image_hdr(const std::string& p) {
 	/* create a new image */
 	Image image = Image(0, 0, 0, 4);
 	
 	/* get image data from file */
-	auto* image_ptr = stbi_loadf(f.c_str(), &image.width, &image.height, &image.channel, 0);
+	auto* image_ptr = stbi_loadf(p.c_str(), &image.width, &image.height, &image.channel, 0);
 	if (image_ptr == nullptr) {
-		set_error("Loader: Error reading from image");
+		Error::set("Loader: Error reading from image");
 		return Image();
 	}
 	
@@ -73,12 +72,12 @@ Image Loader::load_image_hdr(const std::string& f) {
 	return image;
 }
 
-std::vector<Mesh> Loader::load_obj(const std::string& f, const std::string& g) {
+std::vector<Mesh> Loader::load_obj(const std::string& p, const std::string& g) {
 	/* prepare the file stream */
 	std::ifstream stream;
-	stream.open(f, std::ifstream::in);
+	stream.open(p, std::ifstream::in);
 	if (!stream) {
-		set_error("Loader: Error reading from obj file");
+		Error::set("Loader: Error reading from obj file");
 		return std::vector<Mesh>();
 	}
 	size_t stream_max = std::numeric_limits<std::streamsize>::max();
@@ -202,12 +201,12 @@ std::vector<Mesh> Loader::load_obj(const std::string& f, const std::string& g) {
 	return meshes;
 }
 
-std::vector<Material> Loader::load_mtl(const std::string& f) {
+std::vector<Material> Loader::load_mtl(const std::string& p) {
 	/* prepare the file stream */
 	std::ifstream stream;
-	stream.open(f, std::ifstream::in);
+	stream.open(p, std::ifstream::in);
 	if (!stream) {
-		set_error("Loader: Error reading from mtl file");
+		Error::set("Loader: Error reading from mtl file");
 		return std::vector<Material>();
 	}
 	size_t stream_max = std::numeric_limits<std::streamsize>::max();
@@ -264,11 +263,11 @@ std::vector<Material> Loader::load_mtl(const std::string& f) {
 		/* specular exponent */
 		/* else if (keyword == "Ns") {} */
 		
-		/* sharpness value */
-		/* else if (keyword == "sharpness") {} */
-	   
 		/* optical density */
 		/* else if (keyword == "Ni") {} */
+		
+		/* sharpness value */
+		/* else if (keyword == "sharpness") {} */
 		
 		/* ignore useless data */
 		else {

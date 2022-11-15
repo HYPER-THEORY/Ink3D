@@ -26,53 +26,42 @@
 
 namespace Ink {
 
-/**
- * Translate a format-string with arguments. Formatting rules are similar with
- * std::formatter in C++20.
- *
- * \param s format-string
- * \param a arguments
- */
-template <typename... Types>
-std::string str_format(const char* s, Types... a);
-
-/* template implementations */
-
-template <typename Ptr, typename Type>
-void str_format_args(Ptr p, Type v) {
-	*p = std::to_string(v);
-}
-
-template <typename Ptr>
-void str_format_args(Ptr p, char v) {
-	*p = std::string(1, v);
-}
-
-template <typename Ptr>
-void str_format_args(Ptr p, wchar_t v) {
-	*p = std::string(1, v);
-}
-
-template <typename Ptr>
-void str_format_args(Ptr p, const char* v) {
-	*p = v;
-}
-
-template <typename Ptr>
-void str_format_args(Ptr p, std::string v) {
-	*p = v;
-}
-
-template <typename Ptr, typename Type, typename... Types>
-void str_format_args(Ptr p, Type v, Types... a) {
-	str_format_args(p, v);
-	str_format_args(p + 1, a...);
-}
+class Format {
+public:
+	/**
+	 * Formats a format-string with arguments. Formatting rules are similar with
+	 * std::formatter in C++20.
+	 *
+	 * \param s format-string
+	 * \param a arguments
+	 */
+	template <typename... Types>
+	static std::string format(const char* s, Types... a);
+	
+private:
+	template <typename Ptr, typename Type>
+	static void format_args(Ptr p, Type v);
+	
+	template <typename Ptr>
+	static void format_args(Ptr p, char v);
+	
+	template <typename Ptr>
+	static void format_args(Ptr p, wchar_t v);
+	
+	template <typename Ptr>
+	static void format_args(Ptr p, const char* v);
+	
+	template <typename Ptr>
+	static void format_args(Ptr p, const std::string& v);
+	
+	template <typename Ptr, typename Type, typename... Types>
+	static void format_args(Ptr p, Type v, Types... a);
+};
 
 template <typename... Types>
-std::string str_format(const char* s, Types... a) {
+std::string Format::format(const char* s, Types... a) {
 	std::string args[sizeof...(a)];
-	str_format_args(args, a...);
+	format_args(args, a...);
 	std::string formatted;
 	bool specifier = false;
 	int arg_id = 0;
@@ -110,6 +99,37 @@ std::string str_format(const char* s, Types... a) {
 		}
 	}
 	return formatted;
+}
+
+template <typename Ptr, typename Type>
+void Format::format_args(Ptr p, Type v) {
+	*p = std::to_string(v);
+}
+
+template <typename Ptr>
+void Format::format_args(Ptr p, char v) {
+	*p = std::string(1, v);
+}
+
+template <typename Ptr>
+void Format::format_args(Ptr p, wchar_t v) {
+	*p = std::string(1, v);
+}
+
+template <typename Ptr>
+void Format::format_args(Ptr p, const char* v) {
+	*p = v;
+}
+
+template <typename Ptr>
+void Format::format_args(Ptr p, const std::string& v) {
+	*p = v;
+}
+
+template <typename Ptr, typename Type, typename... Types>
+void Format::format_args(Ptr p, Type v, Types... a) {
+	format_args(p, v);
+	format_args(p + 1, a...);
 }
 
 }

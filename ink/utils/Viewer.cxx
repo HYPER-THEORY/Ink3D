@@ -24,10 +24,10 @@
 
 namespace Ink {
 
-Viewer::Viewer(const Camera& c, float s) : camera(c), speed(s) {};
+Viewer::Viewer(const Camera& c, float s) : camera(c), speed(s) {}
 
 void Viewer::update(float dt) {
-	/* receive keyborad event */
+	/* receive keyboard event */
 	Vec3 move = {0, 0, 0};
 	if (Window::is_down(key_up)) ++move.z;
 	if (Window::is_down(key_down)) --move.z;
@@ -77,6 +77,7 @@ const Camera& Viewer::get_camera() const {
 
 void Viewer::set_camera(const Camera& c) {
 	camera = c;
+	set_direction(c.direction);
 }
 
 void Viewer::set_position(const Vec3& p) {

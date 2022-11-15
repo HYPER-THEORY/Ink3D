@@ -4,7 +4,7 @@
 #define PI                  3.141592653589793
 #define TWO_PI              6.283185307179586
 #define HALF_PI             1.5707963267948966
-#define ONE_BY_PI           0.3183098861837907
+#define INV_PI              0.3183098861837907
 #define EPS                 0.000001
 
 #define saturate(a)         clamp(a, 0., 1.)
@@ -47,7 +47,7 @@ highp float rand(vec3 s) {
 	return fract(sin(sn) * d);
 }
 
-/* Convert color to relative luminance. */
+/* Converts color to relative luminance. */
 float relative_luminance(vec3 color) {
 	const vec3 weights = vec3(0.2126, 0.7152, 0.0722);
 	return dot(weights, color);

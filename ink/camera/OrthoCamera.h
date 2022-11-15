@@ -28,39 +28,41 @@ namespace Ink {
 
 class OrthoCamera : public Camera {
 public:
-	float left = 0;     /**< the coordinates of the left vertical clipping plane */
-	float right = 0;    /**< the coordinates of the right vertical clipping plane */
-	float lower = 0;    /**< the coordinates of the lower horizontal clipping plane */
-	float upper = 0;    /**< the coordinates of the upper horizontal clipping plane */
+	float left = 0;     /**< the left vertical clipping plane */
+	float right = 0;    /**< the right vertical clipping plane */
+	float lower = 0;    /**< the lower horizontal clipping plane */
+	float upper = 0;    /**< the upper horizontal clipping plane */
 	
 	/**
-	 * Create a new OrthoCamera.
+	 * Creates a new OrthoCamera.
 	 */
-	OrthoCamera() = default;
+	explicit OrthoCamera() = default;
 	
 	/**
-	 * Create a new OrthoCamera.
+	 * Creates a new OrthoCamera and initializes it with left, right, lower,
+	 * upper, near, far.
 	 *
-	 * \param l the coordinates of the left vertical clipping plane
-	 * \param r the coordinates of the right vertical clipping plane
-	 * \param low the coordinates of the lower horizontal clipping plane
-	 * \param up the coordinates of the upper horizontal clipping plane
-	 * \param n distance to the farther depth clipping plane
-	 * \param f distance to the nearer depth clipping plane
+	 * \param lv the left vertical clipping plane
+	 * \param rv the right vertical clipping plane
+	 * \param lh the lower horizontal clipping plane
+	 * \param uh the upper horizontal clipping plane
+	 * \param n distance to the nearer clipping plane
+	 * \param f distance to the farther clipping plane
 	 */
-	OrthoCamera(float l, float r, float low, float up, float n, float f);
+	explicit OrthoCamera(float lv, float rv, float lh, float uh, float n, float f);
 	
 	/**
-	 * Sets orthographic projection matrix of camera.
+	 * Sets the left, right, lower, upper, near, far. Updates the projection
+	 * matrix of camera.
 	 *
-	 * \param l the coordinates of the left vertical clipping plane
-	 * \param r the coordinates of the right vertical clipping plane
-	 * \param low the coordinates of the lower horizontal clipping plane
-	 * \param up the coordinates of the upper horizontal clipping plane
-	 * \param n distance to the farther depth clipping plane
-	 * \param f distance to the nearer depth clipping plane
+	 * \param lv the left vertical clipping plane
+	 * \param rv the right vertical clipping plane
+	 * \param lh the lower horizontal clipping plane
+	 * \param uh the upper horizontal clipping plane
+	 * \param n distance to the nearer clipping plane
+	 * \param f distance to the farther clipping plane
 	 */
-	void set(float l, float r, float low, float up, float n, float f);
+	void set(float lv, float rv, float lh, float uh, float n, float f);
 };
 
 }

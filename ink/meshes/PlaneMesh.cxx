@@ -37,7 +37,7 @@ const std::vector<Vec2> plane_mesh_uv = {
 };
 
 Mesh PlaneMesh::create() {
-	Mesh mesh = {"Plane"};
+	Mesh mesh = Mesh("Plane");
 	mesh.groups = {{"default", 0, 6}};
 	mesh.vertex = plane_mesh_vertex;
 	mesh.normal = plane_mesh_normal;

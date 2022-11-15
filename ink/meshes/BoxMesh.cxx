@@ -37,7 +37,7 @@ const std::vector<Vec2> box_mesh_uv = {
 };
 
 Mesh BoxMesh::create() {
-	Mesh mesh = {"Box"};
+	Mesh mesh = Mesh("Box");
 	mesh.groups = {{"default", 0, 36}};
 	mesh.vertex = box_mesh_vertex;
 	mesh.normal = box_mesh_normal;

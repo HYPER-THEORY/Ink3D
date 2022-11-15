@@ -29,35 +29,35 @@ namespace Ink {
 class FXAAPass : public RenderPass {
 public:
 	/**
-	 * Create a new FXAAPass (Fast Approximate Anti-Aliasing).
+	 * Creates a new FXAAPass (Fast Approximate Anti-Aliasing).
 	 */
-	FXAAPass() = default;
+	explicit FXAAPass() = default;
 	
 	/**
-	 * Initialize the render pass and prepare the resources for rendering.
+	 * Initializes the render pass and prepare the resources for rendering.
 	 */
 	void init() override;
 	
 	/**
-	 * Compile if the shaders are not compiled yet. It will be automatically
+	 * Compiles if the shaders are not compiled yet. It will be automatically
 	 * invoked by the process method.
 	 */
 	void compile() override;
 	
 	/**
-	 * Render to the render target after the shaders are compiled. It will be
+	 * Renders to the render target after the shaders are compiled. It will be
 	 * automatically invoked by the process method.
 	 */
 	void render() const override;
 	
 	/**
-	 * Returns the texture as the input of post processing.
+	 * Returns the 2D texture represents the input of rendering pass.
 	 */
 	const Gpu::Texture* get_texture() const;
 	
 	/**
-	 * Sets the texture as the input of post processing. Insure the texture is
-	 * set to linear filtering.
+	 * Sets the specified 2D texture as the input of rendering pass. Insures the
+	 * texture is set to linear filtering.
 	 *
 	 * \param t input texture
 	 */

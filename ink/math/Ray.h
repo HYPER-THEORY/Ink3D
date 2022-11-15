@@ -32,27 +32,26 @@ public:
 	Vec3 direction;		/**< the direction of ray */
 	
 	/**
-	 * Create a new Ray.
+	 * Creates a new Ray.
 	 */
-	Ray() = default;
+	explicit Ray() = default;
 	
 	/**
-	 * Create a new Ray with its location.
+	 * Creates a new Ray and initialize it with origin and direction.
 	 *
 	 * \param o the origin of ray
 	 * \param d the direction of ray
 	 */
-	Ray(const Vec3& o, const Vec3& d);
+	explicit Ray(const Vec3& o, const Vec3& d);
 	
 	/**
-	 * Returns whether the ray will intersect with traingle.
+	 * Returns whether the ray will intersect with the triangle ABC.
 	 *
-	 * \param a triangle vertex A
-	 * \param b triangle vertex B
-	 * \param c triangle vertex C
-	 * \param i the coordinate of intersection
+	 * \param a vertex A of triangle
+	 * \param b vertex B of triangle
+	 * \param c vertex C of triangle
 	 */
-	bool intersect_triangle(const Vec3& a, const Vec3& b, const Vec3& c, Vec3* i = nullptr);
+	bool intersect_triangle(const Vec3& a, const Vec3& b, const Vec3& c) const;
 };
 
 }

@@ -64,6 +64,16 @@ Vec2 Shadow::get_resolution() {
 	return resolution;
 }
 
+int Shadow::get_samples() {
+	return samples;
+}
+
+void Shadow::set_samples(int s) {
+	samples = s;
+}
+
+int Shadow::samples = 32;
+
 Vec2 Shadow::resolution;
 
 std::vector<int> Shadow::assigner;

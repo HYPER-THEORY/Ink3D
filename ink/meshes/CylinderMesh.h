@@ -29,7 +29,7 @@ namespace Ink {
 class CylinderMesh {
 public:
 	/**
-	 * Returns a cylinder shaped mesh.
+	 * Returns a cylinder shaped mesh with 1 unit height and 1 unit radius.
 	 */
 	static Mesh create();
 };

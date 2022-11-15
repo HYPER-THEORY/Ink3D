@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include <cmath>
+
 namespace Ink {
 
 /* common math constants */
