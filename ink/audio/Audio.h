@@ -35,15 +35,15 @@ public:
 	static void init();
 	
 	/**
-	 * Creates a new Audio and loads audio data from the specified WAVE file
-	 * into the audio.
+	 * Creates a new Audio object and loads audio data from the specified WAVE
+	 * file into the audio.
 	 *
 	 * \param p the path to the file
 	 */
 	explicit Audio(const std::string& p);
 	
 	/**
-	 * Deletes this Audio and releases resources.
+	 * Deletes this Audio object and releases resources.
 	 */
 	~Audio();
 	

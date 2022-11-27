@@ -26,24 +26,21 @@ namespace Ink {
 
 Material::Material(const std::string& n) : name(n) {}
 
-void Material::add_image(const Image* i) {
-	images.emplace_back(i);
+Image* Material::get_image(int i) const {
+	if (images.count(i) == 0) return nullptr;
+	return images.at(i);
 }
 
-void Material::add_images(const std::initializer_list<const Image*>& l) {
-	images.insert(images.end(), l);
+void Material::set_image(int i, Image* c) {
+	images.insert_or_assign(i, c);
 }
 
-void Material::clear_image() {
+void Material::remove_image(int i) {
+	images.erase(i);
+}
+
+void Material::clear_images() {
 	images.clear();
-}
-
-size_t Material::get_image_count() const {
-	return images.size();
-}
-
-const Image* Material::get_image(int i) const {
-	return images[i];
 }
 
 }

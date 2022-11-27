@@ -32,12 +32,12 @@ public:
 	Vec3 direction;		/**< the direction of ray */
 	
 	/**
-	 * Creates a new Ray.
+	 * Creates a new Ray object.
 	 */
 	explicit Ray() = default;
 	
 	/**
-	 * Creates a new Ray and initialize it with origin and direction.
+	 * Creates a new Ray object and initializes it with origin and direction.
 	 *
 	 * \param o the origin of ray
 	 * \param d the direction of ray

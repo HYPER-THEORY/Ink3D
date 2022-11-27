@@ -54,8 +54,8 @@ void update(float dt);
 void quit();
 
 int run() {
-	Settings t;
-	conf(t); /* config setting */
+	Settings t; /* create settings */
+	conf(t); /* config settings */
 	
 	/* initialize window with parameters */
 	Ink::Window::init(t.title, t.x, t.y, t.width, t.height, t.highdpi);

@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "../renderer/RenderPass.h"
+#include "RenderPass.h"
 
 namespace Ink {
 
@@ -39,11 +39,11 @@ public:
 	int height = 0;            /**< the height of screen */
 	int channel = 4;           /**< the channel of texture */
 	int radius = 3;            /**< the radius of the blur */
-	float sigma_s = 2;         /**< the sigma of space, used in gaussian or bilateral blur */
+	float sigma_s = 2.0;       /**< the sigma of space, used in gaussian or bilateral blur */
 	float sigma_r = 0.25;      /**< the sigma of range, only used in bilateral blur */
 	
 	/**
-	 * Creates a new BlurPass.
+	 * Creates a new BlurPass object.
 	 */
 	explicit BlurPass() = default;
 	
@@ -61,14 +61,7 @@ public:
 	void init() override;
 	
 	/**
-	 * Compiles if the shaders are not compiled yet. It will be automatically
-	 * invoked by the process method.
-	 */
-	void compile() override;
-	
-	/**
-	 * Renders to the render target after the shaders are compiled. It will be
-	 * automatically invoked by the process method.
+	 * Compiles the required shaders and renders to the render target.
 	 */
 	void render() const override;
 	
@@ -92,9 +85,6 @@ private:
 	
 	std::unique_ptr<Gpu::FrameBuffer> blur_target_1;
 	std::unique_ptr<Gpu::FrameBuffer> blur_target_2;
-	
-	std::unique_ptr<Gpu::Shader> blur_shader;
-	std::unique_ptr<Gpu::Shader> copy_shader;
 };
 
 }

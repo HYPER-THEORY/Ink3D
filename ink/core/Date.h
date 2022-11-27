@@ -37,12 +37,12 @@ public:
 	int milliseconds = 0;        /**< the milliseconds, range from 0 to 999 */
 	
 	/**
-	 * Creates a new Date.
+	 * Creates a new Date object.
 	 */
 	explicit Date() = default;
 	
 	/**
-	 * Creates a new Date and initializes it with year, month, day, hour,
+	 * Creates a new Date object and initializes it with year, month, day, hour,
 	 * minute, secoud, millisecond.
 	 *
 	 * \param year the full year, start from 1900

@@ -22,8 +22,6 @@
 
 #include "SSRPass.h"
 
-#include "../../libs/glad/glad.h"
-
 namespace Ink {
 
 SSRPass::SSRPass(int w, int h, float t, float i) :
@@ -43,35 +41,18 @@ void SSRPass::init() {
 	/* prepare Hierarchical-Z frame buffer */
 	hi_z_target = std::make_unique<Gpu::FrameBuffer>();
 	hi_z_target->draw_attachments({0});
-	
-	/* prepare copy shader */
-	copy_shader = std::make_unique<Gpu::Shader>();
-	copy_shader->load_vert_file("ink/shaders/lib/Copy.vert.glsl");
-	copy_shader->load_frag_file("ink/shaders/lib/Copy.frag.glsl");
-	
-	/* prepare Hi-Z shader */
-	hi_z_shader = std::make_unique<Gpu::Shader>();
-	hi_z_shader->load_vert_file("ink/shaders/lib/MinHiZ.vert.glsl");
-	hi_z_shader->load_frag_file("ink/shaders/lib/MinHiZ.frag.glsl");
-	
-	/* compile SSR shader */
-	ssr_shader = std::make_unique<Gpu::Shader>();
-	ssr_shader->load_vert_file("ink/shaders/lib/SSR.vert.glsl");
-	ssr_shader->load_frag_file("ink/shaders/lib/SSR.frag.glsl");
-}
-
-void SSRPass::compile() {
-	/* compile copy shader */
-	copy_shader->compile();
-	
-	/* compile Hi-Z shader */
-	hi_z_shader->compile();
-	
-	/* compile SSR shader */
-	ssr_shader->compile();
 }
 
 void SSRPass::render() const {
+	/* fetch copy shader from shader lib */
+	auto* copy_shader = ShaderLib::fetch("Copy");
+	
+	/* fetch Hierarchical-Z shader from shader lib */
+	auto* hi_z_shader = ShaderLib::fetch("MinHiZ");
+	
+	/* fetch SSR shader from shader lib */
+	auto* ssr_shader = ShaderLib::fetch("SSR");
+	
 	/* calculate max lod and Hierarchical-Z map size */
 	Vec2 max_lod = {ceilf(log2f(width)) - 1, ceilf(log2f(height)) - 1};
 	Vec2 z_map_size = {powf(2, max_lod.x), powf(2, max_lod.y)};
@@ -87,7 +68,7 @@ void SSRPass::render() const {
 	copy_shader->use_program();
 	copy_shader->set_uniform_i("map", buffer_d->activate(0));
 	hi_z_target->set_attachment(*z_map, 0, 0);
-	RenderPass::render_to(copy_shader.get(), hi_z_target.get());
+	RenderPass::render_to(copy_shader, hi_z_target.get());
 	
 	/* 2. generate Hierarchical-Z map */
 	Vec2 z_size = z_map_size / 2;
@@ -106,7 +87,7 @@ void SSRPass::render() const {
 		hi_z_shader->set_uniform_i("lod", lod);
 		hi_z_shader->set_uniform_i("map", z_map->activate(0));
 		hi_z_target->set_attachment(*z_map, 0, lod + 1);
-		RenderPass::render_to(hi_z_shader.get(), hi_z_target.get());
+		RenderPass::render_to(hi_z_shader, hi_z_target.get());
 		
 		/* update the size of Hierarchical-Z map */
 		z_size.x = fmax(1, floorf(z_size.x / 2));
@@ -123,7 +104,7 @@ void SSRPass::render() const {
 	Mat4 view_proj = camera->projection * camera->viewing;
 	Mat4 inv_view_proj = inverse_4x4(view_proj);
 	
-	/* 3. render SSR mixing with input map to target */
+	/* 3. render SSR mixing with input map to render target */
 	ssr_shader->use_program();
 	ssr_shader->set_uniform_i("max_steps", max_steps);
 	ssr_shader->set_uniform_i("max_level", max_level);
@@ -140,12 +121,11 @@ void SSRPass::render() const {
 	ssr_shader->set_uniform_i("z_map", z_map->activate(1));
 	ssr_shader->set_uniform_i("buffer_n", buffer_n->activate(2));
 	ssr_shader->set_uniform_i("buffer_m", buffer_n->activate(3));
-	RenderPass::render_to(ssr_shader.get(), target);
+	RenderPass::render_to(ssr_shader, target);
 }
 
-void SSRPass::process(const Camera& c) {
-	camera = &c;
-	process();
+void SSRPass::set(const Camera* c) {
+	camera = c;
 }
 
 const Gpu::Texture* SSRPass::get_texture() const {

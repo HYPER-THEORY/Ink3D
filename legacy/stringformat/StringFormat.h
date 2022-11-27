@@ -26,19 +26,22 @@
 
 namespace Ink::Legacy {
 
-/**
- * Translate a format-string with arguments.
- *
- * \param s format-string
- * \param ...  arguments
- *
- * |  Specifier  |  Argument Type  |
- * |     %%      |   % (char)      |
- * |     %c      |   char          |
- * |     %s      |   const char*   |
- * |     %d      |   int           |
- * |     %f      |   double        |
- */
-std::string str_format(const char* s, ...);
+class StringFormat {
+public:
+	/**
+	 * Translate a format-string with arguments.
+	 *
+	 * \param s format-string
+	 * \param ...  arguments
+	 *
+	 * |  Specifier  |  Argument Type  |
+	 * |     %%      |   % (char)      |
+	 * |     %c      |   char          |
+	 * |     %s      |   const char*   |
+	 * |     %d      |   int           |
+	 * |     %f      |   double        |
+	 */
+	static std::string str_format(const char* s, ...);
+};
 
 }

@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include "../math/Euler.h"
+
 #include "Mesh.h"
 
 namespace Ink {
@@ -38,25 +40,25 @@ public:
 	
 	Vec3 position = {0, 0, 0};     /**< the position vector of instance */
 	
-	Vec3 rotation = {0, 0, 0};     /**< the rotation vector of instance */
-	
 	Vec3 scale = {1, 1, 1};        /**< the scaling vector of instance */
+	
+	Euler rotation;                /**< the rotation angles of instance */
 	
 	Mat4 matrix_local;             /**< the local transform matrix of instance */
 	
 	Mat4 matrix_global;            /**< the global transform matrix of instance */
 	
-	const Mesh* mesh = nullptr;    /**< the linked mesh of instance */
+	Mesh* mesh = nullptr;          /**< the linked mesh of instance */
 	
 	/**
-	 * Creates a new Instance, which is the minimum unit of rendering.
+	 * Creates a new Instance object, which is the minimum unit of rendering.
 	 *
 	 * \param n instance name
 	 */
 	static Instance* create(const std::string& n = "");
 	
 	/**
-	 * Destroys the specified Instance.
+	 * Destroys the specified Instance object.
 	 *
 	 * \param i instance
 	 */
@@ -126,10 +128,10 @@ public:
 	 * instance.
 	 *
 	 * \param p position vector
-	 * \param r rotation vector
+	 * \param r rotation angles
 	 * \param s scaling vector
 	 */
-	void set_transform(const Vec3& p, const Vec3& r, const Vec3& s);
+	void set_transform(const Vec3& p, const Euler& r, const Vec3& s);
 	
 	/**
 	 * Updates the local transform matrix. This function is equivalent to
@@ -175,10 +177,10 @@ public:
 	 * Returns a transform matrix by calculating position, rotation and scale.
 	 *
 	 * \param p position vector
-	 * \param r rotation vector
+	 * \param r rotation angles
 	 * \param s scale vector
 	 */
-	static Mat4 transform(const Vec3& p, const Vec3& r, const Vec3& s);
+	static Mat4 transform(const Vec3& p, const Euler& r, const Vec3& s);
 	
 protected:
 	Instance* parent = nullptr;

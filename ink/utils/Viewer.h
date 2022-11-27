@@ -36,8 +36,8 @@ enum ViewerMode {
 class Viewer {
 public:
 	int mode = VIEWER_FLY;        /**< movement mode */
-	float speed = 1;              /**< the speed of movement */
-	float sensitivity = .001f;    /**< the sensitivity of mouse */
+	float speed = 1;              /**< moving speed */
+	float sensitivity = .001f;    /**< mouse sensitivity */
 	
 	int key_up = SDLK_w;          /**< the key controls camera move forward */
 	int key_down = SDLK_s;        /**< the key controls camera move back */
@@ -45,7 +45,8 @@ public:
 	int key_right = SDLK_d;       /**< the key controls camera move right */
 	
 	/**
-	 * Creates a new Viewer and initializes it with camera and moving speed.
+	 * Creates a new Viewer object and initializes it with camera and moving
+	 * speed.
 	 *
 	 * \param c camera
 	 * \param s moving speed

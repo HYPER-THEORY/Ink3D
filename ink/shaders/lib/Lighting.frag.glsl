@@ -23,9 +23,10 @@ void main() {
 	/* sample depth from buffer D */
 	float depth = textureLod(buffer_d, v_uv, 0).x;
 	
-	/* ignore pixels on skybox */
-	out_color = vec4(diffuse, 0.);
-	if (depth == 1.) return;
+	if (depth == 1.) {
+		out_color = vec4(TONE_MAP(diffuse, exposure), 0);
+		return; /* ignore the pixels on skybox */
+	}
 	
 	/* sample world normal from buffer N */
 	vec3 normal = textureLod(buffer_n, v_uv, 0).xyz;

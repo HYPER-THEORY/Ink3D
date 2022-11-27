@@ -63,6 +63,7 @@
 /* graphics part */
 #include "../graphics/Software.h"
 #include "../graphics/Gpu.h"
+#include "../graphics/ShaderLib.h"
 
 /* lights part */
 #include "../lights/LinearFog.h"
@@ -84,12 +85,12 @@
 
 /* renderer part */
 #include "../renderer/Renderer.h"
-#include "../renderer/RenderPass.h"
-#include "../renderer/CopyPass.h"
-#include "../renderer/BlendPass.h"
-#include "../renderer/LightPass.h"
 
 /* postprocess part */
+#include "../postprocess/RenderPass.h"
+#include "../postprocess/CopyPass.h"
+#include "../postprocess/BlendPass.h"
+#include "../postprocess/LightPass.h"
 #include "../postprocess/BlurPass.h"
 #include "../postprocess/SSAOPass.h"
 #include "../postprocess/SSRPass.h"

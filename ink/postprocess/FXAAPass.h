@@ -22,14 +22,14 @@
 
 #pragma once
 
-#include "../renderer/RenderPass.h"
+#include "RenderPass.h"
 
 namespace Ink {
 
 class FXAAPass : public RenderPass {
 public:
 	/**
-	 * Creates a new FXAAPass (Fast Approximate Anti-Aliasing).
+	 * Creates a new FXAAPass (Fast Approximate Anti-Aliasing) object.
 	 */
 	explicit FXAAPass() = default;
 	
@@ -39,14 +39,7 @@ public:
 	void init() override;
 	
 	/**
-	 * Compiles if the shaders are not compiled yet. It will be automatically
-	 * invoked by the process method.
-	 */
-	void compile() override;
-	
-	/**
-	 * Renders to the render target after the shaders are compiled. It will be
-	 * automatically invoked by the process method.
+	 * Compiles the required shaders and renders to the render target.
 	 */
 	void render() const override;
 	
@@ -65,8 +58,6 @@ public:
 	
 private:
 	const Gpu::Texture* map = nullptr;
-	
-	std::unique_ptr<Gpu::Shader> fxaa_shader;
 };
 
 }

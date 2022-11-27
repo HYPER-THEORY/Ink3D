@@ -33,7 +33,7 @@ namespace Ink {
 class ConvexHull {
 public:
 	/**
-	 * Creates a new ConvexHull.
+	 * Creates a new ConvexHull object.
 	 */
 	explicit ConvexHull() = default;
 	

@@ -109,7 +109,7 @@ vec3 apply_spot_light(Material mat, Geometry geom, SpotLight light) {
 	float light_distance = length(light_vec);
 	
 	/* calculate spot & distance attenuation */
-	float attenuation = 1;
+	float attenuation = 1.;
 	float angle_cos = dot(light_dir, light.direction);
 	attenuation *= spot_attenuate(angle_cos, light.angle, light.penumbra);
 	attenuation *= attenuate(light_distance, light.distance, light.decay);

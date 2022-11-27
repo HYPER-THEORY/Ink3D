@@ -44,7 +44,17 @@ public:
 	Camera camera;            /**< light's view camera of shadow */
 	
 	/**
-	 * Creates a new Shadow.
+	 * Sets the resolution of shadow map and the max number of shadows.
+	 * Initializes shadows.
+	 *
+	 * \param w the width of shadow map
+	 * \param h the height of shadow map
+	 * \param n the max number of shadows
+	 */
+	static void init(int w = 1024, int h = 1024, int n = 16);
+	
+	/**
+	 * Creates a new Shadow object.
 	 */
 	explicit Shadow() = default;
 	
@@ -72,16 +82,6 @@ public:
 	 * Returns the render target of the shadow texture (shadow map).
 	 */
 	const Gpu::FrameBuffer* get_target() const;
-	
-	/**
-	 * Sets the resolution of shadow map and the max number of shadows.
-	 * Initializes shadows.
-	 *
-	 * \param w the width of shadow map
-	 * \param h the height of shadow map
-	 * \param n the max number of shadows
-	 */
-	static void init(int w = 1024, int h = 1024, int n = 16);
 	
 	/**
 	 * Activates the shadow texture (shadow map) at the specified location.

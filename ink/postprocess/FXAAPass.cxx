@@ -24,23 +24,16 @@
 
 namespace Ink {
 
-void FXAAPass::init() {
-	fxaa_shader = std::make_unique<Gpu::Shader>();
-	fxaa_shader->load_vert_file("ink/shaders/lib/FXAA.vert.glsl");
-	fxaa_shader->load_frag_file("ink/shaders/lib/FXAA.frag.glsl");
-}
-
-void FXAAPass::compile() {
-	fxaa_shader->compile();
-}
+void FXAAPass::init() {}
 
 void FXAAPass::render() const {
+	auto* fxaa_shader = ShaderLib::fetch("FXAA");
 	Gpu::Rect viewport = RenderPass::get_viewport();
 	Vec2 screen_size = Vec2(viewport.width, viewport.height);
 	fxaa_shader->use_program();
 	fxaa_shader->set_uniform_v2("screen_size", screen_size);
 	fxaa_shader->set_uniform_i("map", map->activate(0));
-	RenderPass::render_to(fxaa_shader.get(), target);
+	RenderPass::render_to(fxaa_shader, target);
 }
 
 const Gpu::Texture* FXAAPass::get_texture() const {

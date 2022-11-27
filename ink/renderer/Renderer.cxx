@@ -25,8 +25,19 @@
 #include "../core/Error.h"
 #include "../core/Format.h"
 #include "../meshes/BoxMesh.h"
+#include "../graphics/ShaderLib.h"
 
 namespace Ink {
+
+const Vec3 CUBE_DIRECTIONS[] = {
+	{-1, 0, 0}, {1, 0, 0}, {0, -1, 0},
+	{0, 1, 0}, {0, 0, -1}, {0, 0, 1},
+};
+
+const Vec3 CUBE_UPS[] = {
+	{0, -1, 0}, {0, -1, 0}, {0, 0, 1},
+	{0, 0, -1}, {0, -1, 0}, {0, -1, 0},
+};
 
 Vec4 Renderer::get_clear_color() const {
 	return clear_color;
@@ -76,16 +87,16 @@ void Renderer::set_rendering_mode(int m) {
 }
 
 int Renderer::get_tone_mapping_mode() const {
-	return tone_mapping_mode;
+	return tone_map_mode;
 }
 
 float Renderer::get_tone_mapping_exposure() const {
-	return tone_mapping_exposure;
+	return tone_map_exposure;
 }
 
 void Renderer::set_tone_mapping(int m, float e) {
-	tone_mapping_mode = m;
-	tone_mapping_exposure = e;
+	tone_map_mode = m;
+	tone_map_exposure = e;
 }
 
 const Gpu::FrameBuffer* Renderer::get_target() const {
@@ -108,42 +119,24 @@ void Renderer::set_skybox_intensity(float i) {
 	skybox_intensity = i;
 }
 
-void Renderer::load_skybox_cubemap(const Image& px, const Image& nx, const Image& py,
-								   const Image& ny, const Image& pz, const Image& nz) {
+void Renderer::load_skybox(const Image& px, const Image& nx,
+						   const Image& py, const Image& ny,
+						   const Image& pz, const Image& nz) {
 	skybox_map = std::make_unique<Gpu::Texture>();
-	skybox_map->init_cube(px, nx, py, ny, pz, nz, Gpu::Texture::default_format(px));
+	skybox_map->init_cube(px, nx, py, ny, pz, nz,
+						  Gpu::Texture::default_format(px));
 	skybox_map->set_filters(TEXTURE_LINEAR, TEXTURE_LINEAR);
 }
 
-void Renderer::load_skybox_equirect(const Image& i) {
+void Renderer::load_skybox(const Image& i) {
 	skybox_map = std::make_unique<Gpu::Texture>();
 	skybox_map->init_2d(i, Gpu::Texture::default_format(i));
 	skybox_map->set_filters(TEXTURE_LINEAR, TEXTURE_LINEAR);
 }
 
 void Renderer::render_skybox(const Camera& c) const {
-	/* initialize skybox */
-	[[maybe_unused]]
-	static bool inited = init_skybox();
-	
 	/* activate the render target */
 	Gpu::FrameBuffer::activate(target);
-	
-	/* set the depth & stencil test */
-	Gpu::enable_depth_test();
-	Gpu::set_depth_func(FUNC_ALWAYS);
-	Gpu::disable_stencil_test();
-	
-	/* disable blending & wireframe */
-	Gpu::disable_blending();
-	Gpu::disable_wireframe();
-	
-	/* cull the front sides of faces */
-	Gpu::enable_culling();
-	Gpu::set_cull_side(FRONT_SIDE);
-	
-	/* render cube texture seamlessly */
-	Gpu::enable_texture_cube_seamless();
 	
 	/* set the viewport region */
 	Gpu::set_viewport(viewport);
@@ -156,97 +149,128 @@ void Renderer::render_skybox(const Camera& c) const {
 		Gpu::disable_scissor_test();
 	}
 	
-	/* fetch the skybox shader from cache */
-	Defines defines = get_tone_map_defines(tone_mapping_mode);
-	int type = skybox_map->get_type();
-	defines.set_if("USE_EQUIRECT", type == TEXTURE_2D);
-	defines.set_if("USE_CUBEMAP", type == TEXTURE_CUBE);
-	auto* shader_ptr = fetch_shader(defines, "Skybox");
-	
-	/* calculate transform matrice */
-	Mat4 viewing = c.viewing;
-	for (int i = 0; i < 3; ++i) {
-		viewing[i][3] = 0;
-	}
-	Mat4 view_proj = c.projection * viewing;
-	
-	/* render to the render target */
-	shader_ptr->use_program();
-	shader_ptr->set_uniform_m4("view_proj", view_proj);
-	shader_ptr->set_uniform_f("exposure", tone_mapping_exposure);
-	shader_ptr->set_uniform_f("intensity", skybox_intensity);
-	shader_ptr->set_uniform_i("map", skybox_map->activate(0));
-	cube->attach(*shader_ptr);
-	cube->draw();
+	/* render the skybox to buffer */
+	render_skybox_to_buffer(c, rendering_mode);
 	
 	/* set back to the default render target */
 	Gpu::FrameBuffer::activate(nullptr);
 }
 
 void Renderer::load_mesh(const Mesh* m) {
-	if (cache_mesh.count(m) != 0) return;
+	if (mesh_cache.count(m) != 0) return;
 	size_t size = m->groups.size();
-	auto p = cache_mesh.insert({m, std::make_unique<Gpu::VertexObject[]>(size)});
-	auto* vertex_object_ptr = p.first->second.get();
+	auto p = mesh_cache.insert({m, std::make_unique<Gpu::VertexObject[]>(size)});
+	auto* vertex_object = p.first->second.get();
 	for (int i = 0; i < size; ++i) {
-		vertex_object_ptr[i].load(*m, i);
+		vertex_object[i].load(*m, i);
 	}
 }
 
+void Renderer::unload_mesh(const Mesh* m) {
+	mesh_cache.erase(m);
+}
+
 void Renderer::load_image(const Image* i) {
-	if (cache_image.count(i) != 0) return;
-	auto p = cache_image.insert({i, std::make_unique<Gpu::Texture>()});
-	auto* texture_ptr = p.first->second.get();
-	texture_ptr->init_2d(*i, Gpu::Texture::default_format(*i));
-	std::invoke(texture_callback, *texture_ptr);
+	if (image_cache.count(i) != 0) return;
+	auto p = image_cache.insert({i, std::make_unique<Gpu::Texture>()});
+	auto* texture = p.first->second.get();
+	texture->init_2d(*i, Gpu::Texture::default_format(*i));
+	std::invoke(texture_callback, *texture);
+}
+
+void Renderer::unload_image(const Image* i) {
+	image_cache.erase(i);
 }
 
 void Renderer::load_scene(const Scene& s) {
 	/* load the meshes linked with instance */
-	for (auto& instance_ptr : s.to_instances()) {
-		auto* mesh_ptr = instance_ptr->mesh;
-		if (mesh_ptr != nullptr) load_mesh(mesh_ptr);
+	for (auto& instance : s.to_instances()) {
+		auto* mesh = instance->mesh;
+		if (mesh != nullptr) load_mesh(mesh);
 	}
 	
 	/* load the images linked with instance */
-	for (auto& material_ptr : s.get_materials()) {
-		auto count = material_ptr->get_image_count();
-		for (int i = 0; i < count; ++i) {
-			load_image(material_ptr->get_image(i));
+	for (auto& material : s.get_materials()) {
+		for (int i = 0; i < 16; ++i) {
+			auto* image = material->get_image(i);
+			if (image != nullptr) load_image(image);
 		}
-		if (material_ptr->normal_map != nullptr) {
-			load_image(material_ptr->normal_map);
+		if (material->normal_map != nullptr) {
+			load_image(material->normal_map);
 		}
-		if (material_ptr->displacement_map != nullptr) {
-			load_image(material_ptr->displacement_map);
+		if (material->displacement_map != nullptr) {
+			load_image(material->displacement_map);
 		}
-		if (material_ptr->color_map != nullptr) {
-			load_image(material_ptr->color_map);
+		if (material->color_map != nullptr) {
+			load_image(material->color_map);
 		}
-		if (material_ptr->alpha_map != nullptr) {
-			load_image(material_ptr->alpha_map);
+		if (material->alpha_map != nullptr) {
+			load_image(material->alpha_map);
 		}
-		if (material_ptr->emissive_map != nullptr) {
-			load_image(material_ptr->emissive_map);
+		if (material->emissive_map != nullptr) {
+			load_image(material->emissive_map);
 		}
-		if (material_ptr->ao_map != nullptr) {
-			load_image(material_ptr->ao_map);
+		if (material->ao_map != nullptr) {
+			load_image(material->ao_map);
 		}
-		if (material_ptr->roughness_map != nullptr) {
-			load_image(material_ptr->roughness_map);
+		if (material->roughness_map != nullptr) {
+			load_image(material->roughness_map);
 		}
-		if (material_ptr->metalness_map != nullptr) {
-			load_image(material_ptr->metalness_map);
+		if (material->metalness_map != nullptr) {
+			load_image(material->metalness_map);
 		}
-		if (material_ptr->specular_map != nullptr) {
-			load_image(material_ptr->specular_map);
+		if (material->specular_map != nullptr) {
+			load_image(material->specular_map);
 		}
 	}
 }
 
-void Renderer::clear_scene_cache() {
-	cache_mesh.clear();
-	cache_image.clear();
+void Renderer::unload_scene(const Scene& s) {
+	/* unload the meshes linked with instance */
+	for (auto& instance : s.to_instances()) {
+		auto* mesh = instance->mesh;
+		if (mesh != nullptr) unload_mesh(mesh);
+	}
+	
+	/* unload the images linked with instance */
+	for (auto& material : s.get_materials()) {
+		for (int i = 0; i < 16; ++i) {
+			auto* image = material->get_image(i);
+			if (image != nullptr) unload_image(image);
+		}
+		if (material->normal_map != nullptr) {
+			unload_image(material->normal_map);
+		}
+		if (material->displacement_map != nullptr) {
+			unload_image(material->displacement_map);
+		}
+		if (material->color_map != nullptr) {
+			unload_image(material->color_map);
+		}
+		if (material->alpha_map != nullptr) {
+			unload_image(material->alpha_map);
+		}
+		if (material->emissive_map != nullptr) {
+			unload_image(material->emissive_map);
+		}
+		if (material->ao_map != nullptr) {
+			unload_image(material->ao_map);
+		}
+		if (material->roughness_map != nullptr) {
+			unload_image(material->roughness_map);
+		}
+		if (material->metalness_map != nullptr) {
+			unload_image(material->metalness_map);
+		}
+		if (material->specular_map != nullptr) {
+			unload_image(material->specular_map);
+		}
+	}
+}
+
+void Renderer::clear_scene_caches() {
+	mesh_cache.clear();
+	image_cache.clear();
 }
 
 void Renderer::render(const Scene& s, const Camera& c) const {
@@ -265,7 +289,7 @@ void Renderer::render(const Scene& s, const Camera& c) const {
 	}
 	
 	/* render the scene to buffer */
-	render_to_buffer(s, c, {false, rendering_mode, tone_mapping_mode});
+	render_to_buffer(s, c, rendering_mode, false);
 	
 	/* set back to the default render target */
 	Gpu::FrameBuffer::activate(nullptr);
@@ -287,13 +311,9 @@ void Renderer::render_transparent(const Scene& s, const Camera& c) const {
 	}
 	
 	/* render the scene to buffer */
-	if (rendering_mode == FORWARD_RENDERING) {
-		render_to_buffer(s, c, {true, rendering_mode, tone_mapping_mode});
-	} else {
-		Gpu::set_depth_writemask(false);
-		render_to_buffer(s, c, {true, rendering_mode, tone_mapping_mode});
-		Gpu::set_depth_writemask(true);
-	}
+	Gpu::set_depth_writemask(false);
+	render_to_buffer(s, c, rendering_mode, true);
+	Gpu::set_depth_writemask(true);
 	
 	/* set back to the default render target */
 	Gpu::FrameBuffer::activate(nullptr);
@@ -334,15 +354,71 @@ void Renderer::update_shadow(const Scene& s, DirectionalLight& l) const {
 	render_shadow(s, l.shadow);
 }
 
+void Renderer::update_probe(const Scene& s, const Vec3& p, ReflectionProbe& r) const {
+	/* set the viewport with the resolution of probe */
+	Gpu::set_viewport(Gpu::Rect(r.resolution, r.resolution));
+	
+	/* disable the scissor test */
+	Gpu::disable_scissor_test();
+	
+	/* prepare texture for probe */
+	if (!probe_color_map) {
+		probe_color_map = std::make_unique<Gpu::Texture>();
+	}
+	probe_color_map->init_cube(r.resolution, r.resolution, TEXTURE_R8G8B8A8_UNORM);
+	probe_color_map->set_filters(TEXTURE_LINEAR, TEXTURE_LINEAR);
+	
+	/* prepare depth texture for rendering */
+	if (!probe_depth_map) {
+		probe_depth_map = std::make_unique<Gpu::Texture>();
+	}
+	probe_depth_map->init_2d(r.resolution, r.resolution, TEXTURE_D24_UNORM);
+	
+	/* prepare frame buffer for probe */
+	if (!probe_target) {
+		probe_target = std::make_unique<Gpu::FrameBuffer>();
+		probe_target->draw_attachments({0});
+	}
+	probe_target->set_depth_attachment(*probe_depth_map);
+	
+	/* initialize camera for probe */
+	PerspCamera camera = PerspCamera(PI_2, 1, 0.1, 100);
+	
+	for (int i = 0; i < 6; ++i) {
+		/* update camera for each side of cube */
+		camera.lookat(p, CUBE_DIRECTIONS[i], CUBE_UPS[i]);
+		
+		/* update and activate render target */
+		probe_target->set_attachment(*probe_color_map, 0, 0, i);
+		Gpu::FrameBuffer::activate(probe_target.get());
+		
+		/* clear depth buffer before rendering */
+		Gpu::clear(false, true, false);
+		
+		/* render skybox loaded by renderer */
+		render_skybox_to_buffer(camera, FORWARD_RENDERING);
+		
+		/* render the opaque objects in scene */
+		render_to_buffer(s, camera, FORWARD_RENDERING, false);
+		
+		/* render the transparent objects in scene */
+		Gpu::set_depth_writemask(false);
+		render_to_buffer(s, camera, FORWARD_RENDERING, true);
+		Gpu::set_depth_writemask(true);
+	}
+	
+	/* set back to the default render target */
+	Gpu::FrameBuffer::activate(nullptr);
+	
+	/* update probe with probe texture */
+	r.load_texture(*probe_color_map);
+}
+
 void Renderer::update_scene(Scene& s) {
 	s.update_instances();
 }
 
-void Renderer::clear_shader_cache() {
-	cache_shader.clear();
-}
-
-Defines Renderer::get_material_defines(const Material& m) {
+Defines Renderer::define_material(const Material& m) {
 	Defines defines; /* create new defines */
 	
 	/* check whether to use normal map */
@@ -390,7 +466,7 @@ Defines Renderer::get_material_defines(const Material& m) {
 	return defines; /* return the defines */
 }
 
-Defines Renderer::get_scene_defines(const Scene& s) {
+Defines Renderer::define_scene(const Scene& s) {
 	Defines defines; /* create new defines */
 	
 	/* set the sample numbers of shadow */
@@ -421,19 +497,25 @@ Defines Renderer::get_scene_defines(const Scene& s) {
 	return defines; /* return the defines */
 }
 
-Defines Renderer::get_tone_map_defines(int m) {
+Defines Renderer::define_tone_map(int m) {
 	Defines defines; /* create new defines */
 	
-	/* set which mode to use in tone mapping */
+	/* set which to use linear tone mapping */
 	if (m == LINEAR_TONE_MAP) {
 		defines.set("TONE_MAP", "linear_tone_map");
 	}
+	
+	/* set which to use reinhard tone mapping */
 	if (m == REINHARD_TONE_MAP) {
 		defines.set("TONE_MAP", "reinhard_tone_map");
 	}
+	
+	/* set which to use optimized tone mapping */
 	if (m == OPTIMIZED_TONE_MAP) {
 		defines.set("TONE_MAP", "optimized_tone_map");
 	}
+	
+	/* set which to use ACES filmic tone mapping */
 	if (m == ACES_FILMIC_TONE_MAP) {
 		defines.set("TONE_MAP", "aces_filmic_tone_map");
 	}
@@ -568,7 +650,60 @@ void Renderer::set_light_uniforms(const Scene& s, const Gpu::Shader& shader) {
 	}
 }
 
-void Renderer::render_to_buffer(const Scene& s, const Camera& c, const RenderInfo& t) const {
+void Renderer::render_skybox_to_buffer(const Camera& c, int r) const {
+	/* initialize skybox */
+	[[maybe_unused]]
+	static bool inited = init_skybox();
+	
+	/* set the depth & stencil test */
+	Gpu::disable_depth_test();
+	Gpu::disable_stencil_test();
+	
+	/* disable blending & wireframe */
+	Gpu::disable_blending();
+	Gpu::disable_wireframe();
+	
+	/* cull the front sides of faces */
+	Gpu::enable_culling();
+	Gpu::set_cull_side(FRONT_SIDE);
+	
+	/* render cube texture seamlessly */
+	Gpu::enable_texture_cube_seamless();
+	
+	/* fetch the skybox shader from shader lib */
+	Defines defines;
+	if (r == FORWARD_RENDERING) {
+		defines.set(define_tone_map(tone_map_mode));
+	} else {
+		defines.set("TONE_MAP", "linear_tone_map");
+	}
+	int type = skybox_map->get_type();
+	defines.set_if("USE_EQUIRECT", type == TEXTURE_2D);
+	defines.set_if("USE_CUBEMAP", type == TEXTURE_CUBE);
+	auto* shader = ShaderLib::fetch("Skybox", defines);
+	
+	/* calculate transform matrice */
+	Mat4 viewing = c.viewing;
+	for (int i = 0; i < 3; ++i) {
+		viewing[i][3] = 0;
+	}
+	Mat4 view_proj = c.projection * viewing;
+	
+	/* calculate exposure in tone mapping */
+	float exposure = 1;
+	if (r == FORWARD_RENDERING) exposure = tone_map_exposure;
+	
+	/* render to the render target */
+	shader->use_program();
+	shader->set_uniform_m4("view_proj", view_proj);
+	shader->set_uniform_f("exposure", exposure);
+	shader->set_uniform_f("intensity", skybox_intensity);
+	shader->set_uniform_i("map", skybox_map->activate(0));
+	cube->attach(*shader);
+	cube->draw();
+}
+
+void Renderer::render_to_buffer(const Scene& s, const Camera& c, int r, bool t) const {
 	/* create transform matrices & vectors */
 	Mat4 model;
 	Mat4 view = c.viewing;
@@ -580,13 +715,13 @@ void Renderer::render_to_buffer(const Scene& s, const Camera& c, const RenderInf
 	
 	/* sort the vector of visible instances */
 	auto instances = s.to_visible_instances();
-	sort_instances(c, instances, t.transparent);
+	sort_instances(c, instances, t);
 	
 	/* render all instances in sorted vector */
-	for (auto& instance_ptr : instances) {
+	for (auto& instance : instances) {
 		
 		/* get matrices from instance */
-		model = instance_ptr->matrix_global;
+		model = instance->matrix_global;
 		model_view = view * model;
 		model_view_proj = proj * model_view;
 		normal_mat = inverse_3x3(Mat3{
@@ -596,171 +731,186 @@ void Renderer::render_to_buffer(const Scene& s, const Camera& c, const RenderInf
 		});
 		
 		/* get mesh from instance */
-		auto* mesh_ptr = instance_ptr->mesh;
+		auto* mesh = instance->mesh;
 		
 		/* check whether the scene is loaded */
-		if (cache_mesh.count(mesh_ptr) == 0) {
+		if (mesh_cache.count(mesh) == 0) {
 			return Error::set("Renderer: Scene is not loaded");
 		}
 		
 		/* get vertex objects from mesh cache */
-		auto* vertex_object_ptr = cache_mesh.at(mesh_ptr).get();
-		size_t group_size = mesh_ptr->groups.size();
+		auto* vertex_object = mesh_cache.at(mesh).get();
+		size_t group_size = mesh->groups.size();
 		for (int i = 0; i < group_size; ++i) {
 			
 			/* get material from material groups */
-			auto& group = mesh_ptr->groups[i];
-			auto* material_ptr = s.get_material(mesh_ptr, group.name);
-			if (material_ptr == nullptr) {
-				material_ptr = s.get_material(group.name);
+			auto& group = mesh->groups[i];
+			auto* material = s.get_material(mesh, group.name);
+			if (material == nullptr) {
+				material = s.get_material(group.name);
 			}
-			if (material_ptr == nullptr) {
+			if (material == nullptr) {
 				Error::set("Renderer: Material is not linked");
 				continue;
 			}
 			
 			/* check whether the material is visible */
-			if (!material_ptr->visible) continue;
+			if (!material->visible) continue;
 			
-			/* check whether the material is transparent or using blending */
-			bool is_transparent = material_ptr->transparent || material_ptr->blending;
-			if (is_transparent != t.transparent) continue;
+			/* check whether the material is transparent or blending */
+			bool is_transparent = material->transparent || material->blending;
+			if (is_transparent != t) continue;
 			
-			/* fetch the standard shader from cache */
-			auto* shader_ptr = static_cast<const Gpu::Shader*>(material_ptr->shader);
-			if (shader_ptr == nullptr) {
-				shader_ptr = fetch_shader(fetch_defines(s, *material_ptr, t), "Standard");
+			/* fetch the standard shader from shader lib */
+			auto* shader = static_cast<const Gpu::Shader*>(material->shader);
+			if (shader == nullptr) {
+				Defines defines = define_material(*material);
+				if (!t && r == DEFERRED_RENDERING) {
+					/* use deferred rendering */
+					defines.set("DEFERRED_RENDERING");
+				} else {
+					/* use forward rendering */
+					defines.set("FORWARD_RENDERING");
+					defines.set(define_scene(s));
+					defines.set(define_tone_map(tone_map_mode));
+				}
+				shader = ShaderLib::fetch("Standard", defines);
 			}
 			
 			/* render vertex object with shader */
-			shader_ptr->use_program();
-			vertex_object_ptr[i].attach(*shader_ptr);
+			shader->use_program();
+			vertex_object[i].attach(*shader);
 			
-			if (is_transparent || t.rendering_mode == FORWARD_RENDERING) {
+			if (is_transparent || r == FORWARD_RENDERING) {
 				/* pass camera parameters to shader */
 				Mat4 inv_view_proj = inverse_4x4(c.projection * c.viewing);
-				shader_ptr->set_uniform_m4("inv_view_proj", inv_view_proj);
+				shader->set_uniform_m4("inv_view_proj", inv_view_proj);
 				
 				/* pass the tone mapping parameters to shader */
-				shader_ptr->set_uniform_f("exposure", tone_mapping_exposure);
+				shader->set_uniform_f("exposure", tone_map_exposure);
 				
 				/* pass the lights & fogs parameters to shader */
-				set_light_uniforms(s, *shader_ptr);
+				set_light_uniforms(s, *shader);
 			}
 			
 			/* pass the renderer parameters to shader */
-			shader_ptr->set_uniform_m4("model"          , model          );
-			shader_ptr->set_uniform_m4("view"           , view           );
-			shader_ptr->set_uniform_m4("proj"           , proj           );
-			shader_ptr->set_uniform_m4("model_view"     , model_view     );
-			shader_ptr->set_uniform_m4("model_view_proj", model_view_proj);
-			shader_ptr->set_uniform_m3("normal_mat"     , normal_mat     );
-			shader_ptr->set_uniform_v3("camera_pos"     , camera_pos     );
+			shader->set_uniform_m4("model"          , model          );
+			shader->set_uniform_m4("view"           , view           );
+			shader->set_uniform_m4("proj"           , proj           );
+			shader->set_uniform_m4("model_view"     , model_view     );
+			shader->set_uniform_m4("model_view_proj", model_view_proj);
+			shader->set_uniform_m3("normal_mat"     , normal_mat     );
+			shader->set_uniform_v3("camera_pos"     , camera_pos     );
 			
 			/* pass the material parameters to shader */
-			shader_ptr->set_uniform_v3("color"      , material_ptr->color       );
-			shader_ptr->set_uniform_f("alpha_test"  , material_ptr->alpha_test  );
-			shader_ptr->set_uniform_f("alpha"       , material_ptr->alpha       );
-			shader_ptr->set_uniform_f("ao_intensity", material_ptr->ao_intensity);
-			shader_ptr->set_uniform_f("specular"    , material_ptr->specular    );
-			shader_ptr->set_uniform_f("metalness"   , material_ptr->metalness   );
-			shader_ptr->set_uniform_f("roughness"   , material_ptr->roughness   );
+			shader->set_uniform_v3("color"      , material->color       );
+			shader->set_uniform_f("alpha_test"  , material->alpha_test  );
+			shader->set_uniform_f("alpha"       , material->alpha       );
+			shader->set_uniform_f("ao_intensity", material->ao_intensity);
+			shader->set_uniform_f("specular"    , material->specular    );
+			shader->set_uniform_f("metalness"   , material->metalness   );
+			shader->set_uniform_f("roughness"   , material->roughness   );
 			
 			/* pass the emissive parameter to shader */
-			Vec3 emissive = material_ptr->emissive * material_ptr->emissive_intensity;
-			shader_ptr->set_uniform_v3("emissive", emissive);
+			Vec3 emissive = material->emissive * material->emissive_intensity;
+			shader->set_uniform_v3("emissive", emissive);
 			
 			/* pass the normal scale if use normal map */
-			if (material_ptr->normal_map != nullptr) {
-				shader_ptr->set_uniform_f("normal_scale", material_ptr->normal_scale);
+			if (material->normal_map != nullptr) {
+				shader->set_uniform_f("normal_scale", material->normal_scale);
 			}
 			
 			/* pass the displacement scale if use displacement map */
-			if (material_ptr->displacement_map != nullptr) {
-				shader_ptr->set_uniform_f("displacement_scale", material_ptr->displacement_scale);
+			if (material->displacement_map != nullptr) {
+				shader->set_uniform_f("displacement_scale", material->displacement_scale);
 			}
 			
 			/* pass the images linked with material */
-			size_t image_count = material_ptr->get_image_count();
-			for (int j = 0; j < image_count; ++j) {
-				cache_image.at(material_ptr->get_image(j))->activate(j);
+			for (int j = 0; j < 16; ++j) {
+				auto* image = material->get_image(j);
+				if (image != nullptr) image_cache.at(image)->activate(j);
 			}
-			if (material_ptr->normal_map != nullptr) {
-				auto& map = cache_image.at(material_ptr->normal_map);
-				shader_ptr->set_uniform_i("normal_map", map->activate(16));
+			if (material->normal_map != nullptr) {
+				auto& map = image_cache.at(material->normal_map);
+				shader->set_uniform_i("normal_map", map->activate(16));
 			}
-			if (material_ptr->displacement_map != nullptr) {
-				auto& map = cache_image.at(material_ptr->displacement_map);
-				shader_ptr->set_uniform_i("displacement_map", map->activate(17));
+			if (material->displacement_map != nullptr) {
+				auto& map = image_cache.at(material->displacement_map);
+				shader->set_uniform_i("displacement_map", map->activate(17));
 			}
-			if (material_ptr->color_map != nullptr) {
-				auto& map = cache_image.at(material_ptr->color_map);
-				shader_ptr->set_uniform_i("color_map", map->activate(18));
+			if (material->color_map != nullptr) {
+				auto& map = image_cache.at(material->color_map);
+				shader->set_uniform_i("color_map", map->activate(18));
 			}
-			if (material_ptr->alpha_map != nullptr) {
-				auto& map = cache_image.at(material_ptr->alpha_map);
-				shader_ptr->set_uniform_i("alpha_map", map->activate(19));
+			if (material->alpha_map != nullptr) {
+				auto& map = image_cache.at(material->alpha_map);
+				shader->set_uniform_i("alpha_map", map->activate(19));
 			}
-			if (material_ptr->emissive_map != nullptr) {
-				auto& map = cache_image.at(material_ptr->emissive_map);
-				shader_ptr->set_uniform_i("emissive_map", map->activate(20));
+			if (material->emissive_map != nullptr) {
+				auto& map = image_cache.at(material->emissive_map);
+				shader->set_uniform_i("emissive_map", map->activate(20));
 			}
-			if (material_ptr->ao_map != nullptr) {
-				auto& map = cache_image.at(material_ptr->ao_map);
-				shader_ptr->set_uniform_i("ao_map", map->activate(21));
+			if (material->ao_map != nullptr) {
+				auto& map = image_cache.at(material->ao_map);
+				shader->set_uniform_i("ao_map", map->activate(21));
 			}
-			if (material_ptr->roughness_map != nullptr) {
-				auto& map = cache_image.at(material_ptr->roughness_map);
-				shader_ptr->set_uniform_i("roughness_map", map->activate(22));
+			if (material->roughness_map != nullptr) {
+				auto& map = image_cache.at(material->roughness_map);
+				shader->set_uniform_i("roughness_map", map->activate(22));
 			}
-			if (material_ptr->metalness_map != nullptr) {
-				auto& map = cache_image.at(material_ptr->metalness_map);
-				shader_ptr->set_uniform_i("metalness_map", map->activate(23));
+			if (material->metalness_map != nullptr) {
+				auto& map = image_cache.at(material->metalness_map);
+				shader->set_uniform_i("metalness_map", map->activate(23));
 			}
-			if (material_ptr->specular_map != nullptr) {
-				auto& map = cache_image.at(material_ptr->specular_map);
-				shader_ptr->set_uniform_i("specular_map", map->activate(24));
+			if (material->specular_map != nullptr) {
+				auto& map = image_cache.at(material->specular_map);
+				shader->set_uniform_i("specular_map", map->activate(24));
 			}
 			
 			/* pass the reflection probe linked with material */
-			auto* ref_probe_ptr = static_cast<const ReflectionProbe*>(material_ptr->reflection_probe);
-			if (ref_probe_ptr != nullptr) {
-				int ref_lod = log2f(ref_probe_ptr->resolution);
-				shader_ptr->set_uniform_i("ref_map", ref_probe_ptr->activate(25));
-				shader_ptr->set_uniform_i("ref_lod", ref_lod);
-				shader_ptr->set_uniform_f("ref_intensity", ref_probe_ptr->intensity);
+			auto* ref_probe = static_cast<const ReflectionProbe*>(material->reflection_probe);
+			if (ref_probe != nullptr) {
+				int ref_lod = log2f(ref_probe->resolution);
+				shader->set_uniform_i("ref_map", ref_probe->activate(25));
+				shader->set_uniform_i("ref_lod", ref_lod);
+				shader->set_uniform_f("ref_intensity", ref_probe->intensity);
+			}
+			
+			/* pass the custom uniforms linked with material */
+			if (material->uniforms != nullptr) {
+				shader->set_uniforms(*material->uniforms);
 			}
 			
 			/* apply the depth test setting of material */
-			Gpu::apply_material_depth(*material_ptr);
+			Gpu::apply_material_depth(*material);
 			
 			/* apply the stencil test setting of material */
-			Gpu::apply_material_stencil(*material_ptr);
+			Gpu::apply_material_stencil(*material);
 			
 			/* apply the wireframe setting of material */
-			Gpu::apply_material_wireframe(*material_ptr);
+			Gpu::apply_material_wireframe(*material);
 			
 			/* apply the blending setting of material */
-			Gpu::apply_material_blending(*material_ptr);
+			Gpu::apply_material_blending(*material);
 			
 			/* apply the render side setting of material */
-			Gpu::apply_material_side(*material_ptr);
+			Gpu::apply_material_side(*material);
 			
 			/* set the blendings to render transparent objects correctly */
-			if (material_ptr->transparent) {
+			if (material->transparent) {
 				Gpu::enable_blending();
 				Gpu::set_blend_op(BLEND_ADD);
 				Gpu::set_blend_factor(FACTOR_SRC_ALPHA, FACTOR_ONE_MINUS_SRC_ALPHA);
 			}
 			
 			/* cull back side of face if side is DOUBLE_SIDE */
-			if (is_transparent && material_ptr->side == DOUBLE_SIDE) {
+			if (is_transparent && material->side == DOUBLE_SIDE) {
 				Gpu::enable_culling();
 				Gpu::set_cull_side(BACK_SIDE);
 			}
 			
 			/* draw the vertex object at group i */
-			vertex_object_ptr[i].draw();
+			vertex_object[i].draw();
 		}
 	}
 }
@@ -778,95 +928,95 @@ void Renderer::render_to_shadow(const Scene& s, const Camera& c) const {
 	sort_instances(c, instances, false);
 	
 	/* render all instances in sorted vector */
-	for (auto& instance_ptr : instances) {
+	for (auto& instance : instances) {
 		
 		/* check whether the instance casts shadow */
-		if (!instance_ptr->cast_shadow) continue;
+		if (!instance->cast_shadow) continue;
 		
 		/* get matrices from instance */
-		model = instance_ptr->matrix_global;
+		model = instance->matrix_global;
 		model_view = view * model;
 		model_view_proj = proj * model_view;
 		
 		/* get mesh from instance */
-		auto* mesh_ptr = instance_ptr->mesh;
+		auto* mesh = instance->mesh;
 		
 		/* check whether the scene is loaded */
-		if (cache_mesh.count(mesh_ptr) == 0) {
+		if (mesh_cache.count(mesh) == 0) {
 			Error::set("Renderer: Scene is not loaded");
 			continue;
 		}
 		
 		/* get vertex objects from cache */
-		auto* vertex_object_ptr = cache_mesh.at(mesh_ptr).get();
-		size_t group_size = mesh_ptr->groups.size();
+		auto* vertex_object = mesh_cache.at(mesh).get();
+		size_t group_size = mesh->groups.size();
 		for (int i = 0; i < group_size; ++i) {
 			
 			/* get material from material groups */
-			auto& group = mesh_ptr->groups[i];
-			auto* material_ptr = s.get_material(mesh_ptr, group.name);
-			if (material_ptr == nullptr) {
-				material_ptr = s.get_material(group.name);
+			auto& group = mesh->groups[i];
+			auto* material = s.get_material(mesh, group.name);
+			if (material == nullptr) {
+				material = s.get_material(group.name);
 			}
-			if (material_ptr == nullptr) {
+			if (material == nullptr) {
 				Error::set("Renderer: Material is not linked");
 				continue;
 			}
 			
 			/* whether to use color map and alpha map */
-			bool use_color_map = material_ptr->color_map != nullptr;
-			bool use_alpha_map = material_ptr->alpha_map != nullptr;
+			bool use_color_map = material->color_map != nullptr;
+			bool use_alpha_map = material->alpha_map != nullptr;
 			
-			/* fetch the shadow shader from cache */
+			/* fetch the shadow shader from shader lib */
 			Defines defines;
 			defines.set_if("USE_COLOR_MAP", use_color_map);
 			defines.set_if("USE_ALPHA_MAP", use_alpha_map);
-			auto* shader_ptr = fetch_shader(defines, "Shadow");
+			auto* shader = ShaderLib::fetch("Shadow", defines);
 			
 			/* check whether the material is visible */
-			if (!material_ptr->visible) continue;
+			if (!material->visible) continue;
 			
 			/* check whether the material is transparent or using blending */
-			if (material_ptr->transparent || material_ptr->blending) continue;
+			if (material->transparent || material->blending) continue;
 			
 			/* render vertex object with shader */
-			shader_ptr->use_program();
-			vertex_object_ptr[i].attach(*shader_ptr);
+			shader->use_program();
+			vertex_object[i].attach(*shader);
 			
 			/* pass the renderer parameters to shader */
-			shader_ptr->set_uniform_m4("model_view_proj", model_view_proj);
+			shader->set_uniform_m4("model_view_proj", model_view_proj);
 			
 			/* pass the material parameters to shader */
-			shader_ptr->set_uniform_f("alpha", material_ptr->alpha);
-			shader_ptr->set_uniform_f("alpha_test", material_ptr->alpha_test);
-			shader_ptr->set_uniform_i("color_map", 0);
-			shader_ptr->set_uniform_i("alpha_map", 1);
+			shader->set_uniform_f("alpha", material->alpha);
+			shader->set_uniform_f("alpha_test", material->alpha_test);
+			shader->set_uniform_i("color_map", 0);
+			shader->set_uniform_i("alpha_map", 1);
 			
 			/* activate color map linked with material */
 			if (use_color_map) {
-				cache_image.at(material_ptr->color_map)->activate(0);
+				image_cache.at(material->color_map)->activate(0);
 			}
 			if (use_alpha_map) {
-				cache_image.at(material_ptr->alpha_map)->activate(1);
+				image_cache.at(material->alpha_map)->activate(1);
 			}
 			
 			/* apply the depth test setting of material */
-			Gpu::apply_material_depth(*material_ptr);
+			Gpu::apply_material_depth(*material);
 			
 			/* apply the stencil test setting of material */
-			Gpu::apply_material_stencil(*material_ptr);
+			Gpu::apply_material_stencil(*material);
 			
 			/* apply the wireframe setting of material */
-			Gpu::apply_material_wireframe(*material_ptr);
+			Gpu::apply_material_wireframe(*material);
 			
 			/* apply the blending setting of material */
-			Gpu::apply_material_blending(*material_ptr);
+			Gpu::apply_material_blending(*material);
 			
 			/* apply the render side setting of material */
-			Gpu::apply_material_shadow_side(*material_ptr);
+			Gpu::apply_material_shadow_side(*material);
 			
 			/* draw the vertex object at group i */
-			vertex_object_ptr[i].draw();
+			vertex_object[i].draw();
 		}
 	}
 }
@@ -874,7 +1024,7 @@ void Renderer::render_to_shadow(const Scene& s, const Camera& c) const {
 bool Renderer::init_skybox() {
 	cube = std::make_unique<Gpu::VertexObject>();
 	cube->load(BoxMesh::create());
-	return true;
+	return true; /* finish */
 }
 
 void Renderer::sort_instances(const Camera& c, std::vector<const Instance*>& l, bool t) {
@@ -906,45 +1056,12 @@ void Renderer::sort_instances(const Camera& c, std::vector<const Instance*>& l, 
 	}
 }
 
-Defines Renderer::fetch_defines(const Scene& s, const Material& m, const RenderInfo& t) {
-	Defines defines = get_material_defines(m);
-	if (!t.transparent && t.rendering_mode == DEFERRED_RENDERING) {
-		/* use deferred rendering */
-		defines.set("DEFERRED_RENDERING");
-	} else {
-		/* use forward rendering */
-		defines.set("FORWARD_RENDERING");
-		defines.set(get_scene_defines(s));
-		defines.set(get_tone_map_defines(t.tone_mapping_mode));
-	}
-	return defines;
-}
-
-const Gpu::Shader* Renderer::fetch_shader(const Defines& d, const std::string& n) {
-	/* set the define string as key */
-	std::string key = n + "\n" + d.get();
-	
-	/* check whether exists the key */
-	if (cache_shader.count(key) != 0) return cache_shader.at(key).get();
-	
-	/* insert key and shader to the cache */
-	auto p = cache_shader.insert({key, std::make_unique<Gpu::Shader>()});
-	auto* shader_ptr = p.first->second.get();
-	
-	/* load shader files to shader */
-	std::string shader_file = "ink/shaders/lib/" + n;
-	shader_ptr->load_vert_file(shader_file + ".vert.glsl");
-	shader_ptr->load_frag_file(shader_file + ".frag.glsl");
-	
-	/* set defines to shader and compile shader */
-	shader_ptr->set_defines(d);
-	shader_ptr->compile();
-	
-	return shader_ptr; /* return the shader */
-}
-
 std::unique_ptr<Gpu::VertexObject> Renderer::cube;
 
-std::unordered_map<std::string, std::unique_ptr<Gpu::Shader> > Renderer::cache_shader;
+std::unique_ptr<Gpu::Texture> Renderer::probe_color_map;
+
+std::unique_ptr<Gpu::Texture> Renderer::probe_depth_map;
+
+std::unique_ptr<Gpu::FrameBuffer> Renderer::probe_target;
 
 }

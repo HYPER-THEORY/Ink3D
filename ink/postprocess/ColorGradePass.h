@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-#include "../renderer/RenderPass.h"
+#include "RenderPass.h"
 
 #pragma once
 
@@ -35,7 +35,7 @@ public:
 	Vec3 offset = {0, 0, 0};        /**< the shadows in color adjustments */
 	
 	/**
-	 * Creates a new ColorGradingPass.
+	 * Creates a new ColorGradingPass object.
 	 */
 	explicit ColorGradePass() = default;
 	
@@ -45,14 +45,7 @@ public:
 	void init() override;
 	
 	/**
-	 * Compiles if the shaders are not compiled yet. It will be automatically
-	 * invoked by the process method.
-	 */
-	void compile() override;
-	
-	/**
-	 * Renders to the render target after the shaders are compiled. It will be
-	 * automatically invoked by the process method.
+	 * Compiles the required shaders and renders to the render target.
 	 */
 	void render() const override;
 	
@@ -70,8 +63,6 @@ public:
 	
 private:
 	const Gpu::Texture* map = nullptr;
-	
-	std::unique_ptr<Gpu::Shader> color_grade_shader;
 };
 
 }

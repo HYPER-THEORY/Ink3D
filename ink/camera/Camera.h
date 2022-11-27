@@ -39,7 +39,7 @@ public:
 	Mat4 projection;    /**< the matrix of projection transform */
 	
 	/**
-	 * Creates a new Camera.
+	 * Creates a new Camera object.
 	 */
 	explicit Camera() = default;
 	

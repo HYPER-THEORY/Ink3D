@@ -32,7 +32,7 @@ public:
 	Vec3 direction = {0, 1, 0};       /**< the direction from ground to sky */
 	
 	/**
-	 * Creates a new HemisphereLight and initializes it with color and
+	 * Creates a new HemisphereLight object and initializes it with colors and
 	 * intensity.
 	 *
 	 * \param s the sky color

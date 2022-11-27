@@ -55,7 +55,7 @@ void load() {
 
 void update(float dt) {
     viewer.update(dt);
-    renderer.update_scene(scene);
+    Ink::Renderer::update_scene(scene);
     renderer.render(scene, viewer.get_camera());
 }
 

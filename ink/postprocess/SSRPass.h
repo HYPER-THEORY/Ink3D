@@ -21,7 +21,8 @@
  */
 
 #include "../camera/Camera.h"
-#include "../renderer/RenderPass.h"
+
+#include "RenderPass.h"
 
 #pragma once
 
@@ -37,13 +38,13 @@ public:
 	float max_roughness = 0.8;    /**< the maximum roughness fade the reflection */
 	
 	/**
-	 * Creates a new SSRPass (Screen Space Reflection).
+	 * Creates a new SSRPass (Screen Space Reflection) object.
 	 */
 	explicit SSRPass() = default;
 	
 	/**
-	 * Creates a new SSRPass (Screen Space Reflection) and initializes it with
-	 * parameters.
+	 * Creates a new SSRPass (Screen Space Reflection) object and initializes it
+	 * with parameters.
 	 *
 	 * \param w the width of screen
 	 * \param h the height of screen
@@ -58,21 +59,16 @@ public:
 	void init() override;
 	
 	/**
-	 * Compiles if the shaders are not compiled yet. It will be automatically
-	 * invoked by the process method.
-	 */
-	void compile() override;
-	
-	/**
-	 * Renders to the render target after the shaders are compiled. It will be
-	 * automatically invoked by the process method.
+	 * Compiles the required shaders and renders to the render target.
 	 */
 	void render() const override;
 	
 	/**
-	 * Compiles the shaders and render to the render target.
+	 * Sets the specified parameters to render pass before the rendering starts.
+	 *
+	 * \param c camera
 	 */
-	void process(const Camera& c);
+	void set(const Camera* c);
 	
 	/**
 	 * Returns the 2D texture represents the input of rendering pass.
@@ -134,12 +130,6 @@ private:
 	std::unique_ptr<Gpu::Texture> z_map;
 	
 	std::unique_ptr<Gpu::FrameBuffer> hi_z_target;
-	
-	std::unique_ptr<Gpu::Shader> copy_shader;
-	std::unique_ptr<Gpu::Shader> hi_z_shader;
-	std::unique_ptr<Gpu::Shader> ssr_shader;
-	
-	using RenderPass::process;
 };
 
 }

@@ -34,7 +34,7 @@ public:
 	float far = 1000;          /**< the farthest distance of fog */
 	
 	/**
-	 * Creates a new Fog and initializes it with color and distances.
+	 * Creates a new Fog object and initializes it with color and distances.
 	 *
 	 * \param c the color of fog
 	 * \param n the nearest distance of fog

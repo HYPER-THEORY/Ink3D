@@ -25,7 +25,7 @@
 namespace Ink {
 
 SpotLight::SpotLight(const Vec3& c, float i) : Light(c, i) {
-	shadow.camera = PerspCamera(angle * 2, 1, .5, 500);
+	shadow.camera = PerspCamera(angle * 2, 1, 0.5, 500);
 }
 
 }

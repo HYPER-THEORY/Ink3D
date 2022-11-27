@@ -31,8 +31,8 @@ namespace Ink {
 
 class SpotLight : public Light {
 public:
-	Vec3 position;               /**< the position where the light shines from */
-	Vec3 direction;              /**< the direction where the light shines through */
+	Vec3 position;               /**< the position where the light casts from */
+	Vec3 direction;              /**< the direction where the light casts through */
 	float angle = PI / 3;        /**< the maximum angle of light */
 	float decay = 1;             /**< the decay speed of light */
 	float distance = 0;          /**< the maximum distance affected by the light */
@@ -41,7 +41,8 @@ public:
 	Shadow shadow;               /**< the shadow of light */
 	
 	/**
-	 * Creates a new SpotLight and initializes it with color and intensity.
+	 * Creates a new SpotLight object and initializes it with color and
+	 * intensity.
 	 *
 	 * \param c the color of light
 	 * \param i the intensity of light

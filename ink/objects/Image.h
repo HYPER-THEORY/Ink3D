@@ -40,12 +40,13 @@ public:
 	std::vector<uint8_t> data;    /**< the data of image */
 	
 	/**
-	 * Creates a new Image.
+	 * Creates a new Image object.
 	 */
 	explicit Image() = default;
 	
 	/**
-	 * Creates a new Image and initializes it with the size, channel and bytes.
+	 * Creates a new Image object and initializes it with the size, channel and
+	 * bytes.
 	 *
 	 * \param w the width of image
 	 * \param h the height of image
