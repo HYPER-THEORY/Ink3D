@@ -47,7 +47,7 @@ public:
 	std::vector<Vec4> tangent;        /**< the tangent for each vertex */
 	
 	/**
-	 * Creates a new Mesh and initializes it with a name.
+	 * Creates a new Mesh object and initializes it with a name.
 	 *
 	 * \param n mesh name
 	 */

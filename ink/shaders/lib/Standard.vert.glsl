@@ -37,7 +37,7 @@ void main() {
 	#endif
 	
 	#ifdef USE_DISPLACEMENT_MAP
-		/* reposition the vertex */
+		/* reposition the vertex by displacement map */
 		t_vertex += t_normal * texture(displacement_map, t_uv).x * displacement_scale;
 	#endif
 	
@@ -52,7 +52,7 @@ void main() {
 		t_bitangent = normalize(cross(t_normal, t_tangent) * tangent.w);
 	#endif
 	
-	/* pass to fragment shader */
+	/* pass parameters to fragment shader */
 	v_normal = t_normal;
 	v_uv = t_uv;
 	v_world_pos = (model * vec4(t_vertex, 1.)).xyz;

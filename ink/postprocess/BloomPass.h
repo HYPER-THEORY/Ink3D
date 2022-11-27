@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "../renderer/RenderPass.h"
+#include "RenderPass.h"
 
 namespace Ink {
 
@@ -36,12 +36,13 @@ public:
 	Vec3 tint = {1, 1, 1};    /**< the tint modify the bloom color */
 	
 	/**
-	 * Creates a new BloomPass.
+	 * Creates a new BloomPass object.
 	 */
 	explicit BloomPass() = default;
 	
 	/**
-	 * Creates a new BloomPass and initializes it with the specified parameters.
+	 * Creates a new BloomPass object and initializes it with the specified
+	 * parameters.
 	 *
 	 * \param w the width of screen
 	 * \param h the height of screen
@@ -57,14 +58,7 @@ public:
 	void init() override;
 	
 	/**
-	 * Compiles if the shaders are not compiled yet. It will be automatically
-	 * invoked by the process method.
-	 */
-	void compile() override;
-	
-	/**
-	 * Renders to the render target after the shaders are compiled. It will be
-	 * automatically invoked by the process method.
+	 * Compiles the required shaders and renders to the render target.
 	 */
 	void render() const override;
 	
@@ -87,10 +81,6 @@ private:
 	std::unique_ptr<Gpu::Texture> bloom_map_2;
 	
 	std::unique_ptr<Gpu::FrameBuffer> bloom_target;
-	
-	std::unique_ptr<Gpu::Shader> bright_pass_shader;
-	std::unique_ptr<Gpu::Shader> blur_shader;
-	std::unique_ptr<Gpu::Shader> bloom_shader;
 };
 
 }

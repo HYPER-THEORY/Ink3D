@@ -22,8 +22,9 @@
 
 #include "File.h"
 
-#include <fstream>
 #include <cstring>
+#include <fstream>
+#include <limits>
 
 namespace Ink {
 
@@ -34,8 +35,8 @@ std::string File::read(const std::string& p) {
 		Error::set("File: Error reading from file");
 		return std::string();
 	}
-	stream.seekg(0, stream.end);
-	size_t length = stream.tellg();
+	stream.ignore(std::numeric_limits<std::streamsize>::max());
+	std::streamsize length = stream.gcount();
 	content.resize(length);
 	stream.seekg(0, stream.beg);
 	stream.read(content.data(), length);
@@ -46,19 +47,37 @@ std::string File::read(const std::string& p) {
 void File::write(const std::string& p, const std::string& c) {
 	std::ofstream stream(p, std::fstream::out);
 	stream.write(c.data(), c.size());
-	stream.close();
 	if (!stream) {
 		Error::set("File: Error writing to file");
 	}
+	stream.close();
 }
 
 void File::write(const std::string& p, const char* c) {
 	std::ofstream stream(p, std::fstream::out);
 	stream.write(c, std::strlen(c));
-	stream.close();
 	if (!stream) {
 		Error::set("File: Error writing to file");
 	}
+	stream.close();
+}
+
+void File::append(const std::string& p, const std::string& c) {
+	std::ofstream stream(p, std::fstream::out | std::fstream::app);
+	stream.write(c.data(), c.size());
+	if (!stream) {
+		Error::set("File: Error appending to file");
+	}
+	stream.close();
+}
+
+void File::append(const std::string& p, const char* c) {
+	std::ofstream stream(p, std::fstream::out | std::fstream::app);
+	stream.write(c, std::strlen(c));
+	if (!stream) {
+		Error::set("File: Error appending to file");
+	}
+	stream.close();
 }
 
 }

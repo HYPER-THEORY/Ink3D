@@ -24,7 +24,7 @@
 
 namespace Ink::Legacy {
 
-std::string str_format(const char* s, ...) {
+std::string StringFormat::str_format(const char* s, ...) {
 	va_list args;
 	va_start(args, s);
 	std::string formatted;

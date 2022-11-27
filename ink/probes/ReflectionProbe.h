@@ -32,8 +32,8 @@ public:
 	float intensity = 1;     /**< the intensity of reflection probe */
 	
 	/**
-	 * Creates a new ReflectionProbe and initializes it with intensity and
-	 * resolution.
+	 * Creates a new ReflectionProbe object and initializes it with intensity
+	 * and resolution.
 	 *
 	 * \param i the intensity of reflection probe
 	 * \param r the resolution of reflection probe
@@ -50,8 +50,9 @@ public:
 	 * \param pz front (+Z) side of cube image
 	 * \param nz back  (-Z) side of cube image
 	 */
-	void load_cubemap(const Image& px, const Image& nx, const Image& py,
-					  const Image& ny, const Image& pz, const Image& nz);
+	void load_cubemap(const Image& px, const Image& nx,
+					  const Image& py, const Image& ny,
+					  const Image& pz, const Image& nz);
 	
 	/**
 	 * Loads the specified equirectangular image to the reflection probe.

@@ -43,8 +43,6 @@ void conf(Settings& t) {
 }
 
 void load() {
-	Ink::IBLFilter::init();
-	
 	meshes["Helmet"] = Ink::Loader::load_obj(PATH "Helmet.obj")[0];
 	meshes["Helmet"].create_tangents();
 	
@@ -108,9 +106,9 @@ void load() {
 	renderer.set_tone_mapping(Ink::ACES_FILMIC_TONE_MAP, 1);
 #endif
 	
-	renderer.load_skybox_cubemap(images["Skybox_PX"], images["Skybox_NX"],
-								 images["Skybox_PY"], images["Skybox_NY"],
-								 images["Skybox_PZ"], images["Skybox_NZ"]);
+	renderer.load_skybox(images["Skybox_PX"], images["Skybox_NX"],
+						 images["Skybox_PY"], images["Skybox_NY"],
+						 images["Skybox_PZ"], images["Skybox_NZ"]);
 	
 	renderer.load_scene(scene);
 	renderer.set_viewport(Ink::Gpu::Rect(VP_WIDTH, VP_HEIGHT));
@@ -157,7 +155,7 @@ void load() {
 	
 	renderer.set_target(base_target);
 	
-	Ink::RenderPass::set_viewport({VP_WIDTH, VP_HEIGHT});
+	Ink::RenderPass::set_viewport(Ink::Gpu::Rect(VP_WIDTH, VP_HEIGHT));
 	
 	light_pass = new Ink::LightPass();
 	light_pass->init();
@@ -194,15 +192,18 @@ void update(float dt) {
 	viewer.update(dt);
 	auto& camera = viewer.get_camera();
 	
-	renderer.update_scene(scene);
+	Ink::Renderer::update_scene(scene);
+	
+	renderer.clear();
 	renderer.render_skybox(camera);
 	renderer.render(scene, camera);
 	
 #if !USE_FORWARD_PATH
-	light_pass->process(scene, camera);
-	bloom_pass->process();
-	tone_map_pass->process();
-	fxaa_pass->process();
+	light_pass->set(&scene, &camera);
+	light_pass->render();
+	bloom_pass->render();
+	tone_map_pass->render();
+	fxaa_pass->render();
 #endif
 	
 	Ink::Gpu::finish();

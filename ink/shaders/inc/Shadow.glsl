@@ -8,8 +8,8 @@
 #define SHADOW_PCF           1
 #define SHADOW_PCSS          2
 
-#define MIN_FILTER_RADIUS    1
-#define MAX_FILTER_RADIUS    32
+#define MIN_FILTER_RADIUS    1.
+#define MAX_FILTER_RADIUS    32.
 
 #if SHADOW_SAMPLES == 16
 #define POISSON_2D poisson_2d_16
@@ -98,18 +98,14 @@ float shadowing(Shadow shadow, vec3 world_pos, vec3 normal) {
 	if (out_of_screen(light_pos)) return 1.;
 	vec2 texel_size = 1. / global_shadow.size;
 	
-	/* calculate fade when in the edge of shadow map */
-	vec2 coords = smoothstep(0.45, 0.5, abs(vec2(0.5) - light_pos.xy));
-	float edge_fade = clamp(1. - (coords.x + coords.y), 0., 1.);
-	
 	/* calculate shadow factor with edge fade */
-	float factor = edge_fade;
+	float factor = 1.;
 	if (shadow.type == SHADOW_HARD) {
-		factor *= shadow_hard(shadow, light_pos);
+		factor = shadow_hard(shadow, light_pos);
 	} else if (shadow.type == SHADOW_PCF) {
-		factor *= shadow_pcf(shadow, light_pos, texel_size, shadow.radius);
+		factor = shadow_pcf(shadow, light_pos, texel_size, shadow.radius);
 	} else if (shadow.type == SHADOW_PCSS) {
-		factor *= shadow_pcss(shadow, light_pos, texel_size, shadow.proj);
+		factor = shadow_pcss(shadow, light_pos, texel_size, shadow.proj);
 	}
 	return 1. - factor;
 }

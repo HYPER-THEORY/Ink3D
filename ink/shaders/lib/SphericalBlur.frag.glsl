@@ -1,7 +1,7 @@
 #include <common>
 #include <cubemap>
 
-#define N	20
+#define N    20
 
 uniform samplerCube map;
 

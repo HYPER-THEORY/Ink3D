@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <vector>
 #include <unordered_map>
 
 #include "../objects/Material.h"
@@ -38,7 +39,7 @@ namespace Ink {
 class Scene : public Instance {
 public:
 	/**
-	 * Creates a new Scene and initializes it with a name.
+	 * Creates a new Scene object and initializes it with a name.
 	 *
 	 * \param n scene name
 	 */
@@ -51,19 +52,19 @@ public:
 	 * \param s the specified mesh
 	 * \param n material name
 	 */
-	const Material* get_material(const Mesh* s, const std::string& n) const;
+	Material* get_material(const Mesh* s, const std::string& n) const;
 	
 	/**
 	 * Returns the material matching the specified name.
 	 *
 	 * \param n material name
 	 */
-	const Material* get_material(const std::string& n) const;
+	Material* get_material(const std::string& n) const;
 	
 	/**
 	 * Returns all the materials in the material library.
 	 */
-	std::vector<const Material*> get_materials() const;
+	std::vector<Material*> get_materials() const;
 	
 	/**
 	 * Sets the specified material with name to the scene. Links it with the
@@ -73,7 +74,7 @@ public:
 	 * \param n material name
 	 * \param m material
 	 */
-	void set_material(const Mesh* s, const std::string& n, const Material* m);
+	void set_material(const Mesh* s, const std::string& n, Material* m);
 	
 	/**
 	 * Sets the specified material with name to the scene.
@@ -81,18 +82,35 @@ public:
 	 * \param n material name
 	 * \param m material
 	 */
-	void set_material(const std::string& n, const Material* m);
+	void set_material(const std::string& n, Material* m);
+	
+	/**
+	 * Removes the specified material matching the specified name and linking
+	 * with the specified mesh from the scene.
+	 *
+	 * \param s specified mesh
+	 * \param n material name
+	 */
+	void remove_material(const Mesh* s, const std::string& n);
+	
+	/**
+	 * Removes the specified material matching the specified name from the
+	 * scene.
+	 *
+	 * \param n material name
+	 */
+	void remove_material(const std::string& n);
 	
 	/**
 	 * Removes all the materials from the scene.
 	 */
-	void clear_material();
+	void clear_materials();
 	
 	/**
 	 * Returns the linear fog in the scene if there is, return nullptr
 	 * otherwise.
 	 */
-	const LinearFog* get_linear_fog() const;
+	LinearFog* get_linear_fog() const;
 	
 	/**
 	 * Sets the specified linear fog to the scene. Only one fog can be set in a
@@ -100,13 +118,13 @@ public:
 	 *
 	 * \param f linear fog
 	 */
-	void set_fog(const LinearFog* f);
+	void set_fog(LinearFog* f);
 	
 	/**
 	 * Returns the exp square fog in the scene if there is, return nullptr
 	 * otherwise.
 	 */
-	const Exp2Fog* get_exp2_fog() const;
+	Exp2Fog* get_exp2_fog() const;
 	
 	/**
 	 * Sets the specified exp square fog to the scene. Only one fog can be set
@@ -114,7 +132,7 @@ public:
 	 *
 	 * \param f exp square fog
 	 */
-	void set_fog(const Exp2Fog* f);
+	void set_fog(Exp2Fog* f);
 	
 	/**
 	 * Adds the specified point light to the scene. The light number should not
@@ -122,37 +140,12 @@ public:
 	 *
 	 * \param l point light
 	 */
-	void add_light(const PointLight* l);
+	void add_light(PointLight* l);
 	
 	/**
-	 * Adds the specified spot light to the scene. The light number should not
-	 * exceed the maximum number.
-	 *
-	 * \param l spot light
+	 * Removes the specified point light from the scene.
 	 */
-	void add_light(const SpotLight* l);
-	
-	/**
-	 * Adds the specified directional light to the scene. The light number
-	 * should not exceed the maximum number.
-	 *
-	 * \param l directional light
-	 */
-	void add_light(const DirectionalLight* l);
-	
-	/**
-	 * Adds the specified hemisphere light to the scene. The light number should
-	 * not exceed the maximum number.
-	 *
-	 * \param l hemisphere light
-	 */
-	void add_light(const HemisphereLight* l);
-	
-	/**
-	 * Removes all the point & spot & directional & hemisphere lights from the
-	 * scene.
-	 */
-	void clear_light();
+	void remove_light(PointLight* l);
 	
 	/**
 	 * Returns the number of point lights in the scene.
@@ -164,7 +157,22 @@ public:
 	 *
 	 * \param i the index of light
 	 */
-	const PointLight* get_point_light(int i) const;
+	PointLight* get_point_light(int i) const;
+	
+	/**
+	 * Adds the specified spot light to the scene. The light number should not
+	 * exceed the maximum number.
+	 *
+	 * \param l spot light
+	 */
+	void add_light(SpotLight* l);
+	
+	/**
+	 * Removes the specified spot light from the scene.
+	 *
+	 * \param l spot light
+	 */
+	void remove_light(SpotLight* l);
 	
 	/**
 	 * Returns the number of spot lights in the scene.
@@ -176,7 +184,22 @@ public:
 	 *
 	 * \param i the index of light
 	 */
-	const SpotLight* get_spot_light(int i) const;
+	SpotLight* get_spot_light(int i) const;
+	
+	/**
+	 * Adds the specified directional light to the scene. The light number
+	 * should not exceed the maximum number.
+	 *
+	 * \param l directional light
+	 */
+	void add_light(DirectionalLight* l);
+	
+	/**
+	 * Removes the specified directional light from the scene.
+	 *
+	 * \param l directional light
+	 */
+	void remove_light(DirectionalLight* l);
 	
 	/**
 	 * Returns the number of directional lights in the scene.
@@ -188,7 +211,22 @@ public:
 	 *
 	 * \param i the index of light
 	 */
-	const DirectionalLight* get_directional_light(int i) const;
+	DirectionalLight* get_directional_light(int i) const;
+	
+	/**
+	 * Adds the specified hemisphere light to the scene. The light number should
+	 * not exceed the maximum number.
+	 *
+	 * \param l hemisphere light
+	 */
+	void add_light(HemisphereLight* l);
+	
+	/**
+	 * Removes the specified hemisphere light from the scene.
+	 *
+	 * \param l hemisphere light
+	 */
+	void remove_light(HemisphereLight* l);
 	
 	/**
 	 * Returns the number of hemisphere lights in the scene.
@@ -200,7 +238,13 @@ public:
 	 *
 	 * \param i the index of light
 	 */
-	const HemisphereLight* get_hemisphere_light(int i) const;
+	HemisphereLight* get_hemisphere_light(int i) const;
+	
+	/**
+	 * Removes all the point & spot & directional & hemisphere lights from the
+	 * scene.
+	 */
+	void clear_lights();
 	
 	/**
 	 * Updates the local and global matrices of all descendant instances.
@@ -218,15 +262,15 @@ public:
 	std::vector<const Instance*> to_visible_instances() const;
 	
 private:
-	std::unordered_map<std::string, const Material*> material_library;
+	LinearFog* linear_fog = nullptr;
+	Exp2Fog* exp2_fog = nullptr;
 	
-	const LinearFog* linear_fog = nullptr;
-	const Exp2Fog* exp2_fog = nullptr;
+	std::vector<PointLight*> point_lights;
+	std::vector<SpotLight*> spot_lights;
+	std::vector<DirectionalLight*> directional_lights;
+	std::vector<HemisphereLight*> hemisphere_lights;
 	
-	std::vector<const PointLight*> point_lights;
-	std::vector<const SpotLight*> spot_lights;
-	std::vector<const DirectionalLight*> directional_lights;
-	std::vector<const HemisphereLight*> hemisphere_lights;
+	std::unordered_map<std::string, Material*> material_library;
 };
 
 }

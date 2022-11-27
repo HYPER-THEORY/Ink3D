@@ -33,7 +33,7 @@ public:
 	Vec3 color = {1, 1, 1};    /**< the color of light */
 	
 	/**
-	 * Creates a new Light and initializes it with color and intensity.
+	 * Creates a new Light object and initializes it with color and intensity.
 	 *
 	 * \param c the color of light
 	 * \param i the intensity of light

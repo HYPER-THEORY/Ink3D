@@ -19,15 +19,15 @@ Ink 3D is a lightweight and easy to use framework for 3D rendering.
 
 - Physically Based Rendering Materials
 
-- Light System (Directional / Point / Spot / Ambient / Hemisphere)
+- Light System (Directional / Point / Spot / Hemisphere)
 
 - High Quality Shadows (Hard-Edge / PCF / PCSS)
 
-- Probes System (Light Probe / Environment Probe)
+- Probes System (Light Probe / Reflection Probe)
 
-- Global Fog (Linear / Exponential Square Fog)
+- Global Fog (Linear Fog / Exponential Square Fog)
 
-- Post-Processing (SSAO, Bloom, FXAA, Tone Mapping and more)
+- Post-Processing (SSAO, SSR, Bloom, FXAA and more)
 
 - Built-in Efficient Software Rasterization
 
@@ -93,7 +93,7 @@ void load() {
 
 void update(float dt) {
 	viewer.update(dt);
-	renderer.update_scene(scene);
+	Ink::Renderer::update_scene(scene);
 	renderer.render(scene, viewer.get_camera());
 }
 

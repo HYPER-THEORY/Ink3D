@@ -31,11 +31,6 @@ namespace Ink {
 class IBLFilter {
 public:
 	/**
-	 * Initializes IBLFilter before using this class.
-	 */
-	static void init();
-	
-	/**
 	 * Loads a set of specified cube images to the prefiltered radiance
 	 * environment map.
 	 *
@@ -48,8 +43,9 @@ public:
 	 * \param m prefiltered radiance environment map
 	 * \param s the size of radiance environment map
 	 */
-	static void load_cubemap(const Image& px, const Image& nx, const Image& py,
-							 const Image& ny, const Image& pz, const Image& nz,
+	static void load_cubemap(const Image& px, const Image& nx,
+							 const Image& py, const Image& ny,
+							 const Image& pz, const Image& nz,
 							 Gpu::Texture& m, int s = 256);
 	
 	/**
@@ -80,8 +76,7 @@ private:
 	static std::unique_ptr<Gpu::FrameBuffer> cubemap_target;
 	static std::unique_ptr<Gpu::FrameBuffer> blur_target;
 	
-	static std::unique_ptr<Gpu::Shader> cubemap_shader;
-	static std::unique_ptr<Gpu::Shader> blur_shader;
+	static bool init_load_texture();
 	
 	static void gaussian_weights(float s, int n, float* w);
 };

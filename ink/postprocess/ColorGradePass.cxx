@@ -24,17 +24,10 @@
 
 namespace Ink {
 
-void ColorGradePass::init() {
-	color_grade_shader = std::make_unique<Gpu::Shader>();
-	color_grade_shader->load_vert_file("ink/shaders/lib/ColorGrading.vert.glsl");
-	color_grade_shader->load_frag_file("ink/shaders/lib/ColorGrading.frag.glsl");
-}
-
-void ColorGradePass::compile() {
-	color_grade_shader->compile();
-}
+void ColorGradePass::init() {}
 
 void ColorGradePass::render() const {
+	auto* color_grade_shader = ShaderLib::fetch("ColorGrading");
 	color_grade_shader->use_program();
 	color_grade_shader->set_uniform_v3("saturation", saturation);
 	color_grade_shader->set_uniform_v3("contrast", contrast);
@@ -42,7 +35,7 @@ void ColorGradePass::render() const {
 	color_grade_shader->set_uniform_v3("gain", gain);
 	color_grade_shader->set_uniform_v3("offset", offset);
 	color_grade_shader->set_uniform_i("map", map->activate(0));
-	RenderPass::render_to(color_grade_shader.get(), target);
+	RenderPass::render_to(color_grade_shader, target);
 }
 
 const Gpu::Texture* ColorGradePass::get_texture() const {

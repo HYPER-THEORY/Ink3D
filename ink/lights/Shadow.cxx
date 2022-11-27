@@ -24,6 +24,17 @@
 
 namespace Ink {
 
+void Shadow::init(int w, int h, int n) {
+	resolution = Vec2(w, h);
+	shadow_map = std::make_unique<Gpu::Texture>();
+	shadow_map->init_2d_array(w, h, n, TEXTURE_D24_UNORM);
+	shadow_map->set_wrap_all(TEXTURE_CLAMP_TO_BORDER);
+	shadow_map->set_filters(TEXTURE_LINEAR, TEXTURE_NEAREST);
+	shadow_map->set_border_color({1, 1, 1, 1});
+	shadow_target = std::make_unique<Gpu::FrameBuffer>();
+	shadow_target->disable_draw();
+}
+
 void Shadow::activate() {
 	if (assigner.empty()) assigner.emplace_back(0);
 	unique_id = assigner.back();
@@ -43,17 +54,6 @@ int Shadow::get_unique_id() const {
 const Gpu::FrameBuffer* Shadow::get_target() const {
 	shadow_target->set_depth_attachment(*shadow_map, 0, unique_id);
 	return shadow_target.get();
-}
-
-void Shadow::init(int w, int h, int n) {
-	resolution = Vec2(w, h);
-	shadow_map = std::make_unique<Gpu::Texture>();
-	shadow_map->init_2d_array(w, h, n, TEXTURE_D24_UNORM);
-	shadow_map->set_wrap_all(TEXTURE_CLAMP_TO_BORDER);
-	shadow_map->set_filters(TEXTURE_LINEAR, TEXTURE_NEAREST);
-	shadow_map->set_border_color({1, 1, 1, 1});
-	shadow_target = std::make_unique<Gpu::FrameBuffer>();
-	shadow_target->disable_draw();
 }
 
 int Shadow::activate_texture(int l) {

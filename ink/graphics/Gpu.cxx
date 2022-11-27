@@ -28,6 +28,7 @@
 
 #include "../../libs/glad/glad.h"
 
+#include "../core/Error.h"
 #include "../core/File.h"
 
 namespace Ink::Gpu {
@@ -654,52 +655,41 @@ Shader::~Shader() {
 
 void Shader::load_vert(const char* s) {
 	vert_shader = s;
-	resolve_include(vert_shader);
 }
 
 void Shader::load_vert(const std::string& s) {
 	vert_shader = s;
-	resolve_include(vert_shader);
 }
 
 void Shader::load_geom(const char* s) {
 	geom_shader = s;
-	resolve_include(geom_shader);
 }
 
 void Shader::load_geom(const std::string& s) {
 	geom_shader = s;
-	resolve_include(geom_shader);
 }
 
 void Shader::load_frag(const char* s) {
 	frag_shader = s;
-	resolve_include(frag_shader);
 }
 
 void Shader::load_frag(const std::string& s) {
 	frag_shader = s;
-	resolve_include(frag_shader);
 }
 
 void Shader::load_vert_file(const std::string& p) {
 	vert_shader = File::read(p);
-	resolve_include(vert_shader);
 }
 
 void Shader::load_geom_file(const std::string& p) {
 	geom_shader = File::read(p);
-	resolve_include(geom_shader);
 }
 
 void Shader::load_frag_file(const std::string& p) {
 	frag_shader = File::read(p);
-	resolve_include(frag_shader);
 }
 
-void Shader::compile() {
-	if (defines == recent_defines) return;
-	recent_defines = defines;
+void Shader::compile() const {
 	compile_shaders();
 }
 
@@ -748,62 +738,57 @@ void Shader::set_uniform_m4(const std::string& n, const Mat4& v) const {
 }
 
 void Shader::set_uniforms(const Uniforms& u) const {
-	for (auto& [name_with_suffix, value] : u.vars) {
+	for (auto& [uniform_name, value] : u.vars) {
+		/* get the suffix of variable */
+		size_t length = uniform_name.size();
+		char suffix_1 = uniform_name[length - 1];
+		char suffix_2 = uniform_name[length - 2];
 		
-		/* analyse the suffix of variable */
-		size_t length = name_with_suffix.size();
-		char suffix_1 = name_with_suffix[length - 1];
-		char suffix_2 = name_with_suffix[length - 2];
+		/* get the name of variable */
+		std::string name = uniform_name;
+		name[length - (suffix_2 == '_' ? 2 : 3)] = '\0';
 		
-		/* analyse the name of variable */
-		std::string name = name_with_suffix;
-		if (suffix_2 == '_') {
-			name[length - 2] = '\0';
-		} else {
-			name[length - 3] = '\0';
-		}
-		
-		/* convert variable into int data type */
+		/* convert variable into int data */
 		if (suffix_1 == 'i') {
 			set_uniform_i(name, *static_cast<const int*>(value));
 		}
 		
-		/* convert variable into unsigned int data type */
+		/* convert variable into unsigned int data */
 		else if (suffix_1 == 'u') {
 			set_uniform_u(name, *static_cast<const unsigned int*>(value));
 		}
 		
-		/* convert variable into float data type */
+		/* convert variable into float data */
 		else if (suffix_1 == 'f') {
 			set_uniform_f(name, *static_cast<const float*>(value));
 		}
 		
-		/* convert variable into Vec2 data type */
+		/* convert variable into Vec2 data */
 		else if (suffix_1 == '2' && suffix_2 == 'v') {
 			set_uniform_v2(name, *static_cast<const Vec2*>(value));
 		}
 		
-		/* convert variable into Vec3 data type */
+		/* convert variable into Vec3 data */
 		else if (suffix_1 == '3' && suffix_2 == 'v') {
 			set_uniform_v3(name, *static_cast<const Vec3*>(value));
 		}
 		
-		/* convert variable into Vec4 data type */
+		/* convert variable into Vec4 data */
 		else if (suffix_1 == '4' && suffix_2 == 'v') {
 			set_uniform_v4(name, *static_cast<const Vec4*>(value));
 		}
 		
-		/* convert variable into Mat2 data type */
+		/* convert variable into Mat2 data */
 		else if (suffix_1 == '2' && suffix_2 == 'm') {
 			set_uniform_m2(name, *static_cast<const Mat2*>(value));
 		}
 		
-		/* convert variable into Mat3 data type */
+		/* convert variable into Mat3 data */
 		else if (suffix_1 == '3' && suffix_2 == 'm') {
 			set_uniform_m3(name, *static_cast<const Mat3*>(value));
 		}
 		
-		/* convert variable into Mat4 data type */
+		/* convert variable into Mat4 data */
 		else if (suffix_1 == '4' && suffix_2 == 'm') {
 			set_uniform_m4(name, *static_cast<const Mat4*>(value));
 		}
@@ -825,6 +810,7 @@ void Shader::set_glsl_version(const std::string& v) {
 
 uint32_t Shader::compile_shader(const std::string& s, int32_t t) const {
 	std::string shader_string = s;
+	resolve_includes(shader_string);
 	resolve_defines(shader_string);
 	resolve_version(shader_string);
 	uint32_t shader_id = glCreateShader(t);
@@ -840,29 +826,29 @@ uint32_t Shader::compile_shader(const std::string& s, int32_t t) const {
 }
 
 void Shader::compile_shaders() const {
-	/* determines whether shaders is provided */
-	bool has_vert = !vert_shader.empty();
-	bool has_geom = !geom_shader.empty();
-	bool has_frag = !frag_shader.empty();
-	if (!has_vert) {
+	/* compile vertex shader */
+	bool use_vert_shader = !vert_shader.empty();
+	uint32_t vert_id = 0;
+	if (use_vert_shader) {
+		vert_id = compile_shader(vert_shader, GL_VERTEX_SHADER);
+	} else {
 		return Error::set("Shader: Vertex shader is missing");
 	}
-	if (!has_frag) {
-		return Error::set("Shader: Fragment shader is missing");
-	}
 	
-	/* compile shaders */
-	uint32_t vert_id = 0;
-	/* has_vert */ {
-		vert_id = compile_shader(vert_shader, GL_VERTEX_SHADER);
-	}
+	/* compile geometry shader */
+	bool use_geom_shader = !geom_shader.empty();
 	uint32_t geom_id = 0;
-	if (has_geom) {
+	if (use_geom_shader) {
 		geom_id = compile_shader(geom_shader, GL_GEOMETRY_SHADER);
 	}
+	
+	/* compile fragment shader */
+	bool use_frag_shader = !frag_shader.empty();
 	uint32_t frag_id = 0;
-	/* has_frag */ {
+	if (use_frag_shader) {
 		frag_id = compile_shader(frag_shader, GL_FRAGMENT_SHADER);
+	} else {
+		return Error::set("Shader: Fragment shader is missing");
 	}
 	
 	/* link shaders to program */
@@ -870,77 +856,49 @@ void Shader::compile_shaders() const {
 	std::string info = get_link_info();
 	if (!info.empty()) std::cerr << info;
 	
-	/* delete shaders */
-	/* has_vert */ glDeleteShader(vert_id);
-	if (has_geom)  glDeleteShader(geom_id);
-	/* has_frag */ glDeleteShader(frag_id);
+	/* delete vertex shader */
+	glDeleteShader(vert_id);
+	
+	/* delete geometry shader */
+	if (use_frag_shader) glDeleteShader(geom_id);
+	
+	/* delete fragment shader */
+	glDeleteShader(frag_id);
 }
 
 std::string Shader::get_link_info() const {
 	int32_t success;
 	glGetProgramiv(program, GL_LINK_STATUS, &success);
-	if (success) return "";
-	std::string info(1024, '\0');
-	glGetProgramInfoLog(program, 1024, nullptr, info.data());
-	return "Shader: Link error\n" + info;
+	if (success == GL_TRUE) return "";
+	char info[1024];
+	glGetProgramInfoLog(program, 1024, nullptr, info);
+	return std::string("Shader: Link error\n") + info;
 }
 
-std::string Shader::get_error_info(const std::string& c, const std::string& s) {
-	std::string info;
-	int error_sum = 0;
+void Shader::resolve_defines(std::string& s) const {
+	s = defines + s;
+}
+
+void Shader::resolve_version(std::string& s) {
+	s = "#version " + glsl_version + "\n" + s;
+}
+
+void Shader::resolve_includes(std::string& s) {
+	size_t total_length = s.length();
 	size_t line_begin = 0;
 	size_t line_end = -1;
 	
-	/* search include directives by line */
-	while (true) {
-		/* get the string of every line */
-		line_begin = line_end + 1;
-		line_end = c.find('\n', line_begin);
-		if (line_end == -1) break;
-		std::string line = c.substr(line_begin, line_end - line_begin);
-		info += line + '\n';
-		if (line.substr(0, 6) != "ERROR:") continue;
-		
-		/* get the line number from error information */
-		size_t number_begin = line.find(':', 7) + 1;
-		size_t number_end = c.find(':', number_begin);
-		int line_number = std::stoi(line.substr(number_begin, number_end - number_begin));
-		
-		/* search the code where the error occurred */
-		size_t error_begin = 0;
-		size_t error_end = -1;
-		for (int i = 0; i < line_number; ++i) {
-			error_begin = error_end + 1;
-			error_end = s.find('\n', error_begin);
-			if (error_end == -1) break;
-		}
-		std::string error_line = s.substr(error_begin, error_end - error_begin);
-		
-		/* add code line to error information */
-		info += error_line + "\n\n";
-		++error_sum;
-	}
-	
-	/* count how many the errors occurred */
-	info += std::to_string(error_sum);
-	info += error_sum == 1 ? " error generated.\n" : " errors generated.\n";
-	
-	/* return error infomation */
-	return info;
-}
-
-void Shader::resolve_include(std::string& s) {
+	/* initialize include times to avoid circular include */
 	int include_times = 0;
-	size_t line_begin = 0;
-	size_t line_end = -1;
+	constexpr int max_include_times = 256;
 	
-	/* search include directives by line */
-	while (true) {
-		/* get the string of every line */
+	while (line_end != total_length) {
+		/* get the string of each line */
 		line_begin = line_end + 1;
 		line_end = s.find('\n', line_begin);
-		if (line_end == -1) break;
-		std::string line = s.substr(line_begin, line_end - line_begin);
+		if (line_end == -1) line_end = total_length;
+		size_t line_length = line_end - line_begin;
+		std::string line = s.substr(line_begin, line_length);
 		
 		/* search for include name */
 		size_t char_1 = line.find_first_not_of(" \t");
@@ -956,39 +914,79 @@ void Shader::resolve_include(std::string& s) {
 		/* read included file into content */
 		std::string content = File::read(include_path + include + ".glsl");
 		
-		/* replace with content */
+		/* replace the line with content */
 		s.replace(line_begin, line_end - line_begin, content);
 		line_end = line_begin - 1;
 		
 		/* check if there is circular include */
-		if (include_times++ == /* max include times */ 1024) {
+		if (include_times++ == max_include_times) {
 			return Error::set("Shader: Circular include");
 		}
 	}
 }
 
-void Shader::resolve_defines(std::string& s) const {
-	s = defines + s;
-}
-
-void Shader::resolve_version(std::string& s) {
-	s = "#version " + glsl_version + "\n" + s;
-}
-
 std::string Shader::get_compile_info(uint32_t s, uint32_t t) {
 	int32_t success;
 	glGetShaderiv(s, GL_COMPILE_STATUS, &success);
-	if (success) return "";
-	std::string info(1024, '\0');
-	glGetShaderInfoLog(s, 1024, nullptr, info.data());
+	if (success == GL_TRUE) return "";
+	char info[1024];
+	glGetShaderInfoLog(s, 1024, nullptr, info);
 	if (t == GL_VERTEX_SHADER) {
-		info = "Shader: Vertex shader compile error\n" + info;
+		return std::string("Shader: Vertex shader compile error\n") + info;
 	} else if (t == GL_GEOMETRY_SHADER) {
-		info = "Shader: Geometry shader compile error\n" + info;
+		return std::string("Shader: Geometry shader compile error\n") + info;
 	} else if (t == GL_FRAGMENT_SHADER) {
-		info = "Shader: Fragment shader compile error\n" + info;
+		return std::string("Shader: Fragment shader compile error\n") + info;
 	}
-	return info;
+	return "Shader: No such shader";
+}
+
+std::string Shader::get_error_info(const std::string& c, const std::string& s) {
+	size_t total_length = c.length();
+	size_t line_begin = 0;
+	size_t line_end = -1;
+	
+	/* initialize error information and error number */
+	std::string info;
+	int error_number = 0;
+	
+	while (line_end != total_length) {
+		/* get the string of each line */
+		line_begin = line_end + 1;
+		line_end = c.find('\n', line_begin);
+		if (line_end == -1) line_end = total_length;
+		size_t line_length = line_end - line_begin;
+		std::string line = c.substr(line_begin, line_length);
+		info += line + '\n';
+		if (line.substr(0, 6) != "ERROR:") continue;
+		
+		/* get the line number from error information */
+		size_t number_begin = line.find(':', 7) + 1;
+		size_t number_end = c.find(':', number_begin);
+		size_t number_length = number_end - number_begin;
+		int line_number = std::stoi(line.substr(number_begin, number_length));
+		
+		/* search the code where the error occurred */
+		size_t error_begin = 0;
+		size_t error_end = -1;
+		for (int i = 0; i < line_number; ++i) {
+			error_begin = error_end + 1;
+			error_end = s.find('\n', error_begin);
+			if (error_end == -1) break;
+		}
+		size_t error_length = error_end - error_begin;
+		std::string error_line = s.substr(error_begin, error_length);
+		
+		/* add code line to error information */
+		info += error_line + "\n\n";
+		++error_number;
+	}
+	
+	/* count how many the errors occurred */
+	info += std::to_string(error_number);
+	info += error_number == 1 ? " error generated.\n" : " errors generated.\n";
+	
+	return info; /* return error infomation */
 }
 
 std::string Shader::include_path = "ink/shaders/inc/";
@@ -1165,7 +1163,7 @@ void Texture::init_cube(const Image& px, const Image& nx, const Image& py,
 	glTexImage2D(target, 0, internal, pz.width, pz.height, 0, external, data, pz.data.data());
 	target = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
 	glTexImage2D(target, 0, internal, nz.width, nz.height, 0, external, data, nz.data.data());
-	set_parameters(TEXTURE_CUBE, f, width, height, 0);
+	set_parameters(TEXTURE_CUBE, f, px.width, px.height, 0);
 }
 
 void Texture::init_1d_array(int w, int l, int f, int t) {
@@ -1404,6 +1402,14 @@ void FrameBuffer::set_depth_attachment(const Texture& t, int l, int p) const {
 
 void FrameBuffer::set_depth_attachment(const RenderBuffer& r) const {
 	set_render_buffer_attachment(r, GL_DEPTH_ATTACHMENT);
+}
+
+void FrameBuffer::set_stencil_attachment(const Texture& t, int l, int p) const {
+	set_texture_attachment(t, GL_STENCIL_ATTACHMENT, l, p);
+}
+
+void FrameBuffer::set_stencil_attachment(const RenderBuffer& r) const {
+	set_render_buffer_attachment(r, GL_STENCIL_ATTACHMENT);
 }
 
 void FrameBuffer::set_depth_stencil_attachment(const Texture& t, int l, int p) const {

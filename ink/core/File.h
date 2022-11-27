@@ -50,6 +50,22 @@ public:
 	 * \param c content string
 	 */
 	static void write(const std::string& p, const char* c);
+	
+	/**
+	 * Appends the content of string into the specified file.
+	 *
+	 * \param p the path to the file
+	 * \param c content string
+	 */
+	static void append(const std::string& p, const std::string& c);
+	
+	/**
+	 * Appends the content of string into the specified file.
+	 *
+	 * \param p the path to the file
+	 * \param c content string
+	 */
+	static void append(const std::string& p, const char* c);
 };
 
 }

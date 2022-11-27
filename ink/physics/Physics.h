@@ -35,12 +35,12 @@ public:
 	Vec3 v2;    /**< lower-right-back vertex */
 	
 	/**
-	 * Creates a new CollisionBox.
+	 * Creates a new CollisionBox object.
 	 */
 	explicit CollisionBox() = default;
 	
 	/**
-	 * Creates a new CollisionBox and initializes it with vertices.
+	 * Creates a new CollisionBox object and initializes it with vertices.
 	 *
 	 * \param v1 upper-left-front vertex
 	 * \param v2 lower-right-back vertex
@@ -92,13 +92,13 @@ public:
 	float depth = 0;       /**< the depth of box */
 	
 	/**
-	 * Create a new Solid.
+	 * Create a new Solid object.
 	 */
 	explicit Solid() = default;
 	
 	/**
-	 * Create a new Solid and initializes it with position, width, height and
-	 * depth.
+	 * Create a new Solid object and initializes it with position, width, height
+	 * and depth.
 	 *
 	 * \param p center position
 	 * \param w the width of box

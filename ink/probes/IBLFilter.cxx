@@ -23,51 +23,33 @@
 #include "IBLFilter.h"
 
 #include "../core/Format.h"
+#include "../graphics/ShaderLib.h"
 
 namespace Ink {
 
 constexpr float PHI = 1.618033989;
-constexpr float IPHI = 0.618033989;
+constexpr float INV_PHI = 0.618033989;
 
-void IBLFilter::init() {
-	/* prepare plane mesh */
-	Mesh plane_mesh = Mesh();
-	plane_mesh.groups = {{"default", 0, 3}};
-	plane_mesh.vertex = {{-1, 3, 0}, {-1, -1, 0}, {3, -1, 0}};
-	plane_mesh.uv = {{0, 2}, {0, 0}, {2, 0}};
-	
-	/* prepare plane vertex object */
-	plane = std::make_unique<Gpu::VertexObject>();
-	plane->load(plane_mesh);
-	
-	/* prepare blur map */
-	blur_map = std::make_unique<Gpu::Texture>();
-	
-	/* prepare cubemap frame buffer */
-	cubemap_target = std::make_unique<Gpu::FrameBuffer>();
-	cubemap_target->draw_attachments({0});
-	
-	/* prepare blur frame buffer */
-	blur_target = std::make_unique<Gpu::FrameBuffer>();
-	blur_target->draw_attachments({0});
-	
-	/* prepare cubemap shader */
-	cubemap_shader = std::make_unique<Gpu::Shader>();
-	cubemap_shader->load_vert_file("ink/shaders/lib/cubemap.vert.glsl");
-	cubemap_shader->load_frag_file("ink/shaders/lib/cubemap.frag.glsl");
-	
-	/* prepare and compile blur shader */
-	blur_shader = std::make_unique<Gpu::Shader>();
-	blur_shader->load_vert_file("ink/shaders/lib/sphericalblur.vert.glsl");
-	blur_shader->load_frag_file("ink/shaders/lib/sphericalblur.frag.glsl");
-	blur_shader->compile();
-}
+const Vec3 AXES[] = {
+	{ 1      , 1      ,  1      },
+	{-1      , 1      ,  1      },
+	{ 1      , 1      , -1      },
+	{-1      , 1      , -1      },
+	{ 0      , PHI    ,  INV_PHI},
+	{ 0      , PHI    , -INV_PHI},
+	{ INV_PHI, 0      ,  PHI    },
+	{-INV_PHI, 0      ,  PHI    },
+	{ PHI    , INV_PHI,  0      },
+	{-PHI    , INV_PHI,  0      },
+};
 
-void IBLFilter::load_cubemap(const Image& px, const Image& nx, const Image& py,
-							 const Image& ny, const Image& pz, const Image& nz,
+void IBLFilter::load_cubemap(const Image& px, const Image& nx,
+							 const Image& py, const Image& ny,
+							 const Image& pz, const Image& nz,
 							 Gpu::Texture& m, int s) {
 	Gpu::Texture source_map;
-	source_map.init_cube(px, nx, py, ny, pz, nz, Gpu::Texture::default_format(px));
+	source_map.init_cube(px, nx, py, ny, pz, nz,
+						 Gpu::Texture::default_format(px));
 	source_map.set_filters(TEXTURE_LINEAR, TEXTURE_LINEAR);
 	load_texture(source_map, m, s);
 }
@@ -80,25 +62,16 @@ void IBLFilter::load_equirect(const Image& i, Gpu::Texture& m, int s) {
 }
 
 void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
-	const Vec3 axes[] = {
-		{ 1   , 1   ,  1   },
-		{-1   , 1   ,  1   },
-		{ 1   , 1   , -1   },
-		{-1   , 1   , -1   },
-		{ 0   , PHI ,  IPHI},
-		{ 0   , PHI , -IPHI},
-		{ IPHI, 0   ,  PHI },
-		{-IPHI, 0   ,  PHI },
-		{ PHI , IPHI,  0   },
-		{-PHI , IPHI,  0   },
-	};
+	/* initialize load texture */
+	[[maybe_unused]]
+	bool inited = init_load_texture();
 	
 	/* disable depth & stencil & scissor test */
 	Gpu::disable_depth_test();
 	Gpu::disable_stencil_test();
 	Gpu::disable_scissor_test();
 	
-	/* disable blending & wireframe & cull */
+	/* disable blending & wireframe & culling */
 	Gpu::disable_blending();
 	Gpu::disable_wireframe();
 	Gpu::disable_culling();
@@ -106,37 +79,52 @@ void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
 	/* enable texture cube seamless */
 	Gpu::enable_texture_cube_seamless();
 	
-	/* set the viewport to the size of REM */
-	Gpu::set_viewport({s, s});
+	/* change the current viewport */
+	Gpu::set_viewport(Gpu::Rect(s, s));
 	
-	/* initialize cube texture */
+	/* initialize radiance environment map */
 	m.init_cube(s, s, t.get_format());
 	m.set_filters(TEXTURE_LINEAR, TEXTURE_LINEAR_MIPMAP_LINEAR);
 	m.generate_mipmap();
 	
-	/* compile the cubemap shader */
+	/* fetch the blur shader from shader lib */
+	auto* blur_shader = ShaderLib::fetch("SphericalBlur");
+	
+	/* fetch the cubemap shader from shader lib */
 	Defines cubemap_defines;
 	int type = t.get_type();
 	cubemap_defines.set_if("USE_EQUIRECT", type == TEXTURE_2D);
 	cubemap_defines.set_if("USE_CUBEMAP", type == TEXTURE_CUBE);
-	cubemap_shader->set_defines(cubemap_defines);
-	cubemap_shader->compile();
+	auto* cubemap_shader = ShaderLib::fetch("Cubemap", cubemap_defines);
+	
+	/* prepare cubemap frame buffer */
+	if (!cubemap_target) {
+		cubemap_target = std::make_unique<Gpu::FrameBuffer>();
+		cubemap_target->draw_attachments({0});
+	}
 	
 	/* render to cube texture */
-	for (int f = 0; f < 6; ++f) {
-		cubemap_target->set_attachment(m, 0, 0, f);
+	for (int i = 0; i < 6; ++i) {
+		cubemap_target->set_attachment(m, 0, 0, i);
 		Gpu::FrameBuffer::activate(cubemap_target.get());
 		cubemap_shader->use_program();
-		cubemap_shader->set_uniform_i("face", f);
+		cubemap_shader->set_uniform_i("face", i);
 		cubemap_shader->set_uniform_i("map", t.activate(0));
 		plane->attach(*cubemap_shader);
 		plane->draw();
 	}
 	
-	/* initialize the half blur map */
+	/* prepare blur map */
+	if (!blur_map) blur_map = std::make_unique<Gpu::Texture>();
 	blur_map->init_cube(s, s, t.get_format());
 	blur_map->generate_mipmap();
 	blur_map->set_filters(TEXTURE_LINEAR, TEXTURE_LINEAR_MIPMAP_LINEAR);
+	
+	/* prepare blur frame buffer */
+	if (!blur_target) {
+		blur_target = std::make_unique<Gpu::FrameBuffer>();
+		blur_target->draw_attachments({0});
+	}
 	
 	/* blur cube texture latitudinally and longitudinally */
 	float weights[20];
@@ -144,24 +132,26 @@ void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
 	int max_lod = log2f(size_lod);
 	for (int lod = 1; lod <= max_lod; ++lod) {
 		
-		/* calculate sigma_radians */
+		/* calculate sigma radians */
 		float sigma_radians = sqrtf(3) / size_lod;
 		if (lod == 1) sigma_radians = 2.f / size_lod;
 		
 		/* calculate blur parameters */
-		Vec3 pole_axis = axes[(lod - 1) % 10];
+		Vec3 pole_axis = AXES[(lod - 1) % 10];
 		float d_theta = PI / (size_lod * 2 - 2);
 		float sigma = sigma_radians / d_theta;
 		int samples = 1 + floorf(sigma * 3);
 		gaussian_weights(sigma, 20, weights);
 		
+		/* change the current viewport */
+		Gpu::set_viewport(Gpu::Rect(size_lod / 2, size_lod / 2));
+		
 		/* blur texture latitudinally */
-		Gpu::set_viewport({size_lod / 2, size_lod / 2});
-		for (int f = 0; f < 6; ++f) {
-			blur_target->set_attachment(*blur_map, 0, lod, f);
+		for (int i = 0; i < 6; ++i) {
+			blur_target->set_attachment(*blur_map, 0, lod, i);
 			Gpu::FrameBuffer::activate(blur_target.get());
 			blur_shader->use_program();
-			blur_shader->set_uniform_i("face", f);
+			blur_shader->set_uniform_i("face", i);
 			blur_shader->set_uniform_i("samples", samples);
 			blur_shader->set_uniform_i("latitudinal", 1);
 			blur_shader->set_uniform_f("d_theta", d_theta);
@@ -204,7 +194,23 @@ void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
 			plane->draw();
 		}
 	}
+	
+	/* set back to the initial viewport */
 	Gpu::FrameBuffer::activate(nullptr);
+}
+
+bool IBLFilter::init_load_texture() {
+	/* prepare plane mesh */
+	Mesh plane_mesh = Mesh();
+	plane_mesh.groups = {{"default", 0, 3}};
+	plane_mesh.vertex = {{-1, 3, 0}, {-1, -1, 0}, {3, -1, 0}};
+	plane_mesh.uv = {{0, 2}, {0, 0}, {2, 0}};
+	
+	/* prepare plane vertex object */
+	plane = std::make_unique<Gpu::VertexObject>();
+	plane->load(plane_mesh);
+	
+	return true; /* finish */
 }
 
 void IBLFilter::gaussian_weights(float s, int n, float* w) {
@@ -230,8 +236,5 @@ std::unique_ptr<Gpu::Texture> IBLFilter::blur_map;
 
 std::unique_ptr<Gpu::FrameBuffer> IBLFilter::cubemap_target;
 std::unique_ptr<Gpu::FrameBuffer> IBLFilter::blur_target;
-
-std::unique_ptr<Gpu::Shader> IBLFilter::cubemap_shader;
-std::unique_ptr<Gpu::Shader> IBLFilter::blur_shader;
 
 }

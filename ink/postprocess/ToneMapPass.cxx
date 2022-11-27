@@ -22,37 +22,19 @@
 
 #include "ToneMapPass.h"
 
+#include "../renderer/Renderer.h"
+
 namespace Ink {
 
-void ToneMapPass::init() {
-	tone_map_shader = std::make_unique<Gpu::Shader>();
-	tone_map_shader->load_vert_file("ink/shaders/lib/ToneMapping.vert.glsl");
-	tone_map_shader->load_frag_file("ink/shaders/lib/ToneMapping.frag.glsl");
-}
-
-void ToneMapPass::compile() {
-	Defines tone_map_defines;
-	if (mode == LINEAR_TONE_MAP) {
-		tone_map_defines.set("TONE_MAP", "linear_tone_map");
-	}
-	if (mode == REINHARD_TONE_MAP) {
-		tone_map_defines.set("TONE_MAP", "reinhard_tone_map");
-	}
-	if (mode == OPTIMIZED_TONE_MAP) {
-		tone_map_defines.set("TONE_MAP", "optimized_tone_map");
-	}
-	if (mode == ACES_FILMIC_TONE_MAP) {
-		tone_map_defines.set("TONE_MAP", "aces_filmic_tone_map");
-	}
-	tone_map_shader->set_defines(tone_map_defines);
-	tone_map_shader->compile();
-}
+void ToneMapPass::init() {}
 
 void ToneMapPass::render() const {
+	Defines tone_map_defines = Renderer::define_tone_map(mode);
+	auto* tone_map_shader = ShaderLib::fetch("ToneMapping", tone_map_defines);
 	tone_map_shader->use_program();
 	tone_map_shader->set_uniform_f("exposure", exposure);
 	tone_map_shader->set_uniform_i("map", map->activate(0));
-	RenderPass::render_to(tone_map_shader.get(), target);
+	RenderPass::render_to(tone_map_shader, target);
 }
 
 const Gpu::Texture* ToneMapPass::get_texture() const {

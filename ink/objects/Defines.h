@@ -30,7 +30,7 @@ namespace Ink {
 class Defines {
 public:
 	/**
-	 * Creates a new Defines.
+	 * Creates a new Defines object.
 	 */
 	explicit Defines() = default;
 	

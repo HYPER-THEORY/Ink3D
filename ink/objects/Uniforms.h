@@ -33,7 +33,7 @@ public:
 	std::unordered_map<std::string, const void*> vars;
 	
 	/**
-	 * Creates a new Uniforms.
+	 * Creates a new Uniforms object.
 	 */
 	explicit Uniforms() = default;
 	

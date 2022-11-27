@@ -32,7 +32,7 @@ public:
 	float aspect = 0;    /**< the aspect ratio of field of view */
 	
 	/**
-	 * Creates a new PerspCamera.
+	 * Creates a new PerspCamera object.
 	 */
 	explicit PerspCamera() = default;
 	

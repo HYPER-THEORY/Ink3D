@@ -45,50 +45,32 @@ void BloomPass::init() {
 	/* prepare bloom render target */
 	bloom_target = std::make_unique<Gpu::FrameBuffer>();
 	bloom_target->draw_attachments({0});
-	
-	/* prepare bright pass shader */
-	bright_pass_shader = std::make_unique<Gpu::Shader>();
-	bright_pass_shader->load_vert_file("ink/shaders/lib/BrightPass.vert.glsl");
-	bright_pass_shader->load_frag_file("ink/shaders/lib/BrightPass.frag.glsl");
-	
-	/* prepare blur shader */
-	blur_shader = std::make_unique<Gpu::Shader>();
-	blur_shader->load_vert_file("ink/shaders/lib/Blur.vert.glsl");
-	blur_shader->load_frag_file("ink/shaders/lib/Blur.frag.glsl");
-	
-	/* prepare bloom shader */
-	bloom_shader = std::make_unique<Gpu::Shader>();
-	bloom_shader->load_vert_file("ink/shaders/lib/Bloom.vert.glsl");
-	bloom_shader->load_frag_file("ink/shaders/lib/Bloom.frag.glsl");
 }
 
-void BloomPass::compile() {
-	/* compile bright pass shader */
-	bright_pass_shader->compile();
+void BloomPass::render() const {
+	/* fetch bright pass shader from shader lib */
+	auto* bright_pass_shader = ShaderLib::fetch("BrightPass");
 	
-	/* update and compile blur shader */
+	/* fetch blur shader from shader lib */
 	Defines blur_defines;
 	blur_defines.set("BLUR_GAUSSIAN");
 	blur_defines.set("TYPE", "vec3");
 	blur_defines.set("SWIZZLE", ".xyz");
-	blur_shader->set_defines(blur_defines);
-	blur_shader->compile();
+	auto* blur_shader = ShaderLib::fetch("Blur", blur_defines);
 	
-	/* compile bloom shader */
-	bloom_shader->compile();
-}
-
-void BloomPass::render() const {
+	/* fetch bloom shader from shader lib */
+	auto* bloom_shader = ShaderLib::fetch("Bloom");
+	
 	/* change the current viewport */
 	Gpu::Rect viewport = RenderPass::get_viewport();
-	RenderPass::set_viewport({width / 2, height / 2});
+	RenderPass::set_viewport(Gpu::Rect(width / 2, height / 2));
 	
 	/* 1. render bright pixels to blur map 1 */
 	bright_pass_shader->use_program();
 	bright_pass_shader->set_uniform_f("threshold", threshold);
 	bright_pass_shader->set_uniform_i("map", map->activate(0));
 	bloom_target->set_attachment(*bloom_map_1, 0, 0);
-	RenderPass::render_to(bright_pass_shader.get(), bloom_target.get());
+	RenderPass::render_to(bright_pass_shader, bloom_target.get());
 	
 	/* initialize size lod */
 	Vec2 size_lod = Vec2(width / 2, height / 2);
@@ -108,7 +90,7 @@ void BloomPass::render() const {
 		blur_shader->set_uniform_f("sigma_s", sigma);
 		blur_shader->set_uniform_i("map", bloom_map_1->activate(0));
 		bloom_target->set_attachment(*bloom_map_2, 0, lod);
-		RenderPass::render_to(blur_shader.get(), bloom_target.get());
+		RenderPass::render_to(blur_shader, bloom_target.get());
 		
 		/* blur texture vertically */
 		blur_shader->use_program();
@@ -118,7 +100,7 @@ void BloomPass::render() const {
 		blur_shader->set_uniform_f("sigma_s", sigma);
 		blur_shader->set_uniform_i("map", bloom_map_2->activate(0));
 		bloom_target->set_attachment(*bloom_map_1, 0, lod);
-		RenderPass::render_to(blur_shader.get(), bloom_target.get());
+		RenderPass::render_to(blur_shader, bloom_target.get());
 		
 		/* update size lod to lower lod */
 		size_lod.x = fmax(1, floorf(size_lod.x / 2));
@@ -135,7 +117,7 @@ void BloomPass::render() const {
 	bloom_shader->set_uniform_f("radius", radius);
 	bloom_shader->set_uniform_i("map", map->activate(0));
 	bloom_shader->set_uniform_i("bloom_map", bloom_map_1->activate(1));
-	RenderPass::render_to(bloom_shader.get(), target);
+	RenderPass::render_to(bloom_shader, target);
 }
 
 const Gpu::Texture* BloomPass::get_texture() const {

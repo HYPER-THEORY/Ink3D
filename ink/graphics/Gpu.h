@@ -39,27 +39,27 @@ public:
 	int height = 0;    /**< the height of the rectangle */
 	
 	/**
-	 * Creates a new Rect.
+	 * Creates a new Rect object.
 	 */
-	Rect() = default;
+	explicit Rect() = default;
 	
 	/**
-	 * Creates a new Rect and initializes it with size.
+	 * Creates a new Rect object and initializes it with size.
 	 *
 	 * \param w the width of the rectangle
 	 * \param h the height of the rectangle
 	 */
-	Rect(int w, int h);
+	explicit Rect(int w, int h);
 	
 	/**
-	 * Creates a new Rect and initializes it with size and position.
+	 * Creates a new Rect object and initializes it with size and position.
 	 *
 	 * \param x the x-coordinate of left lower corner
 	 * \param y the y-coordinate of left lower corner
 	 * \param w the width of the rectangle
 	 * \param h the height of the rectangle
 	 */
-	Rect(int x, int y, int w, int h);
+	explicit Rect(int x, int y, int w, int h);
 };
 
 /**
@@ -523,12 +523,12 @@ std::string get_error();
 class Shader {
 public:
 	/**
-	 * Creates a new Shader.
+	 * Creates a new Shader object.
 	 */
 	explicit Shader();
 	
 	/**
-	 * Deletes this Shader.
+	 * Deletes this Shader object.
 	 */
 	~Shader();
 	
@@ -608,7 +608,7 @@ public:
 	/**
 	 * Compile the program of shader if the shader has changed.
 	 */
-	void compile();
+	void compile() const;
 	
 	/**
 	 * Use the program of the compiled shader.
@@ -713,7 +713,7 @@ public:
 	void set_uniforms(const Uniforms& u) const;
 	
 	/**
-	 * Sets the path to the included shaders. Default is "ink/shaders/inc/".
+	 * Sets the path to find the included shaders. Default is "ink/shaders/inc/".
 	 *
 	 * \param p include path
 	 */
@@ -721,17 +721,18 @@ public:
 	
 	/**
 	 * Sets the GLSL version of shaders. Default is "410".
+	 *
+	 * \param v GLSL version
 	 */
 	static void set_glsl_version(const std::string& v);
 
 private:
 	uint32_t program = 0;
 	
+	std::string defines;
 	std::string vert_shader;
 	std::string geom_shader;
 	std::string frag_shader;
-	std::string defines;
-	std::string recent_defines = "NO_RECENT_DEFINES";
 	
 	static std::string include_path;
 	static std::string glsl_version;
@@ -742,15 +743,15 @@ private:
 	
 	std::string get_link_info() const;
 	
-	static std::string get_error_info(const std::string& c, const std::string& s);
-	
 	void resolve_defines(std::string& s) const;
-	
-	static void resolve_include(std::string& s);
 	
 	static void resolve_version(std::string& s);
 	
+	static void resolve_includes(std::string& s);
+	
 	static std::string get_compile_info(uint32_t s, uint32_t t);
+	
+	static std::string get_error_info(const std::string& c, const std::string& s);
 	
 	friend class VertexObject;
 };
@@ -758,12 +759,12 @@ private:
 class BufferObject {
 public:
 	/**
-	 * Creates a new BufferObject.
+	 * Creates a new BufferObject object.
 	 */
 	explicit BufferObject();
 	
 	/**
-	 * Deletes this BufferObject.
+	 * Deletes this BufferObject object.
 	 */
 	~BufferObject();
 	
@@ -786,12 +787,12 @@ private:
 class VertexObject {
 public:
 	/**
-	 * Creates a new VertexObject.
+	 * Creates a new VertexObject object.
 	 */
 	explicit VertexObject();
 	
 	/**
-	 * Deletes this VertexObject.
+	 * Deletes this VertexObject object.
 	 */
 	~VertexObject();
 	
@@ -843,12 +844,12 @@ private:
 class Texture {
 public:
 	/**
-	 * Creates a new Texture.
+	 * Creates a new Texture object.
 	 */
 	explicit Texture();
 	
 	/**
-	 * Deletes this Texture.
+	 * Deletes this Texture object.
 	 */
 	~Texture();
 	
@@ -983,12 +984,13 @@ public:
 	int get_depth() const;
 	
 	/**
-	 * Returns the layer of texture.
+	 * Returns the layer of texture. The type of texture must be TEXTURE_[1D /
+	 * 2D / CUBE]_ARRAY.
 	 */
 	int get_layer() const;
 	
 	/**
-	 * Returns the image of texture.
+	 * Returns the image of texture. The type of texture must be TEXTURE_2D.
 	 */
 	Image get_image() const;
 	
@@ -1094,12 +1096,12 @@ private:
 class RenderBuffer {
 public:
 	/**
-	 * Creates a new RenderBuffer.
+	 * Creates a new RenderBuffer object.
 	 */
 	explicit RenderBuffer();
 	
 	/**
-	 * Deletes this RenderBuffer.
+	 * Deletes this RenderBuffer object.
 	 */
 	~RenderBuffer();
 	
@@ -1131,12 +1133,12 @@ private:
 class FrameBuffer {
 public:
 	/**
-	 * Creates a new FrameBuffer.
+	 * Creates a new FrameBuffer object.
 	 */
 	explicit FrameBuffer();
 	
 	/**
-	 * Deletes this FrameBuffer.
+	 * Deletes this FrameBuffer object.
 	 */
 	~FrameBuffer();
 	
@@ -1210,6 +1212,24 @@ public:
 	 * \param r render buffer
 	 */
 	void set_depth_attachment(const RenderBuffer& r) const;
+	
+	/**
+	 * Sets the 2D texture as the stencil attachment of frame buffer.
+	 *
+	 * \param t 2D texture or cube texture
+	 * \param l mipmap level
+	 * \param p if texture is cube texture, specifies the face of cube texture
+	 *          if texture is 2D texture array, specifies the layer of texture
+	 *          if texture is 3D texture, specifies the layer of texture
+	 */
+	void set_stencil_attachment(const Texture& t, int l = 0, int p = 0) const;
+	
+	/**
+	 * Sets the render buffer as the stencil attachment of frame buffer.
+	 *
+	 * \param r render buffer
+	 */
+	void set_stencil_attachment(const RenderBuffer& r) const;
 	
 	/**
 	 * Sets the texture as the depth stencil attachment of frame buffer.

@@ -188,7 +188,7 @@ std::vector<Mesh> Loader::load_obj(const std::string& p, const std::string& g) {
 			current_group = &current_mesh->groups.back();
 		}
 		
-		/* ignore useless data */
+		/* ignore */
 		else {
 			stream.ignore(stream_max, '\n');
 		}
@@ -233,20 +233,30 @@ std::vector<Material> Loader::load_mtl(const std::string& p) {
 		
 		/* diffuse color */
 		else if (keyword == "Kd") {
-			auto& color = current_material->color;
-			stream >> color.x >> color.y >> color.z;
+			Vec3 diffuse;
+			stream >> diffuse.x >> diffuse.y >> diffuse.z;
+			current_material->color = diffuse;
 		}
 		
 		/* emissive color */
 		else if (keyword == "Ke") {
-			auto& emissive = current_material->emissive;
+			Vec3 emissive;
 			stream >> emissive.x >> emissive.y >> emissive.z;
+			current_material->emissive = emissive;
 		}
 		
 		/* dissolve factor */
 		else if (keyword == "d") {
-			auto& alpha = current_material->alpha;
-			stream >> alpha;
+			float dissolve;
+			stream >> dissolve;
+			current_material->alpha = dissolve;
+		}
+		
+		/* transparency factor */
+		else if (keyword == "tr") {
+			float transparency;
+			stream >> transparency;
+			current_material->alpha = 1 - transparency;
 		}
 		
 		/* not used in PBR material */
@@ -269,7 +279,7 @@ std::vector<Material> Loader::load_mtl(const std::string& p) {
 		/* sharpness value */
 		/* else if (keyword == "sharpness") {} */
 		
-		/* ignore useless data */
+		/* ignore */
 		else {
 			stream.ignore(stream_max, '\n');
 		}

@@ -28,109 +28,154 @@ namespace Ink {
 
 Scene::Scene(const std::string& n) : Instance(n) {}
 
-const Material* Scene::get_material(const Mesh* s, const std::string& n) const {
+Material* Scene::get_material(const Mesh* s, const std::string& n) const {
 	std::string name = Format::format("{}#{}", reinterpret_cast<size_t>(s), n);
 	if (material_library.count(name) == 0) return nullptr;
 	return material_library.at(name);
 }
 
-const Material* Scene::get_material(const std::string& n) const {
+Material* Scene::get_material(const std::string& n) const {
 	if (material_library.count(n) == 0) return nullptr;
 	return material_library.at(n);
 }
 
-std::vector<const Material*> Scene::get_materials() const {
-	std::vector<const Material*> materials;
+std::vector<Material*> Scene::get_materials() const {
+	std::vector<Material*> materials;
 	for (auto& [name, material] : material_library) {
 		materials.emplace_back(material);
 	}
 	return materials;
 }
 
-void Scene::set_material(const Mesh* s, const std::string& n, const Material* m) {
-	std::string name = Format::format("{}#{}", reinterpret_cast<size_t>(s), n);
+void Scene::set_material(const Mesh* s, const std::string& n, Material* m) {
+	auto name = Format::format("{}#{}", reinterpret_cast<size_t>(s), n);
 	material_library.insert_or_assign(name, m);
 }
 
-void Scene::set_material(const std::string& n, const Material* m) {
+void Scene::set_material(const std::string& n, Material* m) {
 	material_library.insert_or_assign(n, m);
 }
 
-void Scene::clear_material() {
+void Scene::remove_material(const Mesh* s, const std::string& n) {
+	auto name = Format::format("{}#{}", reinterpret_cast<size_t>(s), n);
+	material_library.erase(name);
+}
+
+void Scene::remove_material(const std::string& n) {
+	material_library.erase(n);
+}
+
+void Scene::clear_materials() {
 	material_library.clear();
 }
 
-const LinearFog* Scene::get_linear_fog() const {
+LinearFog* Scene::get_linear_fog() const {
 	return linear_fog;
 }
 
-void Scene::set_fog(const LinearFog* f) {
+void Scene::set_fog(LinearFog* f) {
 	linear_fog = f;
 	exp2_fog = nullptr;
 }
 
-const Exp2Fog* Scene::get_exp2_fog() const {
+Exp2Fog* Scene::get_exp2_fog() const {
 	return exp2_fog;
 }
 
-void Scene::set_fog(const Exp2Fog* f) {
+void Scene::set_fog(Exp2Fog* f) {
 	exp2_fog = f;
 	linear_fog = nullptr;
 }
 
-void Scene::add_light(const PointLight* l) {
+void Scene::add_light(PointLight* l) {
 	point_lights.emplace_back(l);
 }
 
-void Scene::add_light(const SpotLight* l) {
-	spot_lights.emplace_back(l);
-}
-
-void Scene::add_light(const DirectionalLight* l) {
-	directional_lights.emplace_back(l);
-}
-
-void Scene::add_light(const HemisphereLight* l) {
-	hemisphere_lights.emplace_back(l);
-}
-
-void Scene::clear_light() {
-	point_lights.clear();
-	spot_lights.clear();
-	directional_lights.clear();
-	hemisphere_lights.clear();
+void Scene::remove_light(PointLight* l) {
+	size_t size = point_lights.size();
+	for (int i = 0; i < size; ++i) {
+		if (point_lights[i] == l) {
+			point_lights.erase(point_lights.begin() + i);
+		}
+	}
 }
 
 size_t Scene::get_point_light_count() const {
 	return point_lights.size();
 }
 
-const PointLight* Scene::get_point_light(int i) const {
+PointLight* Scene::get_point_light(int i) const {
 	return point_lights[i];
+}
+
+void Scene::add_light(SpotLight* l) {
+	spot_lights.emplace_back(l);
+}
+
+void Scene::remove_light(SpotLight* l) {
+	size_t size = spot_lights.size();
+	for (int i = 0; i < size; ++i) {
+		if (spot_lights[i] == l) {
+			spot_lights.erase(spot_lights.begin() + i);
+		}
+	}
 }
 
 size_t Scene::get_spot_light_count() const {
 	return spot_lights.size();
 }
 
-const SpotLight* Scene::get_spot_light(int i) const {
+SpotLight* Scene::get_spot_light(int i) const {
 	return spot_lights[i];
+}
+
+void Scene::add_light(DirectionalLight* l) {
+	directional_lights.emplace_back(l);
+}
+
+void Scene::remove_light(DirectionalLight* l) {
+	size_t size = directional_lights.size();
+	for (int i = 0; i < size; ++i) {
+		if (directional_lights[i] == l) {
+			directional_lights.erase(directional_lights.begin() + i);
+		}
+	}
 }
 
 size_t Scene::get_directional_light_count() const {
 	return directional_lights.size();
 }
 
-const DirectionalLight* Scene::get_directional_light(int i) const {
+DirectionalLight* Scene::get_directional_light(int i) const {
 	return directional_lights[i];
+}
+
+void Scene::add_light(HemisphereLight* l) {
+	hemisphere_lights.emplace_back(l);
+}
+
+void Scene::remove_light(HemisphereLight* l) {
+	size_t size = hemisphere_lights.size();
+	for (int i = 0; i < size; ++i) {
+		if (hemisphere_lights[i] == l) {
+			hemisphere_lights.erase(hemisphere_lights.begin() + i);
+		}
+	}
 }
 
 size_t Scene::get_hemisphere_light_count() const {
 	return hemisphere_lights.size();
 }
 
-const HemisphereLight* Scene::get_hemisphere_light(int i) const {
+HemisphereLight* Scene::get_hemisphere_light(int i) const {
 	return hemisphere_lights[i];
+}
+
+void Scene::clear_lights() {
+	point_lights.clear();
+	spot_lights.clear();
+	directional_lights.clear();
+	hemisphere_lights.clear();
 }
 
 void Scene::update_instances() {

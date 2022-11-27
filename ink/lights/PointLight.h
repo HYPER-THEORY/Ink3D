@@ -28,12 +28,13 @@ namespace Ink {
 
 class PointLight : public Light {
 public:
-	Vec3 position;         /**< the position where the light shines from */
+	Vec3 position;         /**< the position where the light casts from */
 	float decay = 1;       /**< the decay speed of light */
 	float distance = 0;    /**< the maximum distance affected by the light */
 	
 	/**
-	 * Creates a new PointLight and initializes it with color and intensity.
+	 * Creates a new PointLight object and initializes it with color and
+	 * intensity.
 	 *
 	 * \param c the color of light
 	 * \param i the intensity of light

@@ -21,7 +21,8 @@
  */
 
 #include "../camera/Camera.h"
-#include "../renderer/RenderPass.h"
+
+#include "RenderPass.h"
 
 #pragma once
 
@@ -38,13 +39,13 @@ public:
 	float bias = 0.1;        /**< bias to avoid unrealistic effects */
 	
 	/**
-	 * Creates a new SSAOPass (Screen Space Ambient Occlusion).
+	 * Creates a new SSAOPass (Screen Space Ambient Occlusion) object.
 	 */
 	explicit SSAOPass() = default;
 	
 	/**
-	 * Creates a new SSAOPass (Screen Space Ambient Occlusion) and initializes
-	 * it with the specified parameters.
+	 * Creates a new SSAOPass (Screen Space Ambient Occlusion) object and
+	 * initializes it with the specified parameters.
 	 *
 	 * \param w the width of screen
 	 * \param h the height of screen
@@ -60,21 +61,16 @@ public:
 	void init() override;
 	
 	/**
-	 * Compiles if the shaders are not compiled yet. It will be automatically
-	 * invoked by the process method.
-	 */
-	void compile() override;
-	
-	/**
-	 * Renders to the render target after the shaders are compiled. It will be
-	 * automatically invoked by the process method.
+	 * Compiles the required shaders and renders to the render target.
 	 */
 	void render() const override;
 	
 	/**
-	 * Compiles the shaders and render to the render target.
+	 * Sets the specified parameters to render pass before the rendering starts.
+	 *
+	 * \param c camera
 	 */
-	void process(const Camera& c);
+	void set(const Camera* c);
 	
 	/**
 	 * Returns the 2D texture represents the input of rendering pass.
@@ -124,12 +120,6 @@ private:
 	
 	std::unique_ptr<Gpu::FrameBuffer> blur_target_1;
 	std::unique_ptr<Gpu::FrameBuffer> blur_target_2;
-	
-	std::unique_ptr<Gpu::Shader> ssao_shader;
-	std::unique_ptr<Gpu::Shader> blur_shader;
-	std::unique_ptr<Gpu::Shader> blend_shader;
-	
-	using RenderPass::process;
 };
 
 }

@@ -70,8 +70,10 @@ void main() {
 	/* sample depth from textures */
 	float depth = textureLod(buffer_d, v_uv, 0).x;
 	
-	/* ignore the pixels on skybox */
+	/* set the output with no AO */
 	out_color = vec4(1.);
+	
+	/* ignore the pixels on skybox */
 	if (depth == 1.) return;
 	
 	/* sample world depth from textures */

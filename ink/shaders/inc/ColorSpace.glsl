@@ -19,7 +19,7 @@ const mat3 xyz_to_rgb_mat = mat3(
 
 const vec3 hcy_vec = vec3(0.299, 0.587, 0.114);
 
-const float color_eps = 1e-10;
+const float color_eps = 1E-10;
 
 /* Converts from RGB color space to SRGB color space (approximated). */
 vec3 rgb_to_srgb_approx(vec3 rgb) {

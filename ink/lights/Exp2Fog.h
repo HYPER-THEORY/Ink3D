@@ -34,7 +34,7 @@ public:
 	float density = 0.001;     /**< the density of fog */
 	
 	/**
-	 * Creates a new Exp2Fog and initializes it with color, distance and
+	 * Creates a new Exp2Fog object and initializes it with color, distance and
 	 * density.
 	 *
 	 * \param c the color of fog

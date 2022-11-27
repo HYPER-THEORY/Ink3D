@@ -27,19 +27,26 @@ namespace Ink {
 ReflectionProbe::ReflectionProbe(float i, int r) :
 intensity(i), resolution(r) {}
 
-void ReflectionProbe::load_cubemap(const Image& px, const Image& nx, const Image& py,
-								   const Image& ny, const Image& pz, const Image& nz) {
-	reflection_map = std::make_unique<Gpu::Texture>();
+void ReflectionProbe::load_cubemap(const Image& px, const Image& nx,
+								   const Image& py, const Image& ny,
+								   const Image& pz, const Image& nz) {
+	if (!reflection_map) {
+		reflection_map = std::make_unique<Gpu::Texture>();
+	}
 	IBLFilter::load_cubemap(px, nx, py, ny, pz, nz, *reflection_map, resolution);
 }
 
 void ReflectionProbe::load_equirect(const Image& i) {
-	reflection_map = std::make_unique<Gpu::Texture>();
+	if (!reflection_map) {
+		reflection_map = std::make_unique<Gpu::Texture>();
+	}
 	IBLFilter::load_equirect(i, *reflection_map, resolution);
 }
 
 void ReflectionProbe::load_texture(const Gpu::Texture& t) {
-	reflection_map = std::make_unique<Gpu::Texture>();
+	if (!reflection_map) {
+		reflection_map = std::make_unique<Gpu::Texture>();
+	}
 	IBLFilter::load_texture(t, *reflection_map, resolution);
 }
 

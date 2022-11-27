@@ -31,13 +31,13 @@ namespace Ink {
 
 class DirectionalLight : public Light {
 public:
-	Vec3 position;               /**< the position where the light shines from */
-	Vec3 direction;              /**< the direction where the light shines through */
+	Vec3 position;               /**< the position where the light casts from */
+	Vec3 direction;              /**< the direction where the light casts through */
 	bool cast_shadow = false;    /**< whether the light will cast shadow */
 	Shadow shadow;               /**< the shadow of light */
 	
 	/**
-	 * Creates a new DirectionalLight and initializes it with color and
+	 * Creates a new DirectionalLight object and initializes it with color and
 	 * intensity.
 	 *
 	 * \param c the color of light

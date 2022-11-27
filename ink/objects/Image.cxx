@@ -59,8 +59,7 @@ Image Image::subimage(int x1, int y1, int x2, int y2) {
 		std::copy_n(ptr_1, row_bytes, ptr_2);
 	}
 	
-	/* return the sub-image */
-	return image;
+	return image; /* return the sub-image */
 }
 
 void Image::flip_vertical() {
@@ -119,7 +118,7 @@ std::vector<Image> Image::split() const {
 void Image::convert(int c) {
 	/* check the number of channels */
 	if (channel != 3 && channel != 4) {
-		return void(Error::set("Image: Image's channel must be 3 or 4"));
+		return Error::set("Image: Image's channel must be 3 or 4");
 	}
 	
 	/* convert from RGB color space to BGR color space */

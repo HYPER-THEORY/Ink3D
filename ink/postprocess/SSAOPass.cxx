@@ -49,50 +49,28 @@ void SSAOPass::init() {
 	blur_target_2 = std::make_unique<Gpu::FrameBuffer>();
 	blur_target_2->set_attachment(*blur_map_2, 0);
 	blur_target_2->draw_attachments({0});
-	
-	/* prepare SSAO shader */
-	ssao_shader = std::make_unique<Gpu::Shader>();
-	ssao_shader->load_vert_file("ink/shaders/lib/SSAO.vert.glsl");
-	ssao_shader->load_frag_file("ink/shaders/lib/SSAO.frag.glsl");
-	
-	/* prepare blur shader */
-	blur_shader = std::make_unique<Gpu::Shader>();
-	blur_shader->load_vert_file("ink/shaders/lib/Blur.vert.glsl");
-	blur_shader->load_frag_file("ink/shaders/lib/Blur.frag.glsl");
-	
-	/* prepare blend shader */
-	blend_shader = std::make_unique<Gpu::Shader>();
-	blend_shader->load_vert_file("ink/shaders/lib/Blend.vert.glsl");
-	blend_shader->load_frag_file("ink/shaders/lib/Blend.frag.glsl");
 }
 
-void SSAOPass::compile() {
-	/* update and compile SSAO shader */
+void SSAOPass::render() const {
+	/* fetch SSAO shader from shader lib */
 	Defines ssao_defines;
 	ssao_defines.set("SAMPLES", std::to_string(samples));
-	ssao_shader->set_defines(ssao_defines);
-	ssao_shader->compile();
+	auto* ssao_shader = ShaderLib::fetch("SSAO", ssao_defines);
 	
-	/* update and compile blur shader */
+	/* fetch blur shader from shader lib */
 	Defines blur_defines;
 	blur_defines.set("BLUR_BILATERAL");
 	blur_defines.set("TYPE", "float");
 	blur_defines.set("SWIZZLE", ".x");
-	blur_shader->set_defines(blur_defines);
-	blur_shader->compile();
+	auto* blur_shader = ShaderLib::fetch("Blur", blur_defines);
 	
-	/* update and compile blend shader */
+	/* fetch blend shader from shader lib */
 	Defines blend_defines;
-	blend_defines.set("USE_A");
+	blend_defines.set("BLEND_OP(a, b)", "a * b");
 	blend_defines.set("A_SWIZZLE", ".xyzw");
-	blend_defines.set("USE_B");
 	blend_defines.set("B_SWIZZLE", ".xxxx");
-	blend_defines.set("OP(a, b)", "a * b");
-	blend_shader->set_defines(blend_defines);
-	blend_shader->compile();
-}
-
-void SSAOPass::render() const {
+	auto* blend_shader = ShaderLib::fetch("Blend", blend_defines);
+	
 	/* calculate camera & screen parameters */
 	Mat4 view_proj = camera->projection * camera->viewing;
 	Mat4 inv_view_proj = inverse_4x4(view_proj);
@@ -100,9 +78,9 @@ void SSAOPass::render() const {
 	
 	/* change the current viewport */
 	Gpu::Rect viewport = RenderPass::get_viewport();
-	RenderPass::set_viewport({width / 2, height / 2});
+	RenderPass::set_viewport(Gpu::Rect(width / 2, height / 2));
 	
-	/* 1. render SSAO to texture (downsampling) */
+	/* 1. render SSAO to texture (down-sampling) */
 	ssao_shader->use_program();
 	ssao_shader->set_uniform_f("radius", radius);
 	ssao_shader->set_uniform_f("max_radius", max_radius);
@@ -114,7 +92,7 @@ void SSAOPass::render() const {
 	ssao_shader->set_uniform_m4("inv_view_proj", inv_view_proj);
 	ssao_shader->set_uniform_i("buffer_n", buffer_n->activate(0));
 	ssao_shader->set_uniform_i("buffer_d", buffer_d->activate(1));
-	RenderPass::render_to(ssao_shader.get(), blur_target_1.get());
+	RenderPass::render_to(ssao_shader, blur_target_1.get());
 	
 	/* 2. blur texture for two times */
 	for (int i = 0; i < 2; ++i) {
@@ -126,7 +104,7 @@ void SSAOPass::render() const {
 		blur_shader->set_uniform_f("sigma_s", 2);
 		blur_shader->set_uniform_f("sigma_r", 0.25);
 		blur_shader->set_uniform_i("map", blur_map_1->activate(0));
-		RenderPass::render_to(blur_shader.get(), blur_target_2.get());
+		RenderPass::render_to(blur_shader, blur_target_2.get());
 		
 		/* blur texture vertically */
 		blur_shader->use_program();
@@ -135,23 +113,21 @@ void SSAOPass::render() const {
 		blur_shader->set_uniform_f("sigma_s", 2);
 		blur_shader->set_uniform_f("sigma_r", 0.25);
 		blur_shader->set_uniform_i("map", blur_map_2->activate(0));
-		RenderPass::render_to(blur_shader.get(), blur_target_1.get());
+		RenderPass::render_to(blur_shader, blur_target_1.get());
 	}
 	
 	/* set back to the initial viewport */
 	RenderPass::set_viewport(viewport);
 	
-	/* 3. render results to target (upsampling) */
+	/* 3. render results to render target (up-sampling) */
 	blend_shader->use_program();
-	blend_shader->set_uniform_v4("init_color", {1, 1, 1, 1});
 	blend_shader->set_uniform_i("map_a", map->activate(1));
 	blend_shader->set_uniform_i("map_b", blur_map_1->activate(0));
-	RenderPass::render_to(blend_shader.get(), target);
+	RenderPass::render_to(blend_shader, target);
 }
 
-void SSAOPass::process(const Camera& c) {
-	camera = &c;
-	process();
+void SSAOPass::set(const Camera* c) {
+	camera = c;
 }
 
 const Gpu::Texture* SSAOPass::get_texture() const {

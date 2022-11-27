@@ -34,7 +34,7 @@ public:
 	float upper = 0;    /**< the upper horizontal clipping plane */
 	
 	/**
-	 * Creates a new OrthoCamera.
+	 * Creates a new OrthoCamera object.
 	 */
 	explicit OrthoCamera() = default;
 	

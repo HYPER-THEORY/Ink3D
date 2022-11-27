@@ -47,15 +47,24 @@ void Instance::add(const std::initializer_list<Instance*>& l) {
 }
 
 void Instance::remove(Instance* i) {
+	i->parent = nullptr;
 	size_t size = children.size();
 	for (int c = 0; c < size; ++c) {
-		if (children[c] == i) children.erase(children.begin() + c);
+		if (children[c] == i) {
+			children.erase(children.begin() + c);
+		}
 	}
 }
 
 void Instance::remove(const std::initializer_list<Instance*>& l) {
+	size_t size = children.size();
 	for (auto& instance : l) {
-		remove(instance);
+		instance->parent = nullptr;
+		for (int c = 0; c < size; ++c) {
+			if (children[c] == instance) {
+				children.erase(children.begin() + c);
+			}
+		}
 	}
 }
 
@@ -83,7 +92,7 @@ Instance* Instance::get_parent() const {
 	return parent;
 }
 
-void Instance::set_transform(const Vec3& p, const Vec3& r, const Vec3& s) {
+void Instance::set_transform(const Vec3& p, const Euler& r, const Vec3& s) {
 	position = p;
 	rotation = r;
 	scale = s;
@@ -119,32 +128,14 @@ Mat4 Instance::transform_global() const {
 	return matrix;
 }
 
-Mat4 Instance::transform(const Vec3& p, const Vec3& r, const Vec3& s) {
+Mat4 Instance::transform(const Vec3& p, const Euler& r, const Vec3& s) {
 	return
 	Mat4{              /* translation scaling matrix */
 		s.x       , 0         , 0         , p.x       ,
 		0         , s.y       , 0         , p.y       ,
 		0         , 0         , s.z       , p.z       ,
 		0         , 0         , 0         , 1         ,
-	} *
-	Mat4{                       /* rotation X matrix */
-		1         , 0         , 0         , 0         ,
-		0         , cosf(r.x) , -sinf(r.x), 0         ,
-		0         , sinf(r.x) , cosf(r.x) , 0         ,
-		0         , 0         , 0         , 1         ,
-	} *
-	Mat4{                       /* rotation Y matrix */
-		cosf(r.y) , 0         , -sinf(r.y), 0         ,
-		0         , 1         , 0         , 0         ,
-		sinf(r.y) , 0         , cosf(r.y) , 0         ,
-		0         , 0         , 0         , 1         ,
-	} *
-	Mat4{                       /* rotation Z matrix */
-		cosf(r.z) , -sinf(r.z), 0         , 0         ,
-		sinf(r.z) , cosf(r.z) , 0         , 0         ,
-		0         , 0         , 1         , 0         ,
-		0         , 0         , 0         , 1         ,
-	};
+	} * r.to_rotation_matrix();
 }
 
 }
