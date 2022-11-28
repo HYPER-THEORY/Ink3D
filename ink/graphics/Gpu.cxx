@@ -1226,39 +1226,23 @@ int Texture::get_layer() const {
 	if (type == TEXTURE_CUBE_ARRAY) return depth;
 	
 	/* illegal texture */
-	Error::set("Texture: Cannot get layer from an non-array texture");
+	Error::set("Texture: Cannot get layer from non-array texture");
 	return -1;
 }
 
-Image Texture::get_image() const {
+void Texture::copy_to_image(Image& i) const {
 	/* check whether the texture is 2D */
 	if (type != TEXTURE_2D) {
-		Error::set("Texture: Cannot get image from an non-2D texture");
-		return Image();
+		return Error::set("Texture: Cannot get image from non-2D texture");
 	}
 	
 	/* get the external format of texture */
-	uint32_t external = GL_TEXTURE_FORMATS[format].first;
-	
-	/* create a new image */
-	Image image;
-	if (external == GL_RED) {
-		image = Image(width, height, 1);
-	} else if (external == GL_RG) {
-		image = Image(width, height, 2);
-	} else if (external == GL_RGB) {
-		image = Image(width, height, 3);
-	} else if (external == GL_RGBA) {
-		image = Image(width, height, 4);
-	} else {
-		image = Image(width, height, 1, 4);
-	}
+	uint32_t external = GL_TEXTURE_FORMATS[format].second;
 	
 	/* get image data from GPU */
-	glGetTexImage(GL_TEXTURE_2D, 0, external, GL_UNSIGNED_BYTE, image.data.data());
-	
-	/* return the image */
-	return image;
+	uint8_t* image_data = i.data.data();
+	uint32_t image_type = i.bytes == 1 ? GL_UNSIGNED_BYTE : GL_FLOAT;
+	glGetTexImage(GL_TEXTURE_2D, 0, external, image_type, image_data);
 }
 
 void Texture::set_wrap_s(int m) const {

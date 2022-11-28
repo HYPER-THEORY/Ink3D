@@ -34,9 +34,9 @@ struct Settings {
 	bool highdpi = false;          /**< whether to enable high-dpi mode */
 	bool borderless = false;       /**< whether the window is borderless */
 	bool resizable = false;        /**< whether the window is resizable */
+	bool fullscreen = false;       /**< whether the window is fullscreen */
 	int min_width = 0;             /**< minimum window width if the window is resizable */
 	int min_height = 0;            /**< minimum window height if the window is resizable */
-	bool fullscreen = false;       /**< whether the window is fullscreen */
 	int vsync = 1;                 /**< the vertical sync mode in OpenGL */
 	int depth = 24;                /**< the size of depth buffer in OpenGL */
 	int stencil = 8;               /**< the size of stencil buffer in OpenGL */
@@ -68,6 +68,11 @@ int run() {
 	Ink::Window::set_cursor_visible(t.show_cursor);
 	Ink::Window::set_cursor_locked(t.lock_cursor);
 	if (t.lock_cursor) Ink::Window::set_cursor_position(t.width / 2, t.height / 2);
+	
+	/* initialize the viewport of render pass */
+	int width = t.width * (t.highdpi ? 2 : 1);
+	int height = t.height * (t.highdpi ? 2 : 1);
+	Ink::RenderPass::set_viewport(Ink::Gpu::Rect(width, height));
 	
 	/* print error from Ink3D */
 	Ink::Error::set_callback([](const std::string& s) -> void {

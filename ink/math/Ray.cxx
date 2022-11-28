@@ -26,7 +26,7 @@ namespace Ink {
 
 Ray::Ray(const Vec3& o, const Vec3& d) : origin(o), direction(d) {}
 
-bool Ray::intersect_triangle(const Vec3& a, const Vec3& b, const Vec3& c) const {
+float Ray::intersect_triangle(const Vec3& a, const Vec3& b, const Vec3& c) const {
 	Vec3 ab = b - a;
 	Vec3 ac = c - a;
 	Vec3 ao = origin - a;
@@ -36,7 +36,8 @@ bool Ray::intersect_triangle(const Vec3& a, const Vec3& b, const Vec3& c) const 
 	float u = direction.dot(q) * inverse;
 	float v = ao.dot(p) * inverse;
 	float t = ac.dot(q) * inverse;
-	return t >= 0 && u >= 0 && v >= 0 && u + v <= 1;
+	if (t < 0 || u < 0 || v < 0 || u + v > 1) return -1;
+	return t;
 }
 
 }

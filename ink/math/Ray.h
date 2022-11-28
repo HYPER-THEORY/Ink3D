@@ -45,13 +45,14 @@ public:
 	explicit Ray(const Vec3& o, const Vec3& d);
 	
 	/**
-	 * Returns whether the ray will intersect with the triangle ABC.
+	 * Returns the distance between origin and intersection point if the ray
+	 * will intersect with the triangle ABC, returns -1 otherwise.
 	 *
-	 * \param a vertex A of triangle
-	 * \param b vertex B of triangle
-	 * \param c vertex C of triangle
+	 * \param a triangle's vertex A
+	 * \param b triangle's vertex B
+	 * \param c triangle's vertex C
 	 */
-	bool intersect_triangle(const Vec3& a, const Vec3& b, const Vec3& c) const;
+	float intersect_triangle(const Vec3& a, const Vec3& b, const Vec3& c) const;
 };
 
 }

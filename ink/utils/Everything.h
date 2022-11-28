@@ -35,6 +35,7 @@
 #include "../math/Vector3.h"
 #include "../math/Vector4.h"
 #include "../math/Matrix.h"
+#include "../math/Euler.h"
 #include "../math/Ray.h"
 
 /* objects part */
