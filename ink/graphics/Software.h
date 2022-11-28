@@ -85,35 +85,39 @@ static std::vector<double> z_buffer;
  * Samples the texture with UV-coordinate by nearest texture mapping.
  *
  * \param t texture
- * \param u u-coordinate
- * \param v v-coordinate
+ * \param c channel
+ * \param u U coordinate
+ * \param v V coordinate
  */
-Vec3 nearest_map(const Image& t, float u, float v);
+float nearest_map(const Image& t, int c, float u, float v);
 
 /**
  * Samples the texture with UV-coordinate by nearest texture mapping.
  *
  * \param t texture
- * \param uv uv-coordinate
+ * \param c channel
+ * \param uv UV coordinate
  */
-Vec3 nearest_map(const Image& t, const Vec2& uv);
+float nearest_map(const Image& t, int c, const Vec2& uv);
 
 /**
  * Samples the texture with UV-coordinate by linear texture mapping.
  *
  * \param t texture
- * \param u U-coordinate
- * \param v V-coordinate
+ * \param c channel
+ * \param u U coordinate
+ * \param v V coordinate
  */
-Vec3 linear_map(const Image& t, float u, float v);
+float linear_map(const Image& t, int c, float u, float v);
 
 /**
  * Samples the texture with UV-coordinate by linear texture mapping.
  *
  * \param t texture
- * \param uv UV-coordinate
+ * \param c channel
+ * \param uv UV coordinate
  */
-Vec3 linear_map(const Image& t, const Vec2& uv);
+float linear_map(const Image& t, int c, const Vec2& uv);
 
 /**
  * Sets the viewport region to render from (0, 0) to (width, height).

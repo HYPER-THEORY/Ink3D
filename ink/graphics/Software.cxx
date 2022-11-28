@@ -34,49 +34,45 @@ namespace Ink::Soft {
 
 constexpr float EPS = 1E-6;
 
-Vec3 nearest_map(const Image& t, float u, float v) {
-	int x = u * t.width;
+float nearest_map(const Image& t, int c, float u, float v) {
+	int x = roundf(u * (t.width - 1));
 	x = x < 0 ? 0 : x;
 	x = x >= t.width ? t.width - 1 : x;
-	int y = v * t.height;
+	int y = roundf(v * (t.height - 1));
 	y = y < 0 ? 0 : y;
 	y = y >= t.height ? t.height - 1 : y;
 	int bpp = t.channel * t.bytes;
-	const uint8_t* ptr = t.data.data() + (x + y * t.width) * bpp;
-	return Vec3(ptr[0], ptr[1], ptr[2]) / 255.f;
+	auto* ptr = t.data.data() + (x + y * t.width) * bpp;
+	return ptr[c] / 255.f;
 }
 
-Vec3 nearest_map(const Image& t, const Vec2& uv) {
-	return nearest_map(t, uv.x, uv.y);
+float nearest_map(const Image& t, int c, const Vec2& uv) {
+	return nearest_map(t, c, uv.x, uv.y);
 }
 
-Vec3 linear_map(const Image& t, float u, float v) {
-	int x0 = u * t.width;
+float linear_map(const Image& t, int c, float u, float v) {
+	int x0 = u * (t.width - 1);
 	x0 = x0 < 0 ? 0 : x0;
 	x0 = x0 >= t.width ? t.width - 1 : x0;
 	int x1 = x0 + 1;
 	x1 = x1 >= t.width ? t.width - 1 : x1;
-	int y0 = v * t.height;
+	int y0 = v * (t.height - 1);
 	y0 = y0 < 0 ? 0 : y0;
 	y0 = y0 >= t.height ? t.height - 1 : y0;
 	int y1 = y0 + 1;
 	y1 = y1 >= t.height ? t.height - 1 : y1;
 	int bpp = t.channel * t.bytes;
-	const uint8_t* data = t.data.data();
-	const uint8_t* ptr_00 = data + (x0 + y0 * t.width) * bpp;
-	const uint8_t* ptr_01 = data + (x0 + y1 * t.width) * bpp;
-	const uint8_t* ptr_10 = data + (x1 + y0 * t.width) * bpp;
-	const uint8_t* ptr_11 = data + (x1 + y1 * t.width) * bpp;
-	Vec3 color00 = Vec3(ptr_00[0], ptr_00[1], ptr_00[2]) / 255.f;
-	Vec3 color01 = Vec3(ptr_01[0], ptr_01[1], ptr_01[2]) / 255.f;
-	Vec3 color10 = Vec3(ptr_10[0], ptr_10[1], ptr_10[2]) / 255.f;
-	Vec3 color11 = Vec3(ptr_11[0], ptr_11[1], ptr_11[2]) / 255.f;
-	return (color00 * (y1 - v) + color01 * (v - y0)) * (x1 - u) +
-		(color10 * (y1 - v) + color11 * (v - y0)) * (u - x0);
+	auto* data = t.data.data();
+	auto* ptr_0 = data + (x0 + y0 * t.width) * bpp;
+	auto* ptr_1 = data + (x0 + y1 * t.width) * bpp;
+	auto* ptr_2 = data + (x1 + y0 * t.width) * bpp;
+	auto* ptr_3 = data + (x1 + y1 * t.width) * bpp;
+	return (ptr_0[c] * (y1 - v) + ptr_1[c] * (v - y0)) * (x1 - u) +
+		(ptr_2[c] * (y1 - v) + ptr_3[c] * (v - y0)) * (u - x0);
 }
 
-Vec3 linear_map(const Image& t, const Vec2& uv) {
-	return linear_map(t, uv.x, uv.y);
+float linear_map(const Image& t, int c, const Vec2& uv) {
+	return linear_map(t, c, uv.x, uv.y);
 }
 
 void set_viewport(int w, int h) {

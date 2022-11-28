@@ -42,7 +42,6 @@ Image Image::subimage(int x1, int y1, int x2, int y2) {
 	/* check whether the sub-image region is legal */
 	if (x1 < 0 || x2 > width || y1 < 0 || y2 > height) {
 		Error::set("Image: Illegal slicing region");
-		return Image();
 	}
 	
 	/* create a new image */

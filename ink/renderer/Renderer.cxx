@@ -745,7 +745,10 @@ void Renderer::render_to_buffer(const Scene& s, const Camera& c, int r, bool t) 
 			
 			/* get material from material groups */
 			auto& group = mesh->groups[i];
-			auto* material = s.get_material(mesh, group.name);
+			auto* material = s.get_material(group.name, instance);
+			if (material == nullptr) {
+				material = s.get_material(group.name, mesh);
+			}
 			if (material == nullptr) {
 				material = s.get_material(group.name);
 			}
@@ -954,7 +957,7 @@ void Renderer::render_to_shadow(const Scene& s, const Camera& c) const {
 			
 			/* get material from material groups */
 			auto& group = mesh->groups[i];
-			auto* material = s.get_material(mesh, group.name);
+			auto* material = s.get_material(group.name, mesh);
 			if (material == nullptr) {
 				material = s.get_material(group.name);
 			}

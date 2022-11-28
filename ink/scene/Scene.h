@@ -46,15 +46,6 @@ public:
 	explicit Scene(const std::string& n = "");
 	
 	/**
-	 * Returns the material matching the specified name and linking with the
-	 * specified mesh.
-	 *
-	 * \param s the specified mesh
-	 * \param n material name
-	 */
-	Material* get_material(const Mesh* s, const std::string& n) const;
-	
-	/**
 	 * Returns the material matching the specified name.
 	 *
 	 * \param n material name
@@ -62,19 +53,22 @@ public:
 	Material* get_material(const std::string& n) const;
 	
 	/**
-	 * Returns all the materials in the material library.
-	 */
-	std::vector<Material*> get_materials() const;
-	
-	/**
-	 * Sets the specified material with name to the scene. Links it with the
+	 * Returns the material matching the specified name and linking with the
 	 * specified mesh.
 	 *
-	 * \param s specified mesh
 	 * \param n material name
-	 * \param m material
+	 * \param s specified mesh
 	 */
-	void set_material(const Mesh* s, const std::string& n, Material* m);
+	Material* get_material(const std::string& n, const Mesh* s) const;
+	
+	/**
+	 * Returns the material matching the specified name and linking with the
+	 * specified mesh.
+	 *
+	 * \param n material name
+	 * \param s specified instance
+	 */
+	Material* get_material(const std::string& n, const Instance* s) const;
 	
 	/**
 	 * Sets the specified material with name to the scene.
@@ -85,13 +79,24 @@ public:
 	void set_material(const std::string& n, Material* m);
 	
 	/**
-	 * Removes the specified material matching the specified name and linking
-	 * with the specified mesh from the scene.
+	 * Sets the specified material with name to the scene. Links it with the
+	 * specified mesh.
 	 *
-	 * \param s specified mesh
 	 * \param n material name
+	 * \param s specified mesh
+	 * \param m material
 	 */
-	void remove_material(const Mesh* s, const std::string& n);
+	void set_material(const std::string& n, const Mesh* s, Material* m);
+	
+	/**
+	 * Sets the specified material with name to the scene. Links it with the
+	 * specified mesh.
+	 *
+	 * \param n material name
+	 * \param s specified instance
+	 * \param m material
+	 */
+	void set_material(const std::string& n, const Instance* s, Material* m);
 	
 	/**
 	 * Removes the specified material matching the specified name from the
@@ -102,9 +107,32 @@ public:
 	void remove_material(const std::string& n);
 	
 	/**
+	 * Removes the specified material matching the specified name and linking
+	 * with the specified mesh from the scene.
+	 *
+	 * \param n material name
+	 * \param s specified mesh
+	 */
+	void remove_material(const std::string& n, const Mesh* s);
+	
+	/**
+	 * Removes the specified material matching the specified name and linking
+	 * with the specified mesh from the scene.
+	 *
+	 * \param n material name
+	 * \param s specified instance
+	 */
+	void remove_material(const std::string& n, const Instance* s);
+	
+	/**
 	 * Removes all the materials from the scene.
 	 */
 	void clear_materials();
+	
+	/**
+	 * Returns all the materials in the material library.
+	 */
+	std::vector<Material*> get_materials() const;
 	
 	/**
 	 * Returns the linear fog in the scene if there is, return nullptr

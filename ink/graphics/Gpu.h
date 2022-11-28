@@ -984,15 +984,15 @@ public:
 	int get_depth() const;
 	
 	/**
-	 * Returns the layer of texture. The type of texture must be TEXTURE_[1D /
-	 * 2D / CUBE]_ARRAY.
+	 * Returns the layer of texture. The type of texture must be one of
+	 * TEXTURE_1D_ARRAY, TEXTURE_2D_ARRAY, TEXTURE_CUBE_ARRAY.
 	 */
 	int get_layer() const;
 	
 	/**
 	 * Returns the image of texture. The type of texture must be TEXTURE_2D.
 	 */
-	Image get_image() const;
+	void copy_to_image(Image& i) const;
 	
 	/**
 	 * Sets the wrapping mode on S coordinate. Default is TEXTURE_REPEAT.

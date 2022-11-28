@@ -155,8 +155,6 @@ void load() {
 	
 	renderer.set_target(base_target);
 	
-	Ink::RenderPass::set_viewport(Ink::Gpu::Rect(VP_WIDTH, VP_HEIGHT));
-	
 	light_pass = new Ink::LightPass();
 	light_pass->init();
 	light_pass->set_buffer_c(buffers + 0);
