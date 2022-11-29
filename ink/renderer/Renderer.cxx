@@ -362,24 +362,24 @@ void Renderer::update_probe(const Scene& s, const Vec3& p, ReflectionProbe& r) c
 	Gpu::disable_scissor_test();
 	
 	/* prepare texture for probe */
-	if (!probe_color_map) {
-		probe_color_map = std::make_unique<Gpu::Texture>();
+	if (!probe_map) {
+		probe_map = std::make_unique<Gpu::Texture>();
 	}
-	probe_color_map->init_cube(r.resolution, r.resolution, TEXTURE_R8G8B8A8_UNORM);
-	probe_color_map->set_filters(TEXTURE_LINEAR, TEXTURE_LINEAR);
+	probe_map->init_cube(r.resolution, r.resolution, TEXTURE_R8G8B8A8_UNORM);
+	probe_map->set_filters(TEXTURE_LINEAR, TEXTURE_LINEAR);
 	
 	/* prepare depth texture for rendering */
-	if (!probe_depth_map) {
-		probe_depth_map = std::make_unique<Gpu::Texture>();
+	if (!probe_buffer) {
+		probe_buffer = std::make_unique<Gpu::RenderBuffer>();
 	}
-	probe_depth_map->init_2d(r.resolution, r.resolution, TEXTURE_D24_UNORM);
+	probe_buffer->init(r.resolution, r.resolution, TEXTURE_D24_UNORM);
 	
 	/* prepare frame buffer for probe */
 	if (!probe_target) {
 		probe_target = std::make_unique<Gpu::FrameBuffer>();
 		probe_target->draw_attachments({0});
 	}
-	probe_target->set_depth_attachment(*probe_depth_map);
+	probe_target->set_depth_attachment(*probe_buffer);
 	
 	/* initialize camera for probe */
 	PerspCamera camera = PerspCamera(PI_2, 1, 0.1, 100);
@@ -389,7 +389,7 @@ void Renderer::update_probe(const Scene& s, const Vec3& p, ReflectionProbe& r) c
 		camera.lookat(p, CUBE_DIRECTIONS[i], CUBE_UPS[i]);
 		
 		/* update and activate render target */
-		probe_target->set_attachment(*probe_color_map, 0, 0, i);
+		probe_target->set_attachment(*probe_map, 0, 0, i);
 		Gpu::FrameBuffer::activate(probe_target.get());
 		
 		/* clear depth buffer before rendering */
@@ -411,7 +411,7 @@ void Renderer::update_probe(const Scene& s, const Vec3& p, ReflectionProbe& r) c
 	Gpu::FrameBuffer::activate(nullptr);
 	
 	/* update probe with probe texture */
-	r.load_texture(*probe_color_map);
+	r.load_texture(*probe_map);
 }
 
 void Renderer::update_scene(Scene& s) {
@@ -1061,9 +1061,9 @@ void Renderer::sort_instances(const Camera& c, std::vector<const Instance*>& l, 
 
 std::unique_ptr<Gpu::VertexObject> Renderer::cube;
 
-std::unique_ptr<Gpu::Texture> Renderer::probe_color_map;
+std::unique_ptr<Gpu::Texture> Renderer::probe_map;
 
-std::unique_ptr<Gpu::Texture> Renderer::probe_depth_map;
+std::unique_ptr<Gpu::RenderBuffer> Renderer::probe_buffer;
 
 std::unique_ptr<Gpu::FrameBuffer> Renderer::probe_target;
 
