@@ -385,9 +385,9 @@ private:
 	
 	static std::unique_ptr<Gpu::VertexObject> cube;
 	
-	static std::unique_ptr<Gpu::Texture> probe_color_map;
+	static std::unique_ptr<Gpu::Texture> probe_map;
 	
-	static std::unique_ptr<Gpu::Texture> probe_depth_map;
+	static std::unique_ptr<Gpu::RenderBuffer> probe_buffer;
 	
 	static std::unique_ptr<Gpu::FrameBuffer> probe_target;
 	
