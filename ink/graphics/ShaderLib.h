@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include "Gpu.h"
 
 namespace Ink {
