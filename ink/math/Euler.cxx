@@ -30,42 +30,39 @@ x(x), y(y), z(z), order(o) {}
 Euler::Euler(Vec3 r, int o) :
 x(r.x), y(r.y), z(r.z), order(o) {}
 
-Mat4 Euler::to_rotation_matrix() const {
-	Mat4 rotation_x = {
-		1       , 0       , 0       , 0       ,
-		0       , cosf(x) , -sinf(x), 0       ,
-		0       , sinf(x) , cosf(x) , 0       ,
-		0       , 0       , 0       , 1       ,
+Mat3 Euler::to_rotation_matrix() const {
+	Mat3 rotation_x = {
+		1       , 0       , 0       ,
+		0       , cosf(x) , -sinf(x),
+		0       , sinf(x) , cosf(x) ,
 	};
-	Mat4 rotation_y = {
-		cosf(y) , 0       , -sinf(y), 0       ,
-		0       , 1       , 0       , 0       ,
-		sinf(y) , 0       , cosf(y) , 0       ,
-		0       , 0       , 0       , 1       ,
+	Mat3 rotation_y = {
+		cosf(y) , 0       , -sinf(y),
+		0       , 1       , 0       ,
+		sinf(y) , 0       , cosf(y) ,
 	};
-	Mat4 rotation_z = {
-		cosf(z) , -sinf(z), 0       , 0       ,
-		sinf(z) , cosf(z) , 0       , 0       ,
-		0       , 0       , 1       , 0       ,
-		0       , 0       , 0       , 1       ,
+	Mat3 rotation_z = {
+		cosf(z) , -sinf(z), 0       ,
+		sinf(z) , cosf(z) , 0       ,
+		0       , 0       , 1       ,
 	};
 	if (order == EULER_XYZ) {
-		return rotation_z * rotation_y * rotation_x;
+		return rotation_x * rotation_y * rotation_z;
 	}
 	if (order == EULER_XZY) {
-		return rotation_y * rotation_z * rotation_x;
-	}
-	if (order == EULER_YXZ) {
-		return rotation_z * rotation_x * rotation_y;
-	}
-	if (order == EULER_YZX) {
 		return rotation_x * rotation_z * rotation_y;
 	}
-	if (order == EULER_ZXY) {
+	if (order == EULER_YXZ) {
 		return rotation_y * rotation_x * rotation_z;
 	}
+	if (order == EULER_YZX) {
+		return rotation_y * rotation_z * rotation_x;
+	}
+	if (order == EULER_ZXY) {
+		return rotation_z * rotation_x * rotation_y;
+	}
 	/*       ... EULER_ZYX */ {
-		return rotation_x * rotation_y * rotation_z;
+		return rotation_z * rotation_y * rotation_x;
 	}
 }
 

@@ -68,7 +68,7 @@ public:
 	/**
 	 * Transforms the Euler angles to rotation matrix.
 	 */
-	Mat4 to_rotation_matrix() const;
+	Mat3 to_rotation_matrix() const;
 };
 
 }

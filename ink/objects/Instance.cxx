@@ -129,13 +129,13 @@ Mat4 Instance::transform_global() const {
 }
 
 Mat4 Instance::transform(const Vec3& p, const Euler& r, const Vec3& s) {
-	return
-	Mat4{              /* translation scaling matrix */
-		s.x       , 0         , 0         , p.x       ,
-		0         , s.y       , 0         , p.y       ,
-		0         , 0         , s.z       , p.z       ,
-		0         , 0         , 0         , 1         ,
-	} * r.to_rotation_matrix();
+	Mat3 m = r.to_rotation_matrix();
+	return {
+		m[0][0] * s.x, m[0][1] * s.y, m[0][2] * s.z, p.x          ,
+		m[1][0] * s.x, m[1][1] * s.y, m[1][2] * s.z, p.y          ,
+		m[2][0] * s.x, m[2][1] * s.y, m[2][2] * s.z, p.z          ,
+		0            , 0            , 0            , 1            ,
+	};
 }
 
 }
