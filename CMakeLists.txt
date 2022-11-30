@@ -6,10 +6,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(
         SOURCES
         ink/renderer/Renderer.cxx
-        ink/renderer/LightPass.cxx
-        ink/renderer/CopyPass.cxx
-        ink/renderer/RenderPass.cxx
-        ink/renderer/BlendPass.cxx
         ink/probes/IBLFilter.cxx
         ink/probes/ReflectionProbe.cxx
         ink/probes/LightProbe.cxx
@@ -29,6 +25,7 @@ set(
         ink/utils/ConvexHull.cxx
         ink/utils/ColorTransform.cxx
         ink/utils/Viewer.cxx
+        ink/math/Euler.cxx
         ink/math/Matrix.cxx
         ink/math/Ray.cxx
         ink/math/Random.cxx
@@ -45,13 +42,18 @@ set(
         ink/postprocess/FXAAPass.cxx
         ink/postprocess/ToneMapPass.cxx
         ink/postprocess/BlurPass.cxx
+        ink/postprocess/LightPass.cxx
         ink/postprocess/SSAOPass.cxx
+        ink/postprocess/CopyPass.cxx
+        ink/postprocess/RenderPass.cxx
+        ink/postprocess/BlendPass.cxx
         ink/postprocess/ColorGradePass.cxx
         ink/postprocess/SSRPass.cxx
         ink/postprocess/BloomPass.cxx
         ink/physics/Physics.cxx
         ink/scene/Scene.cxx
         ink/graphics/Gpu.cxx
+        ink/graphics/ShaderLib.cxx
         ink/graphics/Software.cxx
         ink/lights/LinearFog.cxx
         ink/lights/Light.cxx
