@@ -875,7 +875,7 @@ void Renderer::render_to_buffer(const Scene& s, const Camera& c, int r, bool t) 
 			if (ref_probe != nullptr) {
 				int ref_lod = log2f(ref_probe->resolution);
 				shader->set_uniform_i("ref_map", ref_probe->activate(25));
-				shader->set_uniform_i("ref_lod", ref_lod);
+				shader->set_uniform_f("ref_lod", ref_lod);
 				shader->set_uniform_f("ref_intensity", ref_probe->intensity);
 			}
 			

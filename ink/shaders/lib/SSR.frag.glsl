@@ -140,7 +140,7 @@ void main() {
 				
 				/* calculate screen edge attenuation */
 				vec2 coords = smoothstep(0.2, 0.6, abs(vec2(0.5) - ray_uv.xy));
-				float screen_edge_fade = clamp(1. - (coords.x + coords.y), 0., 1.);
+				float screen_edge_fade = saturate(1. - (coords.x + coords.y));
 				attenuation *= screen_edge_fade;
 				
 				/* calculate reflected color with Fresnel */
