@@ -24,6 +24,9 @@
 
 #include <sstream>
 
+#include "Constants.h"
+#include "Random.h"
+
 namespace Ink {
 
 FVec3::FVec3(float x) : x(x), y(x), z(x) {}

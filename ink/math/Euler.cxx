@@ -37,9 +37,9 @@ Mat3 Euler::to_rotation_matrix() const {
 		0       , sinf(x) , cosf(x) ,
 	};
 	Mat3 rotation_y = {
-		cosf(y) , 0       , -sinf(y),
+		cosf(y) , 0       , sinf(y),
 		0       , 1       , 0       ,
-		sinf(y) , 0       , cosf(y) ,
+		-sinf(y), 0       , cosf(y) ,
 	};
 	Mat3 rotation_z = {
 		cosf(z) , -sinf(z), 0       ,
