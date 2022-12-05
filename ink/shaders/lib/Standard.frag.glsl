@@ -68,7 +68,7 @@ uniform sampler2D specular_map;
 
 #ifdef USE_REFLECTION_PROBE
 uniform samplerCube ref_map;
-uniform int ref_lod;
+uniform float ref_lod;
 uniform float ref_intensity;
 #endif
 

@@ -9,7 +9,7 @@
 #define SHADOW_PCSS          2
 
 #define MIN_FILTER_RADIUS    1.
-#define MAX_FILTER_RADIUS    32.
+#define MAX_SEARCH_RADIUS    16.
 
 #if SHADOW_SAMPLES == 16
 #define POISSON_2D poisson_2d_16
@@ -78,11 +78,11 @@ float shadow_pcf(Shadow shadow, vec3 light_pos, vec2 texel_size, float radius) {
 
 /* Calculates the Percentage Closer Soft Shadow (PCSS). */
 float shadow_pcss(Shadow shadow, vec3 light_pos, vec2 texel_size, mat4 proj) {
-	float zblocker = search_blocker(shadow, light_pos, texel_size, MAX_FILTER_RADIUS);
+	float zblocker = search_blocker(shadow, light_pos, texel_size, MAX_SEARCH_RADIUS);
 	float blocker = linearize_depth(zblocker, proj);
 	float receiver = linearize_depth(light_pos.z, proj);
 	float penumbra = (receiver - blocker) / blocker * shadow.radius;
-	float filter_radius = clamp(penumbra, MIN_FILTER_RADIUS, MAX_FILTER_RADIUS);
+	float filter_radius = max(penumbra, MIN_FILTER_RADIUS);
 	return shadow_pcf(shadow, light_pos, texel_size, filter_radius);
 }
 
