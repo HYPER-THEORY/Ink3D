@@ -38,7 +38,7 @@ public:
 	
 	const float* operator[](size_t k) const;
 	
-	FMat<r, c> operator-();
+	FMat<r, c> operator-() const;
 	
 	bool operator==(const FMat<r, c>& v) const;
 	
@@ -139,7 +139,7 @@ public:
 	
 	const double* operator[](size_t k) const;
 	
-	DMat<r, c> operator-();
+	DMat<r, c> operator-() const;
 	
 	bool operator==(const DMat<r, c>& v) const;
 	
@@ -239,7 +239,7 @@ const float* FMat<r, c>::operator[](size_t k) const {
 }
 
 template <int r, int c>
-FMat<r, c> FMat<r, c>::operator-() {
+FMat<r, c> FMat<r, c>::operator-() const {
 	FMat<r, c> matrix;
 	int i = r * c;
 	while (i --> 0) *(*matrix.m + i) = -*(*m + i);
@@ -475,7 +475,7 @@ const double* DMat<r, c>::operator[](size_t k) const {
 }
 
 template <int r, int c>
-DMat<r, c> DMat<r, c>::operator-() {
+DMat<r, c> DMat<r, c>::operator-() const {
 	DMat<r, c> matrix;
 	int i = r * c;
 	while (i --> 0) *(*matrix.m + i) = -*(*m + i);

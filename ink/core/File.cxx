@@ -33,7 +33,6 @@ std::string File::read(const std::string& p) {
 	std::ifstream stream(p, std::fstream::in);
 	if (!stream) {
 		Error::set("File: Error reading from file");
-		return std::string();
 	}
 	stream.ignore(std::numeric_limits<std::streamsize>::max());
 	std::streamsize length = stream.gcount();

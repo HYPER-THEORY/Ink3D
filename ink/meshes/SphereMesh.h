@@ -29,7 +29,7 @@ namespace Ink {
 class SphereMesh {
 public:
 	/**
-	 * Returns a sphere shaped mesh with 1 unit radius.
+	 * Returns a sphere shaped mesh with 0.5 unit radius.
 	 */
 	static Mesh create();
 };
