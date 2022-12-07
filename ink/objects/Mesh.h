@@ -45,6 +45,7 @@ public:
 	std::vector<Vec3> normal;         /**< the normal for each vertex */
 	std::vector<Vec2> uv;             /**< the UV for each vertex */
 	std::vector<Vec4> tangent;        /**< the tangent for each vertex */
+	std::vector<Vec3> color;          /**< the color for each vertex */
 	
 	/**
 	 * Creates a new Mesh object and initializes it with a name.
