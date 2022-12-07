@@ -421,26 +421,29 @@ void Renderer::update_scene(Scene& s) {
 Defines Renderer::define_material(const Material& m) {
 	Defines defines; /* create new defines */
 	
+	/* check whether to use vertex color */
+	defines.set_if("USE_VERTEX_COLOR", m.vertex_color);
+	
 	/* check whether to use normal map */
 	defines.set_if("USE_NORMAL_MAP", m.normal_map != nullptr);
 	
-	/* check whether to use tangent space */
+	/* check whether to use normal map in tangent space */
 	defines.set_if("IN_TANGENT_SPACE", m.normal_map != nullptr && m.tangent_space);
 	
-	/* check whether to use object space */
+	/* check whether to use normal map in object space */
 	defines.set_if("IN_OBJECT_SPACE", m.normal_map != nullptr && !m.tangent_space);
 	
 	/* check whether to use displacement map */
 	defines.set_if("USE_DISPLACEMENT_MAP", m.displacement_map != nullptr);
 	
 	/* check whether to use color map */
-	defines.set_if("USE_COLOR_MAP", m.color_map != nullptr);
+	defines.set_if("USE_COLOR_MAP", m.color_map != nullptr && !m.map_with_alpha);
+	
+	/* check whether to use color map with alpha channel */
+	defines.set_if("USE_COLOR_ALPHA_MAP", m.color_map != nullptr && m.map_with_alpha);
 	
 	/* check whether to use alpha map */
 	defines.set_if("USE_ALPHA_MAP", m.alpha_map != nullptr);
-	
-	/* check whether to use alpha from color map */
-	defines.set_if("USE_COLOR_WITH_ALPHA", m.color_with_alpha);
 	
 	/* check whether to use emissive map */
 	defines.set_if("USE_EMISSIVE_MAP", m.emissive_map != nullptr);
@@ -769,10 +772,10 @@ void Renderer::render_to_buffer(const Scene& s, const Camera& c, int r, bool t) 
 			if (shader == nullptr) {
 				Defines defines = define_material(*material);
 				if (!t && r == DEFERRED_RENDERING) {
-					/* use deferred rendering */
+					/* use defines in deferred rendering */
 					defines.set("DEFERRED_RENDERING");
 				} else {
-					/* use forward rendering */
+					/* use defines in forward rendering */
 					defines.set("FORWARD_RENDERING");
 					defines.set(define_scene(s));
 					defines.set(define_tone_map(tone_map_mode));
@@ -967,7 +970,7 @@ void Renderer::render_to_shadow(const Scene& s, const Camera& c) const {
 			}
 			
 			/* whether to use color map and alpha map */
-			bool use_color_map = material->color_map != nullptr;
+			bool use_color_map = material->color_map != nullptr && material->map_with_alpha;
 			bool use_alpha_map = material->alpha_map != nullptr;
 			
 			/* fetch the shadow shader from shader lib */
