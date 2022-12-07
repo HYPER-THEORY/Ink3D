@@ -27,6 +27,11 @@ out vec3 v_tangent;
 out vec3 v_bitangent;
 #endif
 
+#ifdef USE_VERTEX_COLOR
+in vec3 color;
+out vec3 v_color;
+#endif
+
 void main() {
 	vec3 t_vertex = vertex;
 	vec3 t_normal = normal;
@@ -34,6 +39,9 @@ void main() {
 	#ifdef IN_TANGENT_SPACE
 		vec3 t_tangent = tangent.xyz;
 		vec3 t_bitangent;
+	#endif
+	#ifdef USE_VERTEX_COLOR
+		vec3 t_color = color;
 	#endif
 	
 	#ifdef USE_DISPLACEMENT_MAP
@@ -59,6 +67,9 @@ void main() {
 	#ifdef IN_TANGENT_SPACE
 		v_tangent = t_tangent;
 		v_bitangent = t_bitangent;
+	#endif
+	#ifdef USE_VERTEX_COLOR
+		v_color = color;
 	#endif
 	gl_Position = model_view_proj * vec4(t_vertex, 1.);
 }
