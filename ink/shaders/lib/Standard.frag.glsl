@@ -27,7 +27,7 @@ uniform float normal_scale;
 
 uniform vec3 color;
 
-#ifdef USE_COLOR_MAP
+#if defined(USE_COLOR_MAP) || defined(USE_COLOR_ALPHA_MAP)
 uniform sampler2D color_map;
 #endif
 
@@ -72,13 +72,17 @@ uniform float ref_lod;
 uniform float ref_intensity;
 #endif
 
-in vec2 v_uv;
 in vec3 v_normal;
+in vec2 v_uv;
 in vec3 v_world_pos;
 
 #ifdef IN_TANGENT_SPACE
 in vec3 v_tangent;
 in vec3 v_bitangent;
+#endif
+
+#ifdef USE_VERTEX_COLOR
+in vec3 v_color;
 #endif
 
 #ifdef FORWARD_RENDERING
@@ -95,14 +99,17 @@ layout(location = 3) out vec4 out_buffer_a;    /* G-Buffer additional light */
 void main() {
 	/* calculate color and alpha */
 	vec4 t_color = vec4(color, alpha);
-	#if defined(USE_COLOR_MAP) && defined(USE_COLOR_WITH_ALPHA)
-		t_color *= texture(color_map, v_uv);
+	#ifdef USE_VERTEX_COLOR
+		t_color.xyz *= v_color;
 	#endif
-	#if defined(USE_COLOR_MAP) && !defined(USE_COLOR_WITH_ALPHA)
+	#ifdef USE_COLOR_MAP
 		t_color.xyz *= texture(color_map, v_uv).xyz;
 	#endif
 	#ifdef USE_ALPHA_MAP
 		t_color.w *= texture(alpha_map, v_uv).x;
+	#endif
+	#ifdef USE_COLOR_ALPHA_MAP
+		t_color *= texture(color_map, v_uv);
 	#endif
 	
 	/* discard if failing alpha test */
@@ -139,7 +146,7 @@ void main() {
 		t_roughness *= texture(roughness_map, v_uv).x;
 	#endif
 	
-	/* calculate specular */
+	/* calculate specular color */
 	float t_specular = specular;
 	#ifdef USE_SPECULAR_MAP
 		t_specular *= texture(specular_map, v_uv).x;
