@@ -84,7 +84,9 @@ public:
 	
 	float alpha_test = 0;                 /**< the threshold, pixels with lower alpha will be discarded */
 	
-	bool color_with_alpha = true;         /**< whether to use alpha channel from color map */
+	bool map_with_alpha = true;           /**< whether to use alpha channel from color map */
+	
+	bool vertex_color = false;            /**< whether to use vertex colors from mesh */
 	
 	bool tangent_space = true;            /**< whether the normal map defines in tangent space */
 	
