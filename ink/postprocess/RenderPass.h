@@ -88,7 +88,7 @@ protected:
 	
 	static std::unique_ptr<Gpu::VertexObject> plane;
 	
-	static bool init_render_to();
+	static bool init_plane();
 };
 
 }

@@ -86,23 +86,31 @@ void BlurPass::render() const {
 	Gpu::Rect viewport = RenderPass::get_viewport();
 	RenderPass::set_viewport(Gpu::Rect(width / 2, height / 2));
 	
-	/* 1. blur horizontally (down-sampling) */
+	/* 1. blur texture horizontally (down-sampling) */
 	blur_shader->use_program();
 	blur_shader->set_uniform_f("lod", 0);
 	blur_shader->set_uniform_v2("direction", Vec2(1 / screen_size.x, 0));
 	blur_shader->set_uniform_i("radius", radius);
-	blur_shader->set_uniform_f("sigma_s", sigma_s);
-	blur_shader->set_uniform_f("sigma_r", sigma_r);
+	if (type == BLUR_GAUSSIAN || type == BLUR_BILATERAL) {
+		blur_shader->set_uniform_f("sigma_s", sigma_s);
+	}
+	if (type == BLUR_BILATERAL) {
+		blur_shader->set_uniform_f("sigma_r", sigma_r);
+	}
 	blur_shader->set_uniform_i("map", map->activate(0));
 	RenderPass::render_to(blur_shader, blur_target_1.get());
 	
-	/* 2. blur vertically */
+	/* 2. blur texture vertically */
 	blur_shader->use_program();
 	blur_shader->set_uniform_f("lod", 0);
 	blur_shader->set_uniform_v2("direction", Vec2(0, 1 / screen_size.y));
 	blur_shader->set_uniform_i("radius", radius);
-	blur_shader->set_uniform_f("sigma_s", sigma_s);
-	blur_shader->set_uniform_f("sigma_r", sigma_r);
+	if (type == BLUR_GAUSSIAN || type == BLUR_BILATERAL) {
+		blur_shader->set_uniform_f("sigma_s", sigma_s);
+	}
+	if (type == BLUR_BILATERAL) {
+		blur_shader->set_uniform_f("sigma_r", sigma_r);
+	}
 	blur_shader->set_uniform_i("map", blur_map_1->activate(0));
 	RenderPass::render_to(blur_shader, blur_target_2.get());
 	
