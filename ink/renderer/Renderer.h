@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,12 +22,10 @@
 
 #pragma once
 
-#include <array>
 #include <functional>
 
 #include "../graphics/Gpu.h"
 #include "../scene/Scene.h"
-#include "../probes/LightProbe.h"
 #include "../probes/ReflectionProbe.h"
 
 namespace Ink {
@@ -132,13 +130,13 @@ public:
 	 * Returns the mode in tone mapping. This term will only be used when the
 	 * rendering mode is FORWARD_RENDERING.
 	 */
-	int get_tone_mapping_mode() const;
+	int get_tone_map_mode() const;
 	
 	/**
 	 * Returns the exposure in tone mapping. This term will only be used when
 	 * the rendering mode is FORWARD_RENDERING.
 	 */
-	float get_tone_mapping_exposure() const;
+	float get_tone_map_exposure() const;
 	
 	/**
 	 * Sets the specified mode and exposure in tone mapping. This term will only
@@ -148,20 +146,20 @@ public:
 	 * \param m tone mapping mode
 	 * \param e tone mapping exposure
 	 */
-	void set_tone_mapping(int m, float e);
+	void set_tone_map(int m, float e);
 	
 	/**
 	 * Returns the current render target if there is, returns nullptr otherwise.
 	 */
-	const Gpu::FrameBuffer* get_target() const;
+	const Gpu::RenderTarget* get_target() const;
 	
 	/**
-	 * Sets the render target. When nullptr is given, the default frame buffer
+	 * Sets the render target. When nullptr is given, the default render target
 	 * is set as the render target.
 	 *
-	 * \param t target frame buffer
+	 * \param t render target
 	 */
-	void set_target(const Gpu::FrameBuffer* t);
+	void set_target(const Gpu::RenderTarget* t);
 	
 	/**
 	 * Sets the texture callback which will be called when texture is created.
@@ -322,28 +320,31 @@ public:
 	static void update_scene(Scene& s);
 	
 	/**
-	 * Returns the defines object of material. The object will be defined in
+	 * Sets the defines object for material. The object will be defined in
 	 * vertex, geometry and fragment shaders.
 	 *
 	 * \param m material
+	 * \param d defines
 	 */
-	static Defines define_material(const Material& m);
+	static void set_material_defines(const Material& m, Defines& d);
 	
 	/**
-	 * Returns the defines object of scene. The object will be defined in
-	 * vertex, geometry and fragment shaders.
+	 * Sets the defines object for scene. The object will be defined in vertex,
+	 * geometry and fragment shaders.
 	 *
 	 * \param s scene
+	 * \param d defines
 	 */
-	static Defines define_scene(const Scene& s);
+	static void set_scene_defines(const Scene& s, Defines& d);
 	
 	/**
-	 * Returns the defines object of tone mapping. The object will be defined in
+	 * Sets the defines object for tone mapping. The object will be defined in
 	 * vertex, geometry and fragment shaders.
 	 *
 	 * \param m tone mapping mode
+	 * \param d defines
 	 */
-	static Defines define_tone_map(int m);
+	static void set_tone_map_defines(int m, Defines& d);
 	
 	/**
 	 * Returns the uniforms object of material. The object will be passed to
@@ -363,7 +364,7 @@ private:
 	
 	Gpu::Rect viewport = Gpu::Rect(0, 0, 0, 0);
 	
-	const Gpu::FrameBuffer* target = nullptr;
+	const Gpu::RenderTarget* target = nullptr;
 	
 	TextureCallback texture_callback = [](Gpu::Texture& t) -> void {
 		t.generate_mipmap(); /* generate mipmap for every texture */
@@ -389,7 +390,7 @@ private:
 	
 	static std::unique_ptr<Gpu::RenderBuffer> probe_buffer;
 	
-	static std::unique_ptr<Gpu::FrameBuffer> probe_target;
+	static std::unique_ptr<Gpu::RenderTarget> probe_target;
 	
 	void render_skybox_to_buffer(const Camera& c, int r) const;
 	

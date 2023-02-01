@@ -64,7 +64,7 @@ set(
         ink/lights/Shadow.cxx
         ink/lights/DirectionalLight.cxx
         libs/glad/glad.c
-        GetStart.cxx
+        test/shading/ShadingTest.cxx
 )
 
 if(NOT SKIP_FIND_SDL2_LIBRARY)

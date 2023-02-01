@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@
 #include <iostream>
 #include <memory>
 
-#include "../../libs/glad/glad.h"
+#include "../../libs/opengl/glad.h"
 
 #include "../core/Error.h"
 #include "../core/File.h"
@@ -190,6 +190,41 @@ constexpr int32_t GL_TEXTURE_FILTERS[] = {
 	GL_LINEAR_MIPMAP_LINEAR,                                  /**< TEXTURE_LINEAR_MIPMAP_LINEAR */
 };
 
+constexpr uint32_t GL_COLOR_ATTACHMENTS[] = {
+	GL_COLOR_ATTACHMENT0,                                     /**< render number is 1 */
+	GL_COLOR_ATTACHMENT1,                                     /**< render number is 2 */
+	GL_COLOR_ATTACHMENT2,                                     /**< render number is 3 */
+	GL_COLOR_ATTACHMENT3,                                     /**< render number is 4 */
+	GL_COLOR_ATTACHMENT4,                                     /**< render number is 5 */
+	GL_COLOR_ATTACHMENT5,                                     /**< render number is 6 */
+	GL_COLOR_ATTACHMENT6,                                     /**< render number is 7 */
+	GL_COLOR_ATTACHMENT7,                                     /**< render number is 8 */
+	GL_COLOR_ATTACHMENT8,                                     /**< render number is 9 */
+	GL_COLOR_ATTACHMENT9,                                     /**< render number is 10 */
+	GL_COLOR_ATTACHMENT10,                                    /**< render number is 11 */
+	GL_COLOR_ATTACHMENT11,                                    /**< render number is 12 */
+	GL_COLOR_ATTACHMENT12,                                    /**< render number is 13 */
+	GL_COLOR_ATTACHMENT13,                                    /**< render number is 14 */
+	GL_COLOR_ATTACHMENT14,                                    /**< render number is 15 */
+	GL_COLOR_ATTACHMENT15,                                    /**< render number is 16 */
+	GL_COLOR_ATTACHMENT16,                                    /**< render number is 17 */
+	GL_COLOR_ATTACHMENT17,                                    /**< render number is 18 */
+	GL_COLOR_ATTACHMENT18,                                    /**< render number is 19 */
+	GL_COLOR_ATTACHMENT19,                                    /**< render number is 20 */
+	GL_COLOR_ATTACHMENT20,                                    /**< render number is 21 */
+	GL_COLOR_ATTACHMENT21,                                    /**< render number is 22 */
+	GL_COLOR_ATTACHMENT22,                                    /**< render number is 23 */
+	GL_COLOR_ATTACHMENT23,                                    /**< render number is 24 */
+	GL_COLOR_ATTACHMENT24,                                    /**< render number is 25 */
+	GL_COLOR_ATTACHMENT25,                                    /**< render number is 26 */
+	GL_COLOR_ATTACHMENT26,                                    /**< render number is 27 */
+	GL_COLOR_ATTACHMENT27,                                    /**< render number is 28 */
+	GL_COLOR_ATTACHMENT28,                                    /**< render number is 29 */
+	GL_COLOR_ATTACHMENT29,                                    /**< render number is 30 */
+	GL_COLOR_ATTACHMENT30,                                    /**< render number is 31 */
+	GL_COLOR_ATTACHMENT31,                                    /**< render number is 32 */
+};
+
 constexpr int TEXTURE_DEFAULT_FORMATS[][2] = {
 	{TEXTURE_R8_UNORM      , TEXTURE_R16_SFLOAT         },
 	{TEXTURE_R8G8_UNORM    , TEXTURE_R16G16_SFLOAT      },
@@ -244,7 +279,7 @@ Rect::Rect(int w, int h) : width(w), height(h) {}
 
 Rect::Rect(int x, int y, int w, int h) : x(x), y(y), width(w), height(h) {}
 
-std::string get_device_info() {
+std::string State::get_device_info() {
 	std::string info = "Vender: ";
 	const uint8_t* vender = glGetString(GL_VENDOR);
 	info += reinterpret_cast<const char*>(vender);
@@ -260,370 +295,15 @@ std::string get_device_info() {
 	return info + "\n";
 }
 
-void finish() {
+void State::finish() {
 	glFinish();
 }
 
-void flush() {
+void State::flush() {
 	glFlush();
 }
 
-void clear(bool c, bool d, bool s) {
-	GLbitfield flag = 0;
-	flag |= GL_COLOR_BUFFER_BIT * c;
-	flag |= GL_DEPTH_BUFFER_BIT * d;
-	flag |= GL_STENCIL_BUFFER_BIT * s;
-	glClear(flag);
-}
-
-Vec4 get_clear_color() {
-	Vec4 clear_color;
-	glGetFloatv(GL_COLOR_CLEAR_VALUE, &clear_color.x);
-	return clear_color;
-}
-
-void set_clear_color(const Vec3& c, float a) {
-	glClearColor(c.x, c.y, c.z, a);
-}
-
-void set_clear_color(const Vec4& c) {
-	glClearColor(c.x, c.y, c.z, c.w);
-}
-
-Vec4 get_color_writemask() {
-	int color_writemasks[4];
-	glGetIntegerv(GL_COLOR_WRITEMASK, &color_writemasks[0]);
-	return Vec4(color_writemasks[0], color_writemasks[1],
-				color_writemasks[2], color_writemasks[3]);
-}
-
-void set_color_writemask(bool r, bool g, bool b, bool a) {
-	glColorMask(r, g, b, a);
-}
-
-void enable_depth_test() {
-	glEnable(GL_DEPTH_TEST);
-}
-
-void disable_depth_test() {
-	glDisable(GL_DEPTH_TEST);
-}
-
-int get_depth_func() {
-	int depth_func = 0;
-	glGetIntegerv(GL_DEPTH_FUNC, &depth_func);
-	return get_comparison_functions(depth_func);
-}
-
-void set_depth_func(int f) {
-	glDepthFunc(GL_COMPARISON_FUNCTIONS[f]);
-}
-
-bool get_depth_writemask() {
-	int depth_writemask = 0;
-	glGetIntegerv(GL_DEPTH_WRITEMASK, &depth_writemask);
-	return depth_writemask;
-}
-
-void set_depth_writemask(bool m) {
-	glDepthMask(m);
-}
-
-void enable_stencil_test() {
-	glEnable(GL_STENCIL_TEST);
-}
-
-void disable_stencil_test() {
-	glDisable(GL_STENCIL_TEST);
-}
-
-int get_stencil_writemask() {
-	int stencil_writemask = 0;
-	glGetIntegerv(GL_STENCIL_WRITEMASK, &stencil_writemask);
-	return stencil_writemask;
-}
-
-void set_stencil_writemask(int m) {
-	glStencilMask(m);
-}
-
-int get_stencil_func() {
-	int stencil_func = 0;
-	glGetIntegerv(GL_STENCIL_FUNC, &stencil_func);
-	return get_comparison_functions(stencil_func);
-}
-
-int get_stencil_ref() {
-	int stencil_ref = 0;
-	glGetIntegerv(GL_STENCIL_REF, &stencil_ref);
-	return stencil_ref;
-}
-
-int get_stencil_mask() {
-	int stencil_mask = 0;
-	glGetIntegerv(GL_STENCIL_VALUE_MASK, &stencil_mask);
-	return stencil_mask;
-}
-
-void set_stencil_func(int f, int r, int m) {
-	glStencilFunc(GL_COMPARISON_FUNCTIONS[f], r, m);
-}
-
-int get_stencil_fail() {
-	int stencil_fail = 0;
-	glGetIntegerv(GL_STENCIL_FAIL, &stencil_fail);
-	return get_stencil_operations(stencil_fail);
-}
-
-int get_stencil_zfail() {
-	int stencil_zfail = 0;
-	glGetIntegerv(GL_STENCIL_PASS_DEPTH_FAIL, &stencil_zfail);
-	return get_stencil_operations(stencil_zfail);
-}
-
-int get_stencil_zpass() {
-	int stencil_zpass = 0;
-	glGetIntegerv(GL_STENCIL_PASS_DEPTH_PASS, &stencil_zpass);
-	return get_stencil_operations(stencil_zpass);
-}
-
-void set_stencil_op(int f, int zf, int zp) {
-	glStencilOp(GL_STENCIL_OPERATIONS[f],
-				GL_STENCIL_OPERATIONS[zf],
-				GL_STENCIL_OPERATIONS[zp]);
-}
-
-void enable_blending() {
-	glEnable(GL_BLEND);
-}
-
-void disable_blending() {
-	glDisable(GL_BLEND);
-}
-
-int get_blend_op_rgb() {
-	int blend_op_rgb = 0;
-	glGetIntegerv(GL_BLEND_EQUATION_RGB, &blend_op_rgb);
-	return get_blend_equations(blend_op_rgb);
-}
-
-int get_blend_op_alpha() {
-	int blend_op_alpha = 0;
-	glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &blend_op_alpha);
-	return get_blend_equations(blend_op_alpha);
-}
-
-void set_blend_op(int o) {
-	glBlendEquation(GL_BLEND_OPERATIONS[o]);
-}
-
-void set_blend_op(int rgb, int a) {
-	glBlendEquationSeparate(GL_BLEND_OPERATIONS[rgb],
-							GL_BLEND_OPERATIONS[a]);
-}
-
-int get_blend_src_rgb() {
-	int blend_src_rgb = 0;
-	glGetIntegerv(GL_BLEND_SRC_RGB, &blend_src_rgb);
-	return get_blend_functions(blend_src_rgb);
-}
-
-int get_blend_src_alpha() {
-	int blend_src_alpha = 0;
-	glGetIntegerv(GL_BLEND_SRC_ALPHA, &blend_src_alpha);
-	return get_blend_functions(blend_src_alpha);
-}
-
-int get_blend_dst_rgb() {
-	int blend_dst_rgb = 0;
-	glGetIntegerv(GL_BLEND_DST_RGB, &blend_dst_rgb);
-	return get_blend_functions(blend_dst_rgb);
-}
-
-int get_blend_dst_alpha() {
-	int blend_dst_alpha = 0;
-	glGetIntegerv(GL_BLEND_DST_ALPHA, &blend_dst_alpha);
-	return get_blend_functions(blend_dst_alpha);
-}
-
-void set_blend_factor(int s, int d) {
-	glBlendFunc(GL_BLEND_FACTORS[s], GL_BLEND_FACTORS[d]);
-}
-
-void set_blend_factor(int srgb, int drgb, int sa, int da) {
-	glBlendFuncSeparate(GL_BLEND_FACTORS[srgb], GL_BLEND_FACTORS[drgb],
-						GL_BLEND_FACTORS[sa], GL_BLEND_FACTORS[da]);
-}
-
-Rect get_viewport() {
-	Rect viewport_rect;
-	glGetIntegerv(GL_VIEWPORT, &viewport_rect.x);
-	return viewport_rect;
-}
-
-void set_viewport(const Rect& v) {
-	glViewport(v.x, v.y, v.width, v.height);
-}
-
-void enable_scissor_test() {
-	glEnable(GL_SCISSOR_TEST);
-}
-
-void disable_scissor_test() {
-	glDisable(GL_SCISSOR_TEST);
-}
-
-Rect get_scissor() {
-	Rect scissor_rect;
-	glGetIntegerv(GL_SCISSOR_BOX, &scissor_rect.x);
-	return scissor_rect;
-}
-
-void set_scissor(const Rect& s) {
-	glScissor(s.x, s.y, s.width, s.height);
-}
-
-void enable_wireframe() {
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-}
-
-void disable_wireframe() {
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-}
-
-void enable_culling() {
-	glEnable(GL_CULL_FACE);
-}
-
-void disable_culling() {
-	glDisable(GL_CULL_FACE);
-}
-
-int get_cull_side() {
-	int cull_side = 0;
-	glGetIntegerv(GL_CULL_FACE, &cull_side);
-	if (cull_side == GL_FRONT) return FRONT_SIDE;
-	if (cull_side == GL_BACK ) return BACK_SIDE;
-	return DOUBLE_SIDE;
-}
-
-void set_cull_side(int s) {
-	if (s == FRONT_SIDE) {
-		glCullFace(GL_FRONT);
-	} else if (s == BACK_SIDE) {
-		glCullFace(GL_BACK);
-	} else if (s == DOUBLE_SIDE) {
-		glCullFace(GL_FRONT_AND_BACK);
-	}
-}
-
-void enable_polygon_offset() {
-	glEnable(GL_POLYGON_OFFSET_FILL);
-}
-
-void disable_polygon_offset() {
-	glDisable(GL_POLYGON_OFFSET_FILL);
-}
-
-float get_polygon_offset_factor() {
-	float polygon_offset_factor = 0;
-	glGetFloatv(GL_POLYGON_OFFSET_FACTOR, &polygon_offset_factor);
-	return polygon_offset_factor;
-}
-
-float get_polygon_offset_units() {
-	float polygon_offset_units = 0;
-	glGetFloatv(GL_POLYGON_OFFSET_UNITS, &polygon_offset_units);
-	return polygon_offset_units;
-}
-
-void set_polygon_offset(float f, float u) {
-	glPolygonOffset(f, u);
-}
-
-void enable_dithering() {
-	glEnable(GL_DITHER);
-}
-
-void disable_dithering() {
-	glDisable(GL_DITHER);
-}
-
-void enable_multisample() {
-	glEnable(GL_MULTISAMPLE);
-}
-
-void disable_multisample() {
-	glDisable(GL_MULTISAMPLE);
-}
-
-void enable_alpha_to_coverage() {
-	glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
-}
-
-void disable_alpha_to_coverage() {
-	glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
-}
-
-void enable_texture_cube_seamless() {
-	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-}
-
-void disable_texture_cube_seamless() {
-	glDisable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-}
-
-void apply_material_depth(const Material& m) {
-	if (!m.depth_test) return disable_depth_test();
-	enable_depth_test();
-	set_depth_func(m.depth_func);
-}
-
-void apply_material_stencil(const Material& m) {
-	if (!m.stencil_test) return disable_stencil_test();
-	enable_stencil_test();
-	set_stencil_writemask(m.stencil_writemask);
-	set_stencil_func(m.stencil_func, m.stencil_ref, m.stencil_mask);
-	set_stencil_op(m.stencil_fail, m.stencil_zfail, m.stencil_zpass);
-}
-
-void apply_material_blending(const Material& m) {
-	if (!m.blending) return disable_blending();
-	enable_blending();
-	set_blend_op(m.blend_op, m.blend_op_alpha);
-	set_blend_factor(m.blend_src, m.blend_dst, m.blend_src_alpha, m.blend_dst_alpha);
-}
-
-void apply_material_wireframe(const Material& m) {
-	if (!m.wireframe) return disable_wireframe();
-	enable_wireframe();
-}
-
-void apply_material_side(const Material& m) {
-	if (m.side == FRONT_SIDE) {
-		enable_culling();
-		set_cull_side(BACK_SIDE);
-	} else if (m.side == BACK_SIDE) {
-		enable_culling();
-		set_cull_side(FRONT_SIDE);
-	} else if (m.side == DOUBLE_SIDE) {
-		disable_culling();
-	}
-}
-
-void apply_material_shadow_side(const Material& m) {
-	if (m.shadow_side == FRONT_SIDE) {
-		enable_culling();
-		set_cull_side(BACK_SIDE);
-	} else if (m.shadow_side == BACK_SIDE) {
-		enable_culling();
-		set_cull_side(FRONT_SIDE);
-	} else if (m.shadow_side == DOUBLE_SIDE) {
-		disable_culling();
-	}
-}
-
-std::string get_error() {
+std::string State::get_error() {
 	std::string info;
 	uint32_t error = glGetError();
 	if (error == GL_NO_ERROR) return "";
@@ -643,6 +323,381 @@ std::string get_error() {
 		error = glGetError();
 	}
 	return info;
+}
+
+void State::clear(bool c, bool d, bool s) {
+	GLbitfield flag = 0;
+	flag |= GL_COLOR_BUFFER_BIT * c;
+	flag |= GL_DEPTH_BUFFER_BIT * d;
+	flag |= GL_STENCIL_BUFFER_BIT * s;
+	glClear(flag);
+}
+
+Vec4 State::get_clear_color() {
+	Vec4 clear_color;
+	glGetFloatv(GL_COLOR_CLEAR_VALUE, &clear_color.x);
+	return clear_color;
+}
+
+void State::set_clear_color(const Vec3& c, float a) {
+	glClearColor(c.x, c.y, c.z, a);
+}
+
+void State::set_clear_color(const Vec4& c) {
+	glClearColor(c.x, c.y, c.z, c.w);
+}
+
+Vec4 State::get_color_writemask() {
+	int color_writemasks[4];
+	glGetIntegerv(GL_COLOR_WRITEMASK, &color_writemasks[0]);
+	return Vec4(color_writemasks[0], color_writemasks[1],
+				color_writemasks[2], color_writemasks[3]);
+}
+
+void State::set_color_writemask(bool r, bool g, bool b, bool a) {
+	glColorMask(r, g, b, a);
+}
+
+void State::enable_depth_test() {
+	glEnable(GL_DEPTH_TEST);
+}
+
+void State::disable_depth_test() {
+	glDisable(GL_DEPTH_TEST);
+}
+
+double State::get_clear_depth() {
+	double clear_depth = 0;
+	glGetDoublev(GL_DEPTH_CLEAR_VALUE, &clear_depth);
+	return clear_depth;
+}
+
+void State::set_clear_depth(double d) {
+	glClearDepth(d);
+}
+
+bool State::get_depth_writemask() {
+	int depth_writemask = 0;
+	glGetIntegerv(GL_DEPTH_WRITEMASK, &depth_writemask);
+	return depth_writemask;
+}
+
+void State::set_depth_writemask(bool m) {
+	glDepthMask(m);
+}
+
+int State::get_depth_func() {
+	int depth_func = 0;
+	glGetIntegerv(GL_DEPTH_FUNC, &depth_func);
+	return get_comparison_functions(depth_func);
+}
+
+void State::set_depth_func(int f) {
+	glDepthFunc(GL_COMPARISON_FUNCTIONS[f]);
+}
+
+void State::enable_stencil_test() {
+	glEnable(GL_STENCIL_TEST);
+}
+
+void State::disable_stencil_test() {
+	glDisable(GL_STENCIL_TEST);
+}
+
+int State::get_clear_stencil() {
+	int clear_stencil = 0;
+	glGetIntegerv(GL_STENCIL_CLEAR_VALUE, &clear_stencil);
+	return clear_stencil;
+}
+
+void State::set_clear_stencil(int s) {
+	glClearStencil(s);
+}
+
+unsigned int State::get_stencil_writemask() {
+	int stencil_writemask = 0;
+	glGetIntegerv(GL_STENCIL_WRITEMASK, &stencil_writemask);
+	return stencil_writemask;
+}
+
+void State::set_stencil_writemask(unsigned int m) {
+	glStencilMask(m);
+}
+
+int State::get_stencil_func() {
+	int stencil_func = 0;
+	glGetIntegerv(GL_STENCIL_FUNC, &stencil_func);
+	return get_comparison_functions(stencil_func);
+}
+
+int State::get_stencil_ref() {
+	int stencil_ref = 0;
+	glGetIntegerv(GL_STENCIL_REF, &stencil_ref);
+	return stencil_ref;
+}
+
+int State::get_stencil_mask() {
+	int stencil_mask = 0;
+	glGetIntegerv(GL_STENCIL_VALUE_MASK, &stencil_mask);
+	return stencil_mask;
+}
+
+void State::set_stencil_func(int f, int r, int m) {
+	glStencilFunc(GL_COMPARISON_FUNCTIONS[f], r, m);
+}
+
+int State::get_stencil_fail() {
+	int stencil_fail = 0;
+	glGetIntegerv(GL_STENCIL_FAIL, &stencil_fail);
+	return get_stencil_operations(stencil_fail);
+}
+
+int State::get_stencil_zfail() {
+	int stencil_zfail = 0;
+	glGetIntegerv(GL_STENCIL_PASS_DEPTH_FAIL, &stencil_zfail);
+	return get_stencil_operations(stencil_zfail);
+}
+
+int State::get_stencil_zpass() {
+	int stencil_zpass = 0;
+	glGetIntegerv(GL_STENCIL_PASS_DEPTH_PASS, &stencil_zpass);
+	return get_stencil_operations(stencil_zpass);
+}
+
+void State::set_stencil_op(int f, int zf, int zp) {
+	glStencilOp(GL_STENCIL_OPERATIONS[f],
+				GL_STENCIL_OPERATIONS[zf],
+				GL_STENCIL_OPERATIONS[zp]);
+}
+
+void State::enable_blending() {
+	glEnable(GL_BLEND);
+}
+
+void State::disable_blending() {
+	glDisable(GL_BLEND);
+}
+
+int State::get_blend_op_rgb() {
+	int blend_op_rgb = 0;
+	glGetIntegerv(GL_BLEND_EQUATION_RGB, &blend_op_rgb);
+	return get_blend_equations(blend_op_rgb);
+}
+
+int State::get_blend_op_alpha() {
+	int blend_op_alpha = 0;
+	glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &blend_op_alpha);
+	return get_blend_equations(blend_op_alpha);
+}
+
+void State::set_blend_op(int o) {
+	glBlendEquation(GL_BLEND_OPERATIONS[o]);
+}
+
+void State::set_blend_op(int rgb, int a) {
+	glBlendEquationSeparate(GL_BLEND_OPERATIONS[rgb],
+							GL_BLEND_OPERATIONS[a]);
+}
+
+int State::get_blend_src_rgb() {
+	int blend_src_rgb = 0;
+	glGetIntegerv(GL_BLEND_SRC_RGB, &blend_src_rgb);
+	return get_blend_functions(blend_src_rgb);
+}
+
+int State::get_blend_src_alpha() {
+	int blend_src_alpha = 0;
+	glGetIntegerv(GL_BLEND_SRC_ALPHA, &blend_src_alpha);
+	return get_blend_functions(blend_src_alpha);
+}
+
+int State::get_blend_dst_rgb() {
+	int blend_dst_rgb = 0;
+	glGetIntegerv(GL_BLEND_DST_RGB, &blend_dst_rgb);
+	return get_blend_functions(blend_dst_rgb);
+}
+
+int State::get_blend_dst_alpha() {
+	int blend_dst_alpha = 0;
+	glGetIntegerv(GL_BLEND_DST_ALPHA, &blend_dst_alpha);
+	return get_blend_functions(blend_dst_alpha);
+}
+
+void State::set_blend_factor(int s, int d) {
+	glBlendFunc(GL_BLEND_FACTORS[s], GL_BLEND_FACTORS[d]);
+}
+
+void State::set_blend_factor(int srgb, int drgb, int sa, int da) {
+	glBlendFuncSeparate(GL_BLEND_FACTORS[srgb], GL_BLEND_FACTORS[drgb],
+						GL_BLEND_FACTORS[sa], GL_BLEND_FACTORS[da]);
+}
+
+Rect State::get_viewport() {
+	Rect viewport_rect;
+	glGetIntegerv(GL_VIEWPORT, &viewport_rect.x);
+	return viewport_rect;
+}
+
+void State::set_viewport(const Rect& v) {
+	glViewport(v.x, v.y, v.width, v.height);
+}
+
+void State::enable_scissor_test() {
+	glEnable(GL_SCISSOR_TEST);
+}
+
+void State::disable_scissor_test() {
+	glDisable(GL_SCISSOR_TEST);
+}
+
+Rect State::get_scissor() {
+	Rect scissor_rect;
+	glGetIntegerv(GL_SCISSOR_BOX, &scissor_rect.x);
+	return scissor_rect;
+}
+
+void State::set_scissor(const Rect& s) {
+	glScissor(s.x, s.y, s.width, s.height);
+}
+
+void State::enable_wireframe() {
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+}
+
+void State::disable_wireframe() {
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void State::enable_culling() {
+	glEnable(GL_CULL_FACE);
+}
+
+void State::disable_culling() {
+	glDisable(GL_CULL_FACE);
+}
+
+int State::get_cull_side() {
+	int cull_side = 0;
+	glGetIntegerv(GL_CULL_FACE, &cull_side);
+	if (cull_side == GL_FRONT) return FRONT_SIDE;
+	if (cull_side == GL_BACK ) return BACK_SIDE;
+	return DOUBLE_SIDE;
+}
+
+void State::set_cull_side(int s) {
+	if (s == FRONT_SIDE) {
+		glCullFace(GL_FRONT);
+	} else if (s == BACK_SIDE) {
+		glCullFace(GL_BACK);
+	} else if (s == DOUBLE_SIDE) {
+		glCullFace(GL_FRONT_AND_BACK);
+	}
+}
+
+void State::enable_polygon_offset() {
+	glEnable(GL_POLYGON_OFFSET_FILL);
+}
+
+void State::disable_polygon_offset() {
+	glDisable(GL_POLYGON_OFFSET_FILL);
+}
+
+float State::get_polygon_offset_factor() {
+	float polygon_offset_factor = 0;
+	glGetFloatv(GL_POLYGON_OFFSET_FACTOR, &polygon_offset_factor);
+	return polygon_offset_factor;
+}
+
+float State::get_polygon_offset_units() {
+	float polygon_offset_units = 0;
+	glGetFloatv(GL_POLYGON_OFFSET_UNITS, &polygon_offset_units);
+	return polygon_offset_units;
+}
+
+void State::set_polygon_offset(float f, float u) {
+	glPolygonOffset(f, u);
+}
+
+void State::enable_dithering() {
+	glEnable(GL_DITHER);
+}
+
+void State::disable_dithering() {
+	glDisable(GL_DITHER);
+}
+
+void State::enable_multisample() {
+	glEnable(GL_MULTISAMPLE);
+}
+
+void State::disable_multisample() {
+	glDisable(GL_MULTISAMPLE);
+}
+
+void State::enable_alpha_to_coverage() {
+	glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
+}
+
+void State::disable_alpha_to_coverage() {
+	glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
+}
+
+void State::enable_texture_cube_seamless() {
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+}
+
+void State::disable_texture_cube_seamless() {
+	glDisable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+}
+
+void MaterialState::set_depth(const Material& m) {
+	if (!m.depth_test) return State::disable_depth_test();
+	State::enable_depth_test();
+	State::set_depth_func(m.depth_func);
+}
+
+void MaterialState::set_stencil(const Material& m) {
+	if (!m.stencil_test) return State::disable_stencil_test();
+	State::enable_stencil_test();
+	State::set_stencil_writemask(m.stencil_writemask);
+	State::set_stencil_func(m.stencil_func, m.stencil_ref, m.stencil_mask);
+	State::set_stencil_op(m.stencil_fail, m.stencil_zfail, m.stencil_zpass);
+}
+
+void MaterialState::set_blending(const Material& m) {
+	if (!m.blending) return State::disable_blending();
+	State::enable_blending();
+	State::set_blend_op(m.blend_op, m.blend_op_alpha);
+	State::set_blend_factor(m.blend_src, m.blend_dst, m.blend_src_alpha, m.blend_dst_alpha);
+}
+
+void MaterialState::set_wireframe(const Material& m) {
+	if (!m.wireframe) return State::disable_wireframe();
+	State::enable_wireframe();
+}
+
+void MaterialState::set_side(const Material& m) {
+	if (m.side == FRONT_SIDE) {
+		State::enable_culling();
+		State::set_cull_side(BACK_SIDE);
+	} else if (m.side == BACK_SIDE) {
+		State::enable_culling();
+		State::set_cull_side(FRONT_SIDE);
+	} else if (m.side == DOUBLE_SIDE) {
+		State::disable_culling();
+	}
+}
+
+void MaterialState::set_shadow_side(const Material& m) {
+	if (m.shadow_side == FRONT_SIDE) {
+		State::enable_culling();
+		State::set_cull_side(BACK_SIDE);
+	} else if (m.shadow_side == BACK_SIDE) {
+		State::enable_culling();
+		State::set_cull_side(FRONT_SIDE);
+	} else if (m.shadow_side == DOUBLE_SIDE) {
+		State::disable_culling();
+	}
 }
 
 Shader::Shader() {
@@ -738,70 +793,37 @@ void Shader::set_uniform_m4(const std::string& n, const Mat4& v) const {
 }
 
 void Shader::set_uniforms(const Uniforms& u) const {
-	for (auto& [uniform_name, value] : u.vars) {
-		/* get the suffix of variable */
-		size_t length = uniform_name.size();
-		char suffix_1 = uniform_name[length - 1];
-		char suffix_2 = uniform_name[length - 2];
-		
-		/* get the name of variable */
-		std::string name = uniform_name;
-		name[length - (suffix_2 == '_' ? 2 : 3)] = '\0';
-		
-		/* convert variable into int data */
-		if (suffix_1 == 'i') {
-			set_uniform_i(name, *static_cast<const int*>(value));
-		}
-		
-		/* convert variable into unsigned int data */
-		else if (suffix_1 == 'u') {
-			set_uniform_u(name, *static_cast<const unsigned int*>(value));
-		}
-		
-		/* convert variable into float data */
-		else if (suffix_1 == 'f') {
-			set_uniform_f(name, *static_cast<const float*>(value));
-		}
-		
-		/* convert variable into Vec2 data */
-		else if (suffix_1 == '2' && suffix_2 == 'v') {
-			set_uniform_v2(name, *static_cast<const Vec2*>(value));
-		}
-		
-		/* convert variable into Vec3 data */
-		else if (suffix_1 == '3' && suffix_2 == 'v') {
-			set_uniform_v3(name, *static_cast<const Vec3*>(value));
-		}
-		
-		/* convert variable into Vec4 data */
-		else if (suffix_1 == '4' && suffix_2 == 'v') {
-			set_uniform_v4(name, *static_cast<const Vec4*>(value));
-		}
-		
-		/* convert variable into Mat2 data */
-		else if (suffix_1 == '2' && suffix_2 == 'm') {
-			set_uniform_m2(name, *static_cast<const Mat2*>(value));
-		}
-		
-		/* convert variable into Mat3 data */
-		else if (suffix_1 == '3' && suffix_2 == 'm') {
-			set_uniform_m3(name, *static_cast<const Mat3*>(value));
-		}
-		
-		/* convert variable into Mat4 data */
-		else if (suffix_1 == '4' && suffix_2 == 'm') {
-			set_uniform_m4(name, *static_cast<const Mat4*>(value));
-		}
-		
-		/* unknown variable suffix */
-		else {
-			Error::set("Shader: Unknown variable suffix");
+	auto* data_f = u.get_data();
+	auto* data_i = reinterpret_cast<const int*>(data_f);
+	auto* data_u = reinterpret_cast<const unsigned int*>(data_f);
+	size_t uniform_count = u.count();
+	for (int i = 0; i < uniform_count; ++i) {
+		std::string name = u.get_name(i);
+		int32_t gl_location = glGetUniformLocation(program, name.c_str());
+		int type = u.get_type(i);
+		int location = u.get_location(i);
+		if (type == 0 /* int */ ) {
+			glUniform1i(gl_location, data_i[location]);
+		} else if (type == 1 /* unsigned int */ ) {
+			glUniform1ui(gl_location, data_u[location]);
+		} else if (type == 2 /* float */ ) {
+			glUniform1f(gl_location, data_f[location]);
+		} else if (type == 3 /* Vec2 */ ) {
+			glUniform2fv(gl_location, 1, data_f + location);
+		} else if (type == 4 /* Vec3 */ ) {
+			glUniform3fv(gl_location, 1, data_f + location);
+		} else if (type == 5 /* Vec4 */ ) {
+			glUniform4fv(gl_location, 1, data_f + location);
+		} else if (type == 6 /* Mat2 */ ) {
+			glUniformMatrix2fv(gl_location, 1, GL_TRUE, data_f + location);
+		} else if (type == 7 /* Mat3 */ ) {
+			glUniformMatrix3fv(gl_location, 1, GL_TRUE, data_f + location);
+		} else if (type == 8 /* Mat4 */ ) {
+			glUniformMatrix4fv(gl_location, 1, GL_TRUE, data_f + location);
+		} else {
+			Error::set("Shader: Unknown uniform variable type");
 		}
 	}
-}
-
-void Shader::set_include_path(const std::string& p) {
-	include_path = p;
 }
 
 void Shader::set_glsl_version(const std::string& v) {
@@ -810,7 +832,6 @@ void Shader::set_glsl_version(const std::string& v) {
 
 uint32_t Shader::compile_shader(const std::string& s, int32_t t) const {
 	std::string shader_string = s;
-	resolve_includes(shader_string);
 	resolve_defines(shader_string);
 	resolve_version(shader_string);
 	uint32_t shader_id = glCreateShader(t);
@@ -819,7 +840,7 @@ uint32_t Shader::compile_shader(const std::string& s, int32_t t) const {
 	glCompileShader(shader_id);
 	std::string info = get_compile_info(shader_id, t);
 	if (!info.empty()) {
-		std::cerr << get_error_info(info, shader_string);
+		Error::set(get_error_info(info, shader_string));
 	}
 	glAttachShader(program, shader_id);
 	return shader_id;
@@ -883,48 +904,6 @@ void Shader::resolve_version(std::string& s) {
 	s = "#version " + glsl_version + "\n" + s;
 }
 
-void Shader::resolve_includes(std::string& s) {
-	size_t total_length = s.length();
-	size_t line_begin = 0;
-	size_t line_end = -1;
-	
-	/* initialize include times to avoid circular include */
-	int include_times = 0;
-	constexpr int max_include_times = 256;
-	
-	while (line_end != total_length) {
-		/* get the string of each line */
-		line_begin = line_end + 1;
-		line_end = s.find('\n', line_begin);
-		if (line_end == -1) line_end = total_length;
-		size_t line_length = line_end - line_begin;
-		std::string line = s.substr(line_begin, line_length);
-		
-		/* search for include name */
-		size_t char_1 = line.find_first_not_of(" \t");
-		if (char_1 == -1 || line[char_1] != '#') continue;
-		size_t char_2 = line.find_first_not_of(" \t", char_1 + 1);
-		if (char_2 == -1 || line.substr(char_2, 7) != "include") continue;
-		size_t char_3 = line.find_first_not_of(" \t", char_2 + 7);
-		if (char_3 == -1 || line[char_3] != '<') continue;
-		size_t char_4 = line.find('>', char_3 + 1);
-		if (char_4 == -1) continue;
-		std::string include = line.substr(char_3 + 1, char_4 - char_3 - 1);
-		
-		/* read included file into content */
-		std::string content = File::read(include_path + include + ".glsl");
-		
-		/* replace the line with content */
-		s.replace(line_begin, line_end - line_begin, content);
-		line_end = line_begin - 1;
-		
-		/* check if there is circular include */
-		if (include_times++ == max_include_times) {
-			return Error::set("Shader: Circular include");
-		}
-	}
-}
-
 std::string Shader::get_compile_info(uint32_t s, uint32_t t) {
 	int32_t success;
 	glGetShaderiv(s, GL_COMPILE_STATUS, &success);
@@ -942,7 +921,6 @@ std::string Shader::get_compile_info(uint32_t s, uint32_t t) {
 }
 
 std::string Shader::get_error_info(const std::string& c, const std::string& s) {
-	size_t total_length = c.length();
 	size_t line_begin = 0;
 	size_t line_end = -1;
 	
@@ -950,15 +928,15 @@ std::string Shader::get_error_info(const std::string& c, const std::string& s) {
 	std::string info;
 	int error_number = 0;
 	
-	while (line_end != total_length) {
-		/* get the string of each line */
+	while (true) {
+		/* search the string of each line */
 		line_begin = line_end + 1;
 		line_end = c.find('\n', line_begin);
-		if (line_end == -1) line_end = total_length;
+		if (line_end == -1) break;
 		size_t line_length = line_end - line_begin;
 		std::string line = c.substr(line_begin, line_length);
 		info += line + '\n';
-		if (line.substr(0, 6) != "ERROR:") continue;
+		if (line.substr(0, 9) != "ERROR: 0:") continue;
 		
 		/* get the line number from error information */
 		size_t number_begin = line.find(':', 7) + 1;
@@ -982,99 +960,121 @@ std::string Shader::get_error_info(const std::string& c, const std::string& s) {
 		++error_number;
 	}
 	
-	/* count how many the errors occurred */
+	/* count how many errors have occurred */
 	info += std::to_string(error_number);
 	info += error_number == 1 ? " error generated.\n" : " errors generated.\n";
 	
 	return info; /* return error infomation */
 }
 
-std::string Shader::include_path = "ink/shaders/inc/";
 std::string Shader::glsl_version = "410";
-
-BufferObject::BufferObject() {
-	glGenBuffers(1, &id);
-}
-   
-BufferObject::~BufferObject() {
-	glDeleteBuffers(1, &id);
-}
 
 VertexObject::VertexObject() {
 	glGenVertexArrays(1, &id);
-}
-   
-VertexObject::~VertexObject() {
-	glDeleteVertexArrays(1, &id);
+	glGenBuffers(1, &buffer_id);
 }
 
-void VertexObject::load(const Mesh& m, unsigned int g) {
+VertexObject::~VertexObject() {
+	glDeleteVertexArrays(1, &id);
+	glDeleteBuffers(1, &buffer_id);
+}
+
+void VertexObject::load(const Mesh& m, const MeshGroup& g) {
 	auto& vertex = m.vertex;
 	auto& normal = m.normal;
 	auto& uv = m.uv;
 	auto& tangent = m.tangent;
+	auto& color = m.color;
+	
+	/* check whether to use attributes */
 	bool has_normal = !normal.empty();
 	bool has_uv = !uv.empty();
 	bool has_tangent = !tangent.empty();
-	auto& material_reference = m.groups[g];
-	std::vector<float> data;
-	length = material_reference.length;
+	bool has_color = !color.empty();
+	
+	/* calculate length and stride */
+	length = g.length;
+	int group_end = g.position + length;
+	int stride = 3;
+	if (has_normal) stride += 3;
+	if (has_uv) stride += 2;
+	if (has_tangent) stride += 4;
+	if (has_color) stride += 3;
+	
+	/* pack attributes' data into one vector */
+	std::vector<float> data(length * stride);
 	/* has_vertex */ {
 		names = {"vertex"};
 		sizes = {3};
-		locations = {0, 3};
+		locations = {0};
+		auto* data_ptr = data.data() + locations.back();
+		for (int i = g.position; i < group_end; ++i) {
+			data_ptr[0] = vertex[i].x;
+			data_ptr[1] = vertex[i].y;
+			data_ptr[2] = vertex[i].z;
+			data_ptr += stride;
+		}
+		locations.emplace_back(locations.back() + 3);
 	}
 	if (has_normal) {
 		names.emplace_back("normal");
 		sizes.emplace_back(3);
+		auto* data_ptr = data.data() + locations.back();
+		for (int i = g.position; i < group_end; ++i) {
+			data_ptr[0] = normal[i].x;
+			data_ptr[1] = normal[i].y;
+			data_ptr[2] = normal[i].z;
+			data_ptr += stride;
+		}
 		locations.emplace_back(locations.back() + 3);
 	}
 	if (has_uv) {
 		names.emplace_back("uv");
 		sizes.emplace_back(2);
+		auto* data_ptr = data.data() + locations.back();
+		for (int i = g.position; i < group_end; ++i) {
+			data_ptr[0] = uv[i].x;
+			data_ptr[1] = uv[i].y;
+			data_ptr += stride;
+		}
 		locations.emplace_back(locations.back() + 2);
 	}
 	if (has_tangent) {
 		names.emplace_back("tangent");
 		sizes.emplace_back(4);
+		auto* data_ptr = data.data() + locations.back();
+		for (int i = g.position; i < group_end; ++i) {
+			data_ptr[0] = tangent[i].x;
+			data_ptr[1] = tangent[i].y;
+			data_ptr[2] = tangent[i].z;
+			data_ptr[3] = tangent[i].w;
+			data_ptr += stride;
+		}
 		locations.emplace_back(locations.back() + 4);
 	}
-	int stride = locations.back();
-	data.resize(length * stride);
-	auto* data_ptr = data.data();
-	for (int i = 0; i < length; ++i) {
-		int position = material_reference.position + i;
-		/* has_vertex */ {
-			std::copy_n(&vertex[position].x, 3, data_ptr);
-			data_ptr += 3;
+	if (has_color) {
+		names.emplace_back("color");
+		sizes.emplace_back(3);
+		auto* data_ptr = data.data() + locations.back();
+		for (int i = g.position; i < group_end; ++i) {
+			data_ptr[0] = color[i].x;
+			data_ptr[1] = color[i].y;
+			data_ptr[2] = color[i].z;
+			data_ptr += stride;
 		}
-		if (has_normal) {
-			std::copy_n(&normal[position].x, 3, data_ptr);
-			data_ptr += 3;
-		}
-		if (has_uv) {
-			std::copy_n(&uv[position].x, 2, data_ptr);
-			data_ptr += 2;
-		}
-		if (has_tangent) {
-			std::copy_n(&tangent[position].x, 4, data_ptr);
-			data_ptr += 4;
-		}
+		locations.emplace_back(locations.back() + 3);
 	}
+	
+	/* upload data to GPU */
 	glBindVertexArray(id);
-	glBindBuffer(GL_ARRAY_BUFFER, buffer.id);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
-	for (int i = 0; i < sizes.size(); ++i) {
-		void* pointer = reinterpret_cast<void*>(sizeof(float) * locations[i]);
-		glVertexAttribPointer(i, sizes[i], GL_FLOAT, GL_FALSE, sizeof(float) * stride, pointer);
-		glEnableVertexAttribArray(i);
-	}
 }
 
 void VertexObject::attach(const Shader& s) const {
 	int stride = locations.back();
 	glBindVertexArray(id);
-	glBindBuffer(GL_ARRAY_BUFFER, buffer.id);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
 	for (int i = 0; i < sizes.size(); ++i) {
 		int32_t attrib = glGetAttribLocation(s.program, names[i].c_str());
 		if (attrib == -1) continue;
@@ -1084,7 +1084,7 @@ void VertexObject::attach(const Shader& s) const {
 	}
 }
 
-void VertexObject::draw() const {
+void VertexObject::render() const {
 	glBindVertexArray(id);
 	glDrawArrays(GL_TRIANGLES, 0, length);
 }
@@ -1216,18 +1216,17 @@ int Texture::get_depth() const {
 }
 
 int Texture::get_layer() const {
-	/* texture 1D (width) */
+	/* layer of texture 1D (width) */
 	if (type == TEXTURE_1D_ARRAY) return height;
 	
-	/* texture 2D (width x height) */
+	/* layer of texture 2D (width x height) */
 	if (type == TEXTURE_2D_ARRAY) return depth;
 	
-	/* texture cube (width x height) */
+	/* layer of texture cube (width x height) */
 	if (type == TEXTURE_CUBE_ARRAY) return depth;
 	
 	/* illegal texture */
-	Error::set("Texture: Cannot get layer from non-array texture");
-	return -1;
+	return 0;
 }
 
 void Texture::copy_to_image(Image& i) const {
@@ -1243,6 +1242,11 @@ void Texture::copy_to_image(Image& i) const {
 	uint8_t* image_data = i.data.data();
 	uint32_t image_type = i.bytes == 1 ? GL_UNSIGNED_BYTE : GL_FLOAT;
 	glGetTexImage(GL_TEXTURE_2D, 0, external, image_type, image_data);
+}
+
+void Texture::generate_mipmap() const {
+	uint32_t gl_type = GL_TEXTURE_TYPES[type];
+	glGenerateMipmap(gl_type);
 }
 
 void Texture::set_wrap_s(int m) const {
@@ -1284,16 +1288,17 @@ void Texture::set_border_color(const Vec4& c) const {
 	glTexParameterfv(gl_type, GL_TEXTURE_BORDER_COLOR, &c.x);
 }
 
-void Texture::set_mipmap_range(int min, int max) const {
+void Texture::set_lod_range(int min, int max) const {
 	uint32_t gl_type = GL_TEXTURE_TYPES[type];
 	glBindTexture(gl_type, id);
 	glTexParameteri(gl_type, GL_TEXTURE_BASE_LEVEL, min);
 	glTexParameteri(gl_type, GL_TEXTURE_MAX_LEVEL, max);
 }
 
-void Texture::generate_mipmap() const {
+void Texture::set_lod_bias(int b) const {
 	uint32_t gl_type = GL_TEXTURE_TYPES[type];
-	glGenerateMipmap(gl_type);
+	glBindTexture(gl_type, id);
+	glTexParameteri(gl_type, GL_TEXTURE_LOD_BIAS, b);
 }
 
 int Texture::activate(int l) const {
@@ -1333,78 +1338,64 @@ void RenderBuffer::init(int w, int h, int f) const {
 	glRenderbufferStorage(GL_RENDERBUFFER, internal, w, h);
 }
 
-FrameBuffer::FrameBuffer() {
+RenderTarget::RenderTarget() {
 	glGenFramebuffers(1, &id);
 }
 
-FrameBuffer::~FrameBuffer() {
+RenderTarget::~RenderTarget() {
 	glDeleteFramebuffers(1, &id);
 }
 
-void FrameBuffer::activate() const {
+void RenderTarget::set_texture(const Texture& t, unsigned int i, int l, int p) const {
+	set_framebuffer(t, GL_COLOR_ATTACHMENT0 + i, l, p);
+}
+
+void RenderTarget::set_depth_texture(const Texture& t, int l, int p) const {
+	set_framebuffer(t, GL_DEPTH_ATTACHMENT, l, p);
+}
+
+void RenderTarget::set_stencil_texture(const Texture& t, int l, int p) const {
+	set_framebuffer(t, GL_STENCIL_ATTACHMENT, l, p);
+}
+
+void RenderTarget::set_depth_stencil_texture(const Texture& t, int l, int p) const {
+	set_framebuffer(t, GL_DEPTH_STENCIL_ATTACHMENT, l, p);
+}
+
+void RenderTarget::set_depth_buffer(const RenderBuffer& r) const {
+	set_framebuffer(r, GL_DEPTH_ATTACHMENT);
+}
+
+void RenderTarget::set_stencil_buffer(const RenderBuffer& r) const {
+	set_framebuffer(r, GL_STENCIL_ATTACHMENT);
+}
+
+void RenderTarget::set_depth_stencil_buffer(const RenderBuffer& r) const {
+	set_framebuffer(r, GL_DEPTH_STENCIL_ATTACHMENT);
+}
+
+void RenderTarget::set_target_number(int n) const {
+	glBindFramebuffer(GL_FRAMEBUFFER, id);
+	glDrawBuffers(n, GL_COLOR_ATTACHMENTS);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void RenderTarget::activate() const {
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		Error::set("FrameBuffer: FrameBuffer is not complete");
+		Error::set("RenderTarget: Render target is not complete");
 	}
 }
 
-void FrameBuffer::activate(const FrameBuffer* f) {
+void RenderTarget::activate(const RenderTarget* f) {
 	uint32_t id = f == nullptr ? 0 : f->id;
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		Error::set("FrameBuffer: FrameBuffer is not complete");
+		Error::set("RenderTarget: Render target is not complete");
 	}
 }
 
-void FrameBuffer::draw_attachments(const std::initializer_list<int>& l) const {
-	glBindFramebuffer(GL_FRAMEBUFFER, id);
-	std::vector<uint32_t> buffers;
-	for (auto& index : l) {
-		buffers.emplace_back(GL_COLOR_ATTACHMENT0 + index);
-	}
-	glDrawBuffers(static_cast<int>(buffers.size()), buffers.data());
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void FrameBuffer::disable_draw() const {
-	glBindFramebuffer(GL_FRAMEBUFFER, id);
-	glDrawBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void FrameBuffer::set_attachment(const Texture& t, unsigned int i, int l, int p) const {
-	set_texture_attachment(t, GL_COLOR_ATTACHMENT0 + i, l, p);
-}
-
-void FrameBuffer::set_attachment(const RenderBuffer& r, unsigned int i) const {
-	set_render_buffer_attachment(r, GL_COLOR_ATTACHMENT0 + i);
-}
-
-void FrameBuffer::set_depth_attachment(const Texture& t, int l, int p) const {
-	set_texture_attachment(t, GL_DEPTH_ATTACHMENT, l, p);
-}
-
-void FrameBuffer::set_depth_attachment(const RenderBuffer& r) const {
-	set_render_buffer_attachment(r, GL_DEPTH_ATTACHMENT);
-}
-
-void FrameBuffer::set_stencil_attachment(const Texture& t, int l, int p) const {
-	set_texture_attachment(t, GL_STENCIL_ATTACHMENT, l, p);
-}
-
-void FrameBuffer::set_stencil_attachment(const RenderBuffer& r) const {
-	set_render_buffer_attachment(r, GL_STENCIL_ATTACHMENT);
-}
-
-void FrameBuffer::set_depth_stencil_attachment(const Texture& t, int l, int p) const {
-	set_texture_attachment(t, GL_DEPTH_STENCIL_ATTACHMENT, l, p);
-}
-
-void FrameBuffer::set_depth_stencil_attachment(const RenderBuffer& r) const {
-	set_render_buffer_attachment(r, GL_DEPTH_STENCIL_ATTACHMENT);
-}
-
-void FrameBuffer::set_texture_attachment(const Texture& t, uint32_t a, int l, int p) const {
+void RenderTarget::set_framebuffer(const Texture& t, uint32_t a, int l, int p) const {
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
 	if (t.type == TEXTURE_2D) {
 		glFramebufferTexture2D(GL_FRAMEBUFFER, a, GL_TEXTURE_2D, t.id, l);
@@ -1417,12 +1408,12 @@ void FrameBuffer::set_texture_attachment(const Texture& t, uint32_t a, int l, in
 	} else if (t.type == TEXTURE_CUBE_ARRAY) {
 		glFramebufferTextureLayer(GL_FRAMEBUFFER, a, t.id, l, p);
 	} else {
-		Error::set("FrameBuffer: Texture type is not supported");
+		Error::set("RenderTarget: Texture type is not supported");
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void FrameBuffer::set_render_buffer_attachment(const RenderBuffer& r, uint32_t a) const {
+void RenderTarget::set_framebuffer(const RenderBuffer& r, uint32_t a) const {
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, a, GL_RENDERBUFFER, r.id);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

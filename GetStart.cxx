@@ -17,8 +17,6 @@ Ink::Renderer renderer;
 
 void conf(Settings& t) {
     t.title = "Ink3D Example";
-    t.width = 960;
-    t.height = 540;
     t.show_cursor = false;
     t.lock_cursor = true;
     t.background_color = Ink::Vec3(1, 0.93, 0.8);

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,21 @@
 #include "../camera/Camera.h"
 
 namespace Ink::Soft {
+
+class PointList {
+public:
+	size_t size = 0;                /**< the size of point list */
+	Vec4* vertices = nullptr;       /**< the vertices of point list */
+	Vec3* barycenters = nullptr;    /**< the baycenter coordinates of point list */
+	
+	/**
+	 * Adds a point into this point list.
+	 *
+	 * \param v vertex
+	 * \param b baycenter coordinates
+	 */
+	void add_point(const Vec4& v, const Vec3& b);
+};
 
 class Shader {
 public:
@@ -70,54 +85,13 @@ public:
 	virtual void fragment(const Vec3& b, const Vec2& p, Vec4& c) = 0;
 };
 
-struct PointList {
-	size_t size = 0;
-	Vec4* vertices = nullptr;
-	Vec3* barycenters = nullptr;
-};
-
 static int viewport_w = 0;
 static int viewport_h = 0;
 
-static std::vector<double> z_buffer;
-
 /**
- * Samples the texture with UV-coordinate by nearest texture mapping.
- *
- * \param t texture
- * \param c channel
- * \param u U coordinate
- * \param v V coordinate
+ * Returns the width and height of viewport region.
  */
-float nearest_map(const Image& t, int c, float u, float v);
-
-/**
- * Samples the texture with UV-coordinate by nearest texture mapping.
- *
- * \param t texture
- * \param c channel
- * \param uv UV coordinate
- */
-float nearest_map(const Image& t, int c, const Vec2& uv);
-
-/**
- * Samples the texture with UV-coordinate by linear texture mapping.
- *
- * \param t texture
- * \param c channel
- * \param u U coordinate
- * \param v V coordinate
- */
-float linear_map(const Image& t, int c, float u, float v);
-
-/**
- * Samples the texture with UV-coordinate by linear texture mapping.
- *
- * \param t texture
- * \param c channel
- * \param uv UV coordinate
- */
-float linear_map(const Image& t, int c, const Vec2& uv);
+std::pair<int, int> get_viewport();
 
 /**
  * Sets the viewport region to render from (0, 0) to (width, height).
@@ -126,15 +100,6 @@ float linear_map(const Image& t, int c, const Vec2& uv);
  * \param h the height of the viewport
  */
 void set_viewport(int w, int h);
-
-/**
- * Adds a point into the point list.
- *
- * \param l point list
- * \param v vertex
- * \param b baycenter coordinate
- */
-void add_point(PointList& l, const Vec4& v, const Vec3& b);
 
 /**
  * Clips the point list at near clip plane.
@@ -177,26 +142,26 @@ void rasterize(const PointList& p, const Vec3* d, Shader& s, double* zb, Vec4* c
 void rasterize(const PointList& p, const Vec3* d, double* zb);
 
 /**
- * Draws the mesh using a camera. Drawing will only affects Z-Buffer when canvas
- * is nullptr.
+ * Renders the mesh using a camera. Drawing will only affects Z-Buffer when
+ * canvas is nullptr.
  *
+ * \param m mesh
  * \param c camera
  * \param s shader
- * \param m mesh
  * \param zb Z-Buffer
  * \param canvas canvas
  */
-void draw(const Camera& c, Shader& s, const Mesh& m, double* zb, Vec4* canvas = nullptr);
+void render(const Mesh& m, const Camera& c, Shader& s, double* zb, Vec4* canvas = nullptr);
 
 /**
- * Draws the instances using a camera. The results will be saved in canvas.
+ * Renders the instance using a camera. The results will be saved in canvas.
  *
+ * \param i instance
  * \param c camera
  * \param s shader
- * \param i instances
- * \param size the size of instances
+ * \param zb Z-Buffer
  * \param canvas canvas
  */
-void draw_instances(const Camera& c, Shader& s, const Instance* const* i, size_t size, Vec4* canvas);
+void render_instance(const Instance* i, const Camera& c, Shader& s, double* zb, Vec4* canvas = nullptr);
 
 }

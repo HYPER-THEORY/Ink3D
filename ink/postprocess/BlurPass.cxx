@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
 #include "BlurPass.h"
 
 #include "../core/Error.h"
+#include "../shaders/ShaderLib.h"
 
 namespace Ink {
 
@@ -52,32 +53,28 @@ void BlurPass::init() {
 	blur_map_2->set_filters(TEXTURE_LINEAR, TEXTURE_LINEAR);
 	blur_map_2->set_wrap_all(TEXTURE_CLAMP_TO_EDGE);
 	
-	/* prepare blur frame buffer 1 */
-	blur_target_1 = std::make_unique<Gpu::FrameBuffer>();
-	blur_target_1->set_attachment(*blur_map_1, 0);
-	blur_target_1->draw_attachments({0});
+	/* prepare blur render target 1 */
+	blur_target_1 = std::make_unique<Gpu::RenderTarget>();
+	blur_target_1->set_texture(*blur_map_1, 0);
 	
-	/* prepare blur frame buffer 2 */
-	blur_target_2 = std::make_unique<Gpu::FrameBuffer>();
-	blur_target_2->set_attachment(*blur_map_2, 0);
-	blur_target_2->draw_attachments({0});
+	/* prepare blur render target 2 */
+	blur_target_2 = std::make_unique<Gpu::RenderTarget>();
+	blur_target_2->set_texture(*blur_map_2, 0);
 }
 
 void BlurPass::render() const {
 	/* fetch blur shader from shader lib */
 	Defines blur_defines;
-	if (type == BLUR_SIMPLE) {
-		blur_defines.set("BLUR_SIMPLE");
-	}
-	if (type == BLUR_GAUSSIAN) {
-		blur_defines.set("BLUR_GAUSSIAN");
-	}
-	if (type == BLUR_BILATERAL) {
-		blur_defines.set("BLUR_BILATERAL");
-	}
 	blur_defines.set("TYPE", TYPES[channel - 1]);
 	blur_defines.set("SWIZZLE", SWIZZLES[channel - 1]);
-	auto* blur_shader = ShaderLib::fetch("Blur", blur_defines);
+	const Gpu::Shader* blur_shader = nullptr;
+	if (type == BLUR_BOX) {
+		blur_shader = ShaderLib::fetch("BoxBlur", blur_defines);
+	} else if (type == BLUR_GAUSSIAN) {
+		blur_shader = ShaderLib::fetch("GaussianBlur", blur_defines);
+	} else if (type == BLUR_BILATERAL) {
+		blur_shader = ShaderLib::fetch("BilateralBlur", blur_defines);
+	}
 	
 	/* fetch copy shader from shader lib */
 	auto* copy_shader = ShaderLib::fetch("Copy");
@@ -91,6 +88,7 @@ void BlurPass::render() const {
 	
 	/* 1. blur horizontally (down-sampling) */
 	blur_shader->use_program();
+	blur_shader->set_uniform_f("lod", 0);
 	blur_shader->set_uniform_v2("direction", Vec2(1 / screen_size.x, 0));
 	blur_shader->set_uniform_i("radius", radius);
 	blur_shader->set_uniform_f("sigma_s", sigma_s);
@@ -100,6 +98,7 @@ void BlurPass::render() const {
 	
 	/* 2. blur vertically */
 	blur_shader->use_program();
+	blur_shader->set_uniform_f("lod", 0);
 	blur_shader->set_uniform_v2("direction", Vec2(0, 1 / screen_size.y));
 	blur_shader->set_uniform_i("radius", radius);
 	blur_shader->set_uniform_f("sigma_s", sigma_s);

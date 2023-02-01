@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -73,8 +73,8 @@ private:
 	
 	static std::unique_ptr<Gpu::Texture> blur_map;
 	
-	static std::unique_ptr<Gpu::FrameBuffer> cubemap_target;
-	static std::unique_ptr<Gpu::FrameBuffer> blur_target;
+	static std::unique_ptr<Gpu::RenderTarget> cubemap_target;
+	static std::unique_ptr<Gpu::RenderTarget> blur_target;
 	
 	static bool init_load_texture();
 	

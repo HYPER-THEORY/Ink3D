@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "../math/Maths.h"
+#include "../math/Vector.h"
 
 #include "Enums.h"
 #include "Defines.h"
@@ -159,7 +159,7 @@ public:
 	void set_image(int i, Image* c);
 	
 	/**
-	 * Removes custom image at the specified index from the material.
+	 * Removes the custom image at the specified index from the material.
 	 *
 	 * \param i image index
 	 */

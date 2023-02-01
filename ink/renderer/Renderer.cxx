@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@
 #include "../core/Error.h"
 #include "../core/Format.h"
 #include "../meshes/BoxMesh.h"
-#include "../graphics/ShaderLib.h"
+#include "../shaders/ShaderLib.h"
 
 namespace Ink {
 
@@ -48,10 +48,10 @@ void Renderer::set_clear_color(const Vec4& c) {
 }
 
 void Renderer::clear(bool c, bool d, bool s) const {
-	Gpu::FrameBuffer::activate(target);
-	Gpu::set_clear_color(clear_color);
-	Gpu::clear(c, d, s);
-	Gpu::FrameBuffer::activate(nullptr);
+	Gpu::RenderTarget::activate(target);
+	Gpu::State::set_clear_color(clear_color);
+	Gpu::State::clear(c, d, s);
+	Gpu::RenderTarget::activate(nullptr);
 }
 
 Gpu::Rect Renderer::get_viewport() const {
@@ -86,24 +86,24 @@ void Renderer::set_rendering_mode(int m) {
 	rendering_mode = m;
 }
 
-int Renderer::get_tone_mapping_mode() const {
+int Renderer::get_tone_map_mode() const {
 	return tone_map_mode;
 }
 
-float Renderer::get_tone_mapping_exposure() const {
+float Renderer::get_tone_map_exposure() const {
 	return tone_map_exposure;
 }
 
-void Renderer::set_tone_mapping(int m, float e) {
+void Renderer::set_tone_map(int m, float e) {
 	tone_map_mode = m;
 	tone_map_exposure = e;
 }
 
-const Gpu::FrameBuffer* Renderer::get_target() const {
+const Gpu::RenderTarget* Renderer::get_target() const {
 	return target;
 }
 
-void Renderer::set_target(const Gpu::FrameBuffer *t) {
+void Renderer::set_target(const Gpu::RenderTarget *t) {
 	target = t;
 }
 
@@ -136,24 +136,24 @@ void Renderer::load_skybox(const Image& i) {
 
 void Renderer::render_skybox(const Camera& c) const {
 	/* activate the render target */
-	Gpu::FrameBuffer::activate(target);
+	Gpu::RenderTarget::activate(target);
 	
 	/* set the viewport region */
-	Gpu::set_viewport(viewport);
+	Gpu::State::set_viewport(viewport);
 	
 	/* set the scissor test and region */
 	if (scissor_test) {
-		Gpu::enable_scissor_test();
-		Gpu::set_scissor(scissor);
+		Gpu::State::enable_scissor_test();
+		Gpu::State::set_scissor(scissor);
 	} else {
-		Gpu::disable_scissor_test();
+		Gpu::State::disable_scissor_test();
 	}
 	
 	/* render the skybox to buffer */
 	render_skybox_to_buffer(c, rendering_mode);
 	
 	/* set back to the default render target */
-	Gpu::FrameBuffer::activate(nullptr);
+	Gpu::RenderTarget::activate(nullptr);
 }
 
 void Renderer::load_mesh(const Mesh* m) {
@@ -162,7 +162,7 @@ void Renderer::load_mesh(const Mesh* m) {
 	auto p = mesh_cache.insert({m, std::make_unique<Gpu::VertexObject[]>(size)});
 	auto* vertex_object = p.first->second.get();
 	for (int i = 0; i < size; ++i) {
-		vertex_object[i].load(*m, i);
+		vertex_object[i].load(*m, m->groups[i]);
 	}
 }
 
@@ -275,69 +275,69 @@ void Renderer::clear_scene_caches() {
 
 void Renderer::render(const Scene& s, const Camera& c) const {
 	/* activate the render target */
-	Gpu::FrameBuffer::activate(target);
+	Gpu::RenderTarget::activate(target);
 	
 	/* set the viewport region */
-	Gpu::set_viewport(viewport);
+	Gpu::State::set_viewport(viewport);
 	
 	/* set the scissor test and region */
 	if (scissor_test) {
-		Gpu::enable_scissor_test();
-		Gpu::set_scissor(scissor);
+		Gpu::State::enable_scissor_test();
+		Gpu::State::set_scissor(scissor);
 	} else {
-		Gpu::disable_scissor_test();
+		Gpu::State::disable_scissor_test();
 	}
 	
 	/* render the scene to buffer */
 	render_to_buffer(s, c, rendering_mode, false);
 	
 	/* set back to the default render target */
-	Gpu::FrameBuffer::activate(nullptr);
+	Gpu::RenderTarget::activate(nullptr);
 }
 
 void Renderer::render_transparent(const Scene& s, const Camera& c) const {
 	/* activate the render target */
-	Gpu::FrameBuffer::activate(target);
+	Gpu::RenderTarget::activate(target);
 	
 	/* set the viewport region */
-	Gpu::set_viewport(viewport);
+	Gpu::State::set_viewport(viewport);
 	
 	/* set the scissor test and region */
 	if (scissor_test) {
-		Gpu::enable_scissor_test();
-		Gpu::set_scissor(scissor);
+		Gpu::State::enable_scissor_test();
+		Gpu::State::set_scissor(scissor);
 	} else {
-		Gpu::disable_scissor_test();
+		Gpu::State::disable_scissor_test();
 	}
 	
 	/* render the scene to buffer */
-	Gpu::set_depth_writemask(false);
+	Gpu::State::set_depth_writemask(false);
 	render_to_buffer(s, c, rendering_mode, true);
-	Gpu::set_depth_writemask(true);
+	Gpu::State::set_depth_writemask(true);
 	
 	/* set back to the default render target */
-	Gpu::FrameBuffer::activate(nullptr);
+	Gpu::RenderTarget::activate(nullptr);
 }
 
 void Renderer::render_shadow(const Scene& s, const Shadow& t) const {
 	/* activate the render target */
-	Gpu::FrameBuffer::activate(t.get_target());
+	Gpu::RenderTarget::activate(t.get_target());
 	
 	/* set the viewport to fit the resolution of shadow map */
 	Vec2 resolution = Shadow::get_resolution();
-	Gpu::set_viewport(Gpu::Rect(resolution.x, resolution.y));
+	Gpu::State::set_viewport(Gpu::Rect(resolution.x, resolution.y));
 	
 	/* disable the scissor test */
-	Gpu::disable_scissor_test();
+	Gpu::State::disable_scissor_test();
 	
 	/* clear the shadow map (depth only) */
-	Gpu::clear(false, true, false);
+	Gpu::State::clear(false, true, false);
 	
 	/* render the scene to shadow */
 	render_to_shadow(s, t.camera);
 	
 	/* set back to the default render target */
-	Gpu::FrameBuffer::activate(nullptr);
+	Gpu::RenderTarget::activate(nullptr);
 }
 
 void Renderer::update_shadow(const Scene& s, SpotLight& l) const {
@@ -356,10 +356,10 @@ void Renderer::update_shadow(const Scene& s, DirectionalLight& l) const {
 
 void Renderer::update_probe(const Scene& s, const Vec3& p, ReflectionProbe& r) const {
 	/* set the viewport with the resolution of probe */
-	Gpu::set_viewport(Gpu::Rect(r.resolution, r.resolution));
+	Gpu::State::set_viewport(Gpu::Rect(r.resolution, r.resolution));
 	
 	/* disable the scissor test */
-	Gpu::disable_scissor_test();
+	Gpu::State::disable_scissor_test();
 	
 	/* prepare texture for probe */
 	if (!probe_map) {
@@ -376,10 +376,9 @@ void Renderer::update_probe(const Scene& s, const Vec3& p, ReflectionProbe& r) c
 	
 	/* prepare frame buffer for probe */
 	if (!probe_target) {
-		probe_target = std::make_unique<Gpu::FrameBuffer>();
-		probe_target->draw_attachments({0});
+		probe_target = std::make_unique<Gpu::RenderTarget>();
 	}
-	probe_target->set_depth_attachment(*probe_buffer);
+	probe_target->set_depth_buffer(*probe_buffer);
 	
 	/* initialize camera for probe */
 	PerspCamera camera = PerspCamera(PI_2, 1, 0.1, 100);
@@ -389,11 +388,11 @@ void Renderer::update_probe(const Scene& s, const Vec3& p, ReflectionProbe& r) c
 		camera.lookat(p, CUBE_DIRECTIONS[i], CUBE_UPS[i]);
 		
 		/* update and activate render target */
-		probe_target->set_attachment(*probe_map, 0, 0, i);
-		Gpu::FrameBuffer::activate(probe_target.get());
+		probe_target->set_texture(*probe_map, 0, 0, i);
+		Gpu::RenderTarget::activate(probe_target.get());
 		
 		/* clear depth buffer before rendering */
-		Gpu::clear(false, true, false);
+		Gpu::State::clear(false, true, false);
 		
 		/* render skybox loaded by renderer */
 		render_skybox_to_buffer(camera, FORWARD_RENDERING);
@@ -402,13 +401,13 @@ void Renderer::update_probe(const Scene& s, const Vec3& p, ReflectionProbe& r) c
 		render_to_buffer(s, camera, FORWARD_RENDERING, false);
 		
 		/* render the transparent objects in scene */
-		Gpu::set_depth_writemask(false);
+		Gpu::State::set_depth_writemask(false);
 		render_to_buffer(s, camera, FORWARD_RENDERING, true);
-		Gpu::set_depth_writemask(true);
+		Gpu::State::set_depth_writemask(true);
 	}
 	
 	/* set back to the default render target */
-	Gpu::FrameBuffer::activate(nullptr);
+	Gpu::RenderTarget::activate(nullptr);
 	
 	/* update probe with probe texture */
 	r.load_texture(*probe_map);
@@ -418,112 +417,100 @@ void Renderer::update_scene(Scene& s) {
 	s.update_instances();
 }
 
-Defines Renderer::define_material(const Material& m) {
-	Defines defines; /* create new defines */
-	
+void Renderer::set_material_defines(const Material& m, Defines& d) {
 	/* check whether to use vertex color */
-	defines.set_if("USE_VERTEX_COLOR", m.vertex_color);
+	d.set_if("USE_VERTEX_COLOR", m.vertex_color);
 	
 	/* check whether to use normal map */
-	defines.set_if("USE_NORMAL_MAP", m.normal_map != nullptr);
+	d.set_if("USE_NORMAL_MAP", m.normal_map != nullptr);
 	
 	/* check whether to use normal map in tangent space */
-	defines.set_if("IN_TANGENT_SPACE", m.normal_map != nullptr && m.tangent_space);
+	d.set_if("IN_TANGENT_SPACE", m.normal_map != nullptr && m.tangent_space);
 	
 	/* check whether to use normal map in object space */
-	defines.set_if("IN_OBJECT_SPACE", m.normal_map != nullptr && !m.tangent_space);
+	d.set_if("IN_OBJECT_SPACE", m.normal_map != nullptr && !m.tangent_space);
 	
 	/* check whether to use displacement map */
-	defines.set_if("USE_DISPLACEMENT_MAP", m.displacement_map != nullptr);
+	d.set_if("USE_DISPLACEMENT_MAP", m.displacement_map != nullptr);
 	
 	/* check whether to use color map */
-	defines.set_if("USE_COLOR_MAP", m.color_map != nullptr && !m.map_with_alpha);
+	d.set_if("USE_COLOR_MAP", m.color_map != nullptr && !m.map_with_alpha);
 	
 	/* check whether to use color map with alpha channel */
-	defines.set_if("USE_COLOR_ALPHA_MAP", m.color_map != nullptr && m.map_with_alpha);
+	d.set_if("USE_COLOR_ALPHA_MAP", m.color_map != nullptr && m.map_with_alpha);
 	
 	/* check whether to use alpha map */
-	defines.set_if("USE_ALPHA_MAP", m.alpha_map != nullptr);
+	d.set_if("USE_ALPHA_MAP", m.alpha_map != nullptr);
 	
 	/* check whether to use emissive map */
-	defines.set_if("USE_EMISSIVE_MAP", m.emissive_map != nullptr);
+	d.set_if("USE_EMISSIVE_MAP", m.emissive_map != nullptr);
 	
 	/* check whether to use ambient occlusion map */
-	defines.set_if("USE_AO_MAP", m.ao_map != nullptr);
+	d.set_if("USE_AO_MAP", m.ao_map != nullptr);
 	
 	/* check whether to use metalness map */
-	defines.set_if("USE_METALNESS_MAP", m.metalness_map != nullptr);
+	d.set_if("USE_METALNESS_MAP", m.metalness_map != nullptr);
 	
 	/* check whether to use roughness map */
-	defines.set_if("USE_ROUGHNESS_MAP", m.roughness_map != nullptr);
+	d.set_if("USE_ROUGHNESS_MAP", m.roughness_map != nullptr);
 	
 	/* check whether to use specular map */
-	defines.set_if("USE_SPECULAR_MAP", m.specular_map != nullptr);
+	d.set_if("USE_SPECULAR_MAP", m.specular_map != nullptr);
 	
 	/* check whether to use light probe */
-	defines.set_if("USE_LIGHT_PROBE", m.light_probe != nullptr);
+	d.set_if("USE_LIGHT_PROBE", m.light_probe != nullptr);
 	
 	/* check whether to use reflection probe */
-	defines.set_if("USE_REFLECTION_PROBE", m.reflection_probe != nullptr);
-	
-	return defines; /* return the defines */
+	d.set_if("USE_REFLECTION_PROBE", m.reflection_probe != nullptr);
 }
 
-Defines Renderer::define_scene(const Scene& s) {
-	Defines defines; /* create new defines */
-	
+void Renderer::set_scene_defines(const Scene& s, Defines& d) {
 	/* set the sample numbers of shadow */
-	defines.set_i("SHADOW_SAMPLES", Shadow::get_samples());
+	d.set_i("SHADOW_SAMPLES", Shadow::get_samples());
 	
 	/* set the number of point lights */
 	size_t light_count = s.get_point_light_count();
-	defines.set_l("NUM_POINT_LIGHT", light_count);
+	d.set_l("NUM_POINT_LIGHT", light_count);
 	
 	/* set the number of spot lights */
 	light_count = s.get_spot_light_count();
-	defines.set_l("NUM_SPOT_LIGHT", light_count);
+	d.set_l("NUM_SPOT_LIGHT", light_count);
 	
 	/* set the number of directional lights */
 	light_count = s.get_directional_light_count();
-	defines.set_l("NUM_DIRECTIONAL_LIGHT", light_count);
+	d.set_l("NUM_DIRECTIONAL_LIGHT", light_count);
 	
 	/* set the number of hemisphere lights */
 	light_count = s.get_hemisphere_light_count();
-	defines.set_l("NUM_HEMISPHERE_LIGHT", light_count);
+	d.set_l("NUM_HEMISPHERE_LIGHT", light_count);
 	
 	/* set whether to use linear fog */
-	defines.set_if("USE_LINEAR_FOG", s.get_linear_fog() != nullptr);
+	d.set_if("USE_LINEAR_FOG", s.get_linear_fog() != nullptr);
 	
 	/* set whether to use exp square fog */
-	defines.set_if("USE_EXP2_FOG", s.get_exp2_fog() != nullptr);
-	
-	return defines; /* return the defines */
+	d.set_if("USE_EXP2_FOG", s.get_exp2_fog() != nullptr);
 }
 
-Defines Renderer::define_tone_map(int m) {
-	Defines defines; /* create new defines */
-	
+void Renderer::set_tone_map_defines(int m, Defines& d) {
 	/* set which to use linear tone mapping */
 	if (m == LINEAR_TONE_MAP) {
-		defines.set("TONE_MAP", "linear_tone_map");
+		d.set("TONE_MAP", "linear_tone_map");
 	}
 	
 	/* set which to use reinhard tone mapping */
 	if (m == REINHARD_TONE_MAP) {
-		defines.set("TONE_MAP", "reinhard_tone_map");
+		d.set("TONE_MAP", "reinhard_tone_map");
 	}
 	
 	/* set which to use optimized tone mapping */
 	if (m == OPTIMIZED_TONE_MAP) {
-		defines.set("TONE_MAP", "optimized_tone_map");
+		d.set("TONE_MAP", "optimized_tone_map");
 	}
 	
 	/* set which to use ACES filmic tone mapping */
 	if (m == ACES_FILMIC_TONE_MAP) {
-		defines.set("TONE_MAP", "aces_filmic_tone_map");
+		d.set("TONE_MAP", "aces_filmic_tone_map");
 	}
-	
-	return defines; /* return the defines */
 }
 
 void Renderer::set_light_uniforms(const Scene& s, const Gpu::Shader& shader) {
@@ -575,7 +562,7 @@ void Renderer::set_light_uniforms(const Scene& s, const Gpu::Shader& shader) {
 		std::string shadows_i = Format::format("spot_lights[{}].shadow", i);
 		Mat4 view_proj = shadow.camera.projection * shadow.camera.viewing;
 		shader.set_uniform_i(shadows_i + ".type", shadow.type);
-		shader.set_uniform_i(shadows_i + ".map_id", shadow.get_unique_id());
+		shader.set_uniform_i(shadows_i + ".map_id", shadow.map_id);
 		shader.set_uniform_f(shadows_i + ".bias", shadow.bias);
 		shader.set_uniform_f(shadows_i + ".normal_bias", shadow.normal_bias);
 		shader.set_uniform_f(shadows_i + ".radius", shadow.radius);
@@ -606,7 +593,7 @@ void Renderer::set_light_uniforms(const Scene& s, const Gpu::Shader& shader) {
 		std::string shadows_i = Format::format("directional_lights[{}].shadow", i);
 		Mat4 view_proj = shadow.camera.projection * shadow.camera.viewing;
 		shader.set_uniform_i(shadows_i + ".type", shadow.type);
-		shader.set_uniform_i(shadows_i + ".map_id", shadow.get_unique_id());
+		shader.set_uniform_i(shadows_i + ".map_id", shadow.map_id);
 		shader.set_uniform_f(shadows_i + ".bias", shadow.bias);
 		shader.set_uniform_f(shadows_i + ".normal_bias", shadow.normal_bias);
 		shader.set_uniform_f(shadows_i + ".radius", shadow.radius);
@@ -637,19 +624,19 @@ void Renderer::set_light_uniforms(const Scene& s, const Gpu::Shader& shader) {
 	/* pass the linear fog parameters to shader */
 	auto* linear_fog = s.get_linear_fog();
 	if (linear_fog != nullptr) {
-		shader.set_uniform_i("linear_fog.visible", linear_fog->visible);
-		shader.set_uniform_v3("linear_fog.color", linear_fog->color);
-		shader.set_uniform_f("linear_fog.near", linear_fog->near);
-		shader.set_uniform_f("linear_fog.far", linear_fog->far);
+		shader.set_uniform_i("fog.visible", linear_fog->visible);
+		shader.set_uniform_v3("fog.color", linear_fog->color);
+		shader.set_uniform_f("fog.near", linear_fog->near);
+		shader.set_uniform_f("fog.far", linear_fog->far);
 	}
 	
 	/* pass the exp square fog parameters to shader */
 	auto* exp2_fog = s.get_exp2_fog();
 	if (exp2_fog != nullptr) {
-		shader.set_uniform_i("exp2_fog.visible", exp2_fog->visible);
-		shader.set_uniform_v3("exp2_fog.color", exp2_fog->color);
-		shader.set_uniform_f("exp2_fog.near", exp2_fog->near);
-		shader.set_uniform_f("exp2_fog.density", exp2_fog->density);
+		shader.set_uniform_i("fog.visible", exp2_fog->visible);
+		shader.set_uniform_v3("fog.color", exp2_fog->color);
+		shader.set_uniform_f("fog.near", exp2_fog->near);
+		shader.set_uniform_f("fog.density", exp2_fog->density);
 	}
 }
 
@@ -659,24 +646,24 @@ void Renderer::render_skybox_to_buffer(const Camera& c, int r) const {
 	static bool inited = init_skybox();
 	
 	/* set the depth & stencil test */
-	Gpu::disable_depth_test();
-	Gpu::disable_stencil_test();
+	Gpu::State::disable_depth_test();
+	Gpu::State::disable_stencil_test();
 	
 	/* disable blending & wireframe */
-	Gpu::disable_blending();
-	Gpu::disable_wireframe();
+	Gpu::State::disable_blending();
+	Gpu::State::disable_wireframe();
 	
 	/* cull the front sides of faces */
-	Gpu::enable_culling();
-	Gpu::set_cull_side(FRONT_SIDE);
+	Gpu::State::enable_culling();
+	Gpu::State::set_cull_side(FRONT_SIDE);
 	
 	/* render cube texture seamlessly */
-	Gpu::enable_texture_cube_seamless();
+	Gpu::State::enable_texture_cube_seamless();
 	
 	/* fetch the skybox shader from shader lib */
 	Defines defines;
 	if (r == FORWARD_RENDERING) {
-		defines.set(define_tone_map(tone_map_mode));
+		set_tone_map_defines(tone_map_mode, defines);
 	} else {
 		defines.set("TONE_MAP", "linear_tone_map");
 	}
@@ -703,7 +690,7 @@ void Renderer::render_skybox_to_buffer(const Camera& c, int r) const {
 	shader->set_uniform_f("intensity", skybox_intensity);
 	shader->set_uniform_i("map", skybox_map->activate(0));
 	cube->attach(*shader);
-	cube->draw();
+	cube->render();
 }
 
 void Renderer::render_to_buffer(const Scene& s, const Camera& c, int r, bool t) const {
@@ -770,15 +757,16 @@ void Renderer::render_to_buffer(const Scene& s, const Camera& c, int r, bool t) 
 			/* fetch the standard shader from shader lib */
 			auto* shader = static_cast<const Gpu::Shader*>(material->shader);
 			if (shader == nullptr) {
-				Defines defines = define_material(*material);
+				Defines defines;
+				set_material_defines(*material, defines);
 				if (!t && r == DEFERRED_RENDERING) {
 					/* use defines in deferred rendering */
 					defines.set("DEFERRED_RENDERING");
 				} else {
 					/* use defines in forward rendering */
 					defines.set("FORWARD_RENDERING");
-					defines.set(define_scene(s));
-					defines.set(define_tone_map(tone_map_mode));
+					set_scene_defines(s, defines);
+					set_tone_map_defines(tone_map_mode, defines);
 				}
 				shader = ShaderLib::fetch("Standard", defines);
 			}
@@ -887,36 +875,36 @@ void Renderer::render_to_buffer(const Scene& s, const Camera& c, int r, bool t) 
 				shader->set_uniforms(*material->uniforms);
 			}
 			
-			/* apply the depth test setting of material */
-			Gpu::apply_material_depth(*material);
+			/* apply the depth test setting for material */
+			Gpu::MaterialState::set_depth(*material);
 			
-			/* apply the stencil test setting of material */
-			Gpu::apply_material_stencil(*material);
+			/* apply the stencil test setting for material */
+			Gpu::MaterialState::set_stencil(*material);
 			
-			/* apply the wireframe setting of material */
-			Gpu::apply_material_wireframe(*material);
+			/* apply the wireframe setting for material */
+			Gpu::MaterialState::set_wireframe(*material);
 			
-			/* apply the blending setting of material */
-			Gpu::apply_material_blending(*material);
+			/* apply the blending setting for material */
+			Gpu::MaterialState::set_blending(*material);
 			
-			/* apply the render side setting of material */
-			Gpu::apply_material_side(*material);
+			/* apply the render side setting for material */
+			Gpu::MaterialState::set_side(*material);
 			
 			/* set the blendings to render transparent objects correctly */
 			if (material->transparent) {
-				Gpu::enable_blending();
-				Gpu::set_blend_op(BLEND_ADD);
-				Gpu::set_blend_factor(FACTOR_SRC_ALPHA, FACTOR_ONE_MINUS_SRC_ALPHA);
+				Gpu::State::enable_blending();
+				Gpu::State::set_blend_op(BLEND_ADD);
+				Gpu::State::set_blend_factor(FACTOR_SRC_ALPHA, FACTOR_ONE_MINUS_SRC_ALPHA);
 			}
 			
 			/* cull back side of face if side is DOUBLE_SIDE */
 			if (is_transparent && material->side == DOUBLE_SIDE) {
-				Gpu::enable_culling();
-				Gpu::set_cull_side(BACK_SIDE);
+				Gpu::State::enable_culling();
+				Gpu::State::set_cull_side(BACK_SIDE);
 			}
 			
-			/* draw the vertex object at group i */
-			vertex_object[i].draw();
+			/* render the vertex object at group i */
+			vertex_object[i].render();
 		}
 	}
 }
@@ -1006,30 +994,31 @@ void Renderer::render_to_shadow(const Scene& s, const Camera& c) const {
 				image_cache.at(material->alpha_map)->activate(1);
 			}
 			
-			/* apply the depth test setting of material */
-			Gpu::apply_material_depth(*material);
+			/* apply the depth test setting for material */
+			Gpu::MaterialState::set_depth(*material);
 			
-			/* apply the stencil test setting of material */
-			Gpu::apply_material_stencil(*material);
+			/* apply the stencil test setting for material */
+			Gpu::MaterialState::set_stencil(*material);
 			
-			/* apply the wireframe setting of material */
-			Gpu::apply_material_wireframe(*material);
+			/* apply the wireframe setting for material */
+			Gpu::MaterialState::set_wireframe(*material);
 			
-			/* apply the blending setting of material */
-			Gpu::apply_material_blending(*material);
+			/* apply the blending setting for material */
+			Gpu::MaterialState::set_blending(*material);
 			
-			/* apply the render side setting of material */
-			Gpu::apply_material_shadow_side(*material);
+			/* apply the render side setting for material */
+			Gpu::MaterialState::set_shadow_side(*material);
 			
-			/* draw the vertex object at group i */
-			vertex_object[i].draw();
+			/* render the vertex object for group i */
+			vertex_object[i].render();
 		}
 	}
 }
 
 bool Renderer::init_skybox() {
 	cube = std::make_unique<Gpu::VertexObject>();
-	cube->load(BoxMesh::create());
+	Mesh box = BoxMesh::create();
+	cube->load(box, box.groups[0]);
 	return true; /* finish */
 }
 
@@ -1068,6 +1057,6 @@ std::unique_ptr<Gpu::Texture> Renderer::probe_map;
 
 std::unique_ptr<Gpu::RenderBuffer> Renderer::probe_buffer;
 
-std::unique_ptr<Gpu::FrameBuffer> Renderer::probe_target;
+std::unique_ptr<Gpu::RenderTarget> Renderer::probe_target;
 
 }

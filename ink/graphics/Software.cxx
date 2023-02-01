@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,56 +34,19 @@ namespace Ink::Soft {
 
 constexpr float EPS = 1E-6;
 
-float nearest_map(const Image& t, int c, float u, float v) {
-	int x = roundf(u * (t.width - 1));
-	x = x < 0 ? 0 : x;
-	x = x >= t.width ? t.width - 1 : x;
-	int y = roundf(v * (t.height - 1));
-	y = y < 0 ? 0 : y;
-	y = y >= t.height ? t.height - 1 : y;
-	int bpp = t.channel * t.bytes;
-	auto* ptr = t.data.data() + (x + y * t.width) * bpp;
-	return ptr[c] / 255.f;
+void PointList::add_point(const Vec4& v, const Vec3& b) {
+	vertices[size] = v;
+	barycenters[size] = b;
+	++size;
 }
 
-float nearest_map(const Image& t, int c, const Vec2& uv) {
-	return nearest_map(t, c, uv.x, uv.y);
-}
-
-float linear_map(const Image& t, int c, float u, float v) {
-	int x0 = u * (t.width - 1);
-	x0 = x0 < 0 ? 0 : x0;
-	x0 = x0 >= t.width ? t.width - 1 : x0;
-	int x1 = x0 + 1;
-	x1 = x1 >= t.width ? t.width - 1 : x1;
-	int y0 = v * (t.height - 1);
-	y0 = y0 < 0 ? 0 : y0;
-	y0 = y0 >= t.height ? t.height - 1 : y0;
-	int y1 = y0 + 1;
-	y1 = y1 >= t.height ? t.height - 1 : y1;
-	int bpp = t.channel * t.bytes;
-	auto* data = t.data.data();
-	auto* ptr_0 = data + (x0 + y0 * t.width) * bpp;
-	auto* ptr_1 = data + (x0 + y1 * t.width) * bpp;
-	auto* ptr_2 = data + (x1 + y0 * t.width) * bpp;
-	auto* ptr_3 = data + (x1 + y1 * t.width) * bpp;
-	return (ptr_0[c] * (y1 - v) + ptr_1[c] * (v - y0)) * (x1 - u) +
-		(ptr_2[c] * (y1 - v) + ptr_3[c] * (v - y0)) * (u - x0);
-}
-
-float linear_map(const Image& t, int c, const Vec2& uv) {
-	return linear_map(t, c, uv.x, uv.y);
+std::pair<int, int> get_viewport() {
+	return {viewport_w, viewport_h};
 }
 
 void set_viewport(int w, int h) {
 	viewport_w = w;
 	viewport_h = h;
-}
-
-void add_point(PointList& l, const Vec4& v, const Vec3& b) {
-	l.vertices[l.size] = v;
-	l.barycenters[l.size] = b;
-	++l.size;
 }
 
 void znear_clip(const PointList& i, float z, PointList& o) {
@@ -98,7 +61,7 @@ void znear_clip(const PointList& i, float z, PointList& o) {
 		const Vec3& barycenter1 = i.barycenters[l];
 		const Vec3& barycenter2 = i.barycenters[(l + 1) % i.size];
 		if (vertex1.w > z && vertex2.w > z) {
-			add_point(o, vertex2, barycenter2);
+			o.add_point(vertex2, barycenter2);
 			continue;
 		}
 		
@@ -107,15 +70,15 @@ void znear_clip(const PointList& i, float z, PointList& o) {
 		float weight2 = fabsf(vertex2.w - z);
 		float inverse = 1 / (weight1 + weight2);
 		if (vertex1.w > z && vertex2.w < z) {
-			add_point(o, (vertex1 * weight2 + vertex2 * weight1) * inverse,
-					  (barycenter1 * weight2 + barycenter2 * weight1) * inverse);
+			o.add_point((vertex1 * weight2 + vertex2 * weight1) * inverse,
+						(barycenter1 * weight2 + barycenter2 * weight1) * inverse);
 			continue;
 		}
 		
 		/* traveling from outside to inside */
-		add_point(o, (vertex1 * weight2 + vertex2 * weight1) * inverse,
-				  (barycenter1 * weight2 + barycenter2 * weight1) * inverse);
-		add_point(o, vertex2, barycenter2);
+		o.add_point((vertex1 * weight2 + vertex2 * weight1) * inverse,
+					(barycenter1 * weight2 + barycenter2 * weight1) * inverse);
+		o.add_point(vertex2, barycenter2);
 	}
 }
 
@@ -131,7 +94,7 @@ void zfar_clip(const PointList& i, float z, PointList& o) {
 		const Vec3& barycenter1 = i.barycenters[l];
 		const Vec3& barycenter2 = i.barycenters[(l + 1) % i.size];
 		if (vertex1.w < z && vertex2.w < z) {
-			add_point(o, vertex2, barycenter2);
+			o.add_point(vertex2, barycenter2);
 			continue;
 		}
 		
@@ -140,15 +103,15 @@ void zfar_clip(const PointList& i, float z, PointList& o) {
 		float weight2 = fabsf(vertex2.w - z);
 		float inverse = 1 / (weight1 + weight2);
 		if (vertex1.w > z && vertex2.w < z) {
-			add_point(o, (vertex1 * weight2 + vertex2 * weight1) * inverse,
-					  (barycenter1 * weight2 + barycenter2 * weight1) * inverse);
+			o.add_point((vertex1 * weight2 + vertex2 * weight1) * inverse,
+						(barycenter1 * weight2 + barycenter2 * weight1) * inverse);
 			continue;
 		}
 		
 		/* traveling from outside to inside */
-		add_point(o, (vertex1 * weight2 + vertex2 * weight1) * inverse,
-				  (barycenter1 * weight2 + barycenter2 * weight1) * inverse);
-		add_point(o, vertex2, barycenter2);
+		o.add_point((vertex1 * weight2 + vertex2 * weight1) * inverse,
+					(barycenter1 * weight2 + barycenter2 * weight1) * inverse);
+		o.add_point(vertex2, barycenter2);
 	}
 }
 
@@ -261,11 +224,10 @@ void rasterize(const PointList& p, const Vec3* d, double* zb) {
 	}
 }
 
-void draw(const Camera& c, Shader& s, const Mesh& m, double* zb, Vec4* canvas) {
+void render(const Mesh& m, const Camera& c, Shader& s, double* zb, Vec4* canvas) {
 	Vec3 barycenters[3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
 	size_t length = m.vertex.size();
 	for (int i = 0; i < length; i += 3) {
-		
 		/* vertex shader & geometry shader */
 		Vec4 vertices[3];
 		for (int j = 0; j < 3; ++j) {
@@ -296,11 +258,11 @@ void draw(const Camera& c, Shader& s, const Mesh& m, double* zb, Vec4* canvas) {
 		}
 		
 		/* viewport transform */
-		int width_2 = viewport_w / 2;
-		int height_2 = viewport_h / 2;
+		int half_w = viewport_w / 2;
+		int half_h = viewport_h / 2;
 		for (int i = 0; i < primitive.size; ++i) {
-			device_vertices[i].x = device_vertices[i].x * width_2 + width_2;
-			device_vertices[i].y = -device_vertices[i].y * height_2 + height_2;
+			device_vertices[i].x = device_vertices[i].x * half_w + half_w;
+			device_vertices[i].y = -device_vertices[i].y * half_h + half_h;
 		}
 		
 		/* rasterization */
@@ -311,22 +273,14 @@ void draw(const Camera& c, Shader& s, const Mesh& m, double* zb, Vec4* canvas) {
 	}
 }
 
-void draw_instances(const Camera& c, Shader& s, const Instance* const* i, size_t size, Vec4* canvas) {
-	size_t buffer_size = viewport_w * viewport_h;
-	if (z_buffer.size() != buffer_size) {
-		z_buffer.resize(buffer_size);
-	}
-	std::fill(z_buffer.begin(), z_buffer.end(), 1);
-	auto& instances = i;
-	for (int i = 0; i < size; ++i) {
-		s.model = instances[i]->matrix_global;
-		s.view = c.viewing;
-		s.proj = c.projection;
-		s.model_view = s.view * s.model;
-		s.model_view_proj = s.proj * s.model_view;
-		s.camera_pos = c.position;
-		draw(c, s, *instances[i]->mesh, z_buffer.data(), canvas);
-	}
+void render_instance(const Instance* i, const Camera& c, Shader& s, double* zb, Vec4* canvas) {
+	s.model = i->matrix_global;
+	s.view = c.viewing;
+	s.proj = c.projection;
+	s.model_view = s.view * s.model;
+	s.model_view_proj = s.proj * s.model_view;
+	s.camera_pos = c.position;
+	render(*i->mesh, c, s, zb, canvas);
 }
 
 }

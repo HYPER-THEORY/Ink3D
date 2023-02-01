@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,7 @@ enum ShadowType {
 class Shadow {
 public:
 	int type = SHADOW_PCF;    /**< the type of shadow */
+	int map_id = 0;           /**< the ID of shadow map */
 	float bias = 0;           /**< shadow bias, should be close to 0 */
 	float normal_bias = 0;    /**< shadow bias along the object normal, range is 0 to 1 */
 	float radius = 3;         /**< the radius of blurred edge, only used in PCF or PCSS */
@@ -64,38 +65,6 @@ public:
 	Shadow(const Shadow&) = delete;
 	
 	/**
-	 * Activates this shadow and assigns an unique id for it.
-	 */
-	void activate();
-	
-	/**
-	 * Deactivates this shadow and retrieves the unique id from it.
-	 */
-	void deactivate();
-	
-	/**
-	 * Returns the unique id of shadow.
-	 */
-	int get_unique_id() const;
-	
-	/**
-	 * Returns the render target of the shadow texture (shadow map).
-	 */
-	const Gpu::FrameBuffer* get_target() const;
-	
-	/**
-	 * Activates the shadow texture (shadow map) at the specified location.
-	 *
-	 * \param l the location of texture
-	 */
-	static int activate_texture(int l);
-	
-	/**
-	 * Returns the resolution of shadow texture (shadow map).
-	 */
-	static Vec2 get_resolution();
-	
-	/**
 	 * Returns the sample numbers when using PCF / PCSS shadow.
 	 */
 	static int get_samples();
@@ -108,18 +77,31 @@ public:
 	 */
 	static void set_samples(int s);
 	
-private:
-	int unique_id = -1;
+	/**
+	 * Returns the resolution of shadow texture (shadow map).
+	 */
+	static Vec2 get_resolution();
 	
+	/**
+	 * Activates the shadow texture (shadow map) at the specified location.
+	 *
+	 * \param l the location of texture
+	 */
+	static int activate_texture(int l);
+	
+	/**
+	 * Returns the render target of the shadow texture (shadow map).
+	 */
+	const Gpu::RenderTarget* get_target() const;
+	
+private:
 	static int samples;
 	
 	static Vec2 resolution;
 	
-	static std::vector<int> assigner;
-	
 	static std::unique_ptr<Gpu::Texture> shadow_map;
 	
-	static std::unique_ptr<Gpu::FrameBuffer> shadow_target;
+	static std::unique_ptr<Gpu::RenderTarget> shadow_target;
 };
 
 }

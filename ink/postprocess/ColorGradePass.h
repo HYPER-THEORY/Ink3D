@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,7 +40,7 @@ public:
 	explicit ColorGradePass() = default;
 	
 	/**
-	 * Initializes the render pass and prepare the resources for rendering.
+	 * Initializes the render pass and prepares the resources for rendering.
 	 */
 	void init() override;
 	

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@ namespace Ink {
 class Ray {
 public:
 	Vec3 origin;		/**< the origin of ray */
-	Vec3 direction;		/**< the direction of ray */
+	Vec3 direction;		/**< the direction of ray, must be normalized */
 	
 	/**
 	 * Creates a new Ray object.
@@ -40,7 +40,7 @@ public:
 	 * Creates a new Ray object and initializes it with origin and direction.
 	 *
 	 * \param o the origin of ray
-	 * \param d the direction of ray
+	 * \param d the direction of ray, must be normalized
 	 */
 	explicit Ray(const Vec3& o, const Vec3& d);
 	

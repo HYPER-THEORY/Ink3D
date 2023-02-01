@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,13 +23,15 @@
 #include "ToneMapPass.h"
 
 #include "../renderer/Renderer.h"
+#include "../shaders/ShaderLib.h"
 
 namespace Ink {
 
 void ToneMapPass::init() {}
 
 void ToneMapPass::render() const {
-	Defines tone_map_defines = Renderer::define_tone_map(mode);
+	Defines tone_map_defines;
+	Renderer::set_tone_map_defines(mode, tone_map_defines);
 	auto* tone_map_shader = ShaderLib::fetch("ToneMapping", tone_map_defines);
 	tone_map_shader->use_program();
 	tone_map_shader->set_uniform_f("exposure", exposure);

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,11 +24,11 @@
 
 namespace Ink {
 
-const Gpu::FrameBuffer* RenderPass::get_target() const {
+const Gpu::RenderTarget* RenderPass::get_target() const {
 	return target;
 }
 
-void RenderPass::set_target(const Gpu::FrameBuffer* t) {
+void RenderPass::set_target(const Gpu::RenderTarget* t) {
 	target = t;
 }
 
@@ -40,33 +40,33 @@ void RenderPass::set_viewport(const Gpu::Rect& v) {
 	viewport = v;
 }
 
-void RenderPass::render_to(const Gpu::Shader* s, const Gpu::FrameBuffer* t) {
+void RenderPass::render_to(const Gpu::Shader* s, const Gpu::RenderTarget* t) {
 	/* initialize render_to */
 	[[maybe_unused]]
 	static bool inited = init_render_to();
 	
 	/* activate render target */
-	Gpu::FrameBuffer::activate(t);
+	Gpu::RenderTarget::activate(t);
 	
 	/* disable depth & stencil & scissor test */
-	Gpu::disable_depth_test();
-	Gpu::disable_stencil_test();
-	Gpu::disable_scissor_test();
+	Gpu::State::disable_depth_test();
+	Gpu::State::disable_stencil_test();
+	Gpu::State::disable_scissor_test();
 	
 	/* disable blending & wireframe & culling */
-	Gpu::disable_blending();
-	Gpu::disable_wireframe();
-	Gpu::disable_culling();
+	Gpu::State::disable_blending();
+	Gpu::State::disable_wireframe();
+	Gpu::State::disable_culling();
 	
 	/* set the viewport region */
-	Gpu::set_viewport(viewport);
+	Gpu::State::set_viewport(viewport);
 	
 	/* draw the plane with shader */
 	plane->attach(*s);
-	plane->draw();
+	plane->render();
 	
-	/* set to default frame buffer */
-	Gpu::FrameBuffer::activate(nullptr);
+	/* set to default render target */
+	Gpu::RenderTarget::activate(nullptr);
 }
 
 bool RenderPass::init_render_to() {
@@ -78,7 +78,7 @@ bool RenderPass::init_render_to() {
 	
 	/* prepare plane vertex object */
 	plane = std::make_unique<Gpu::VertexObject>();
-	plane->load(plane_mesh);
+	plane->load(plane_mesh, plane_mesh.groups[0]);
 	
 	return true; /* finish */
 }

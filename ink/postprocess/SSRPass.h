@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,10 +32,10 @@ class SSRPass : public RenderPass {
 public:
 	int width = 0;                /**< the width of screen */
 	int height = 0;               /**< the height of screen */
-	int max_steps = 48;           /**< the maximum steps of ray marching */
+	int max_steps = 50;           /**< the maximum steps of ray marching */
 	float thickness = 0.02;       /**< the thickness of objects on screen */
 	float intensity = 0.5;        /**< the intensity of reflections, range is 0 to 1 */
-	float max_roughness = 0.8;    /**< the maximum roughness fade the reflection */
+	float max_roughness = 0.8;    /**< the maximum roughness to apply the reflection */
 	
 	/**
 	 * Creates a new SSRPass (Screen Space Reflection) object.
@@ -54,7 +54,7 @@ public:
 	explicit SSRPass(int w, int h, float t = 0.02, float i = 0.5);
 	
 	/**
-	 * Initializes the render pass and prepare the resources for rendering.
+	 * Initializes the render pass and prepares the resources for rendering.
 	 */
 	void init() override;
 	
@@ -126,10 +126,6 @@ private:
 	const Gpu::Texture* buffer_n = nullptr;
 	const Gpu::Texture* buffer_m = nullptr;
 	const Gpu::Texture* buffer_d = nullptr;
-	
-	std::unique_ptr<Gpu::Texture> z_map;
-	
-	std::unique_ptr<Gpu::FrameBuffer> hi_z_target;
 };
 
 }

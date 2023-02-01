@@ -24,7 +24,7 @@
 
 #include <algorithm>
 
-#include "../../libs/glad/glad.h"
+#include "../../libs/opengl/glad.h"
 #include "../../ink/core/Error.h"
 
 namespace Ink::Legacy {

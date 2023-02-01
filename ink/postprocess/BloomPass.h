@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -53,7 +53,7 @@ public:
 	explicit BloomPass(int w, int h, float t = 1, float i = 1, float r = 1);
 	
 	/**
-	 * Initializes the render pass and prepare the resources for rendering.
+	 * Initializes the render pass and prepares the resources for rendering.
 	 */
 	void init() override;
 	
@@ -80,7 +80,7 @@ private:
 	std::unique_ptr<Gpu::Texture> bloom_map_1;
 	std::unique_ptr<Gpu::Texture> bloom_map_2;
 	
-	std::unique_ptr<Gpu::FrameBuffer> bloom_target;
+	std::unique_ptr<Gpu::RenderTarget> bloom_target;
 };
 
 }

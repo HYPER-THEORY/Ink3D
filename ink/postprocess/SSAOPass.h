@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,13 +30,13 @@ namespace Ink {
 
 class SSAOPass : public RenderPass {
 public:
-	int width = 0;           /**< the width of screen */
-	int height = 0;          /**< the height of screen */
-	int samples = 32;        /**< sample numbers, must be 16, 32 or 64 */
-	float radius = 0;        /**< radius to search for occluders */
-	float max_radius = 0;    /**< the maximum radius from occluder to shading point */
-	float intensity = 1;     /**< the intensity of ambient occlusion, range is 0 to 1 */
-	float bias = 0.1;        /**< bias to avoid unrealistic effects */
+	int width = 0;            /**< the width of screen */
+	int height = 0;           /**< the height of screen */
+	int samples = 32;         /**< sample number, must be 16, 32 or 64 */
+	float radius = 0;         /**< radius to search for occluders */
+	float max_radius = 0;     /**< the maximum radius from occluder to pixel */
+	float intensity = 1;      /**< the intensity of ambient occlusion, range is 0 to 1 */
+	float max_depth = 100;    /**< the maximum depth to render ambient occlusion */
 	
 	/**
 	 * Creates a new SSAOPass (Screen Space Ambient Occlusion) object.
@@ -56,7 +56,7 @@ public:
 	explicit SSAOPass(int w, int h, float r, float m, float i = 1);
 	
 	/**
-	 * Initializes the render pass and prepare the resources for rendering.
+	 * Initializes the render pass and prepares the resources for rendering.
 	 */
 	void init() override;
 	
@@ -118,8 +118,8 @@ private:
 	std::unique_ptr<Gpu::Texture> blur_map_1;
 	std::unique_ptr<Gpu::Texture> blur_map_2;
 	
-	std::unique_ptr<Gpu::FrameBuffer> blur_target_1;
-	std::unique_ptr<Gpu::FrameBuffer> blur_target_2;
+	std::unique_ptr<Gpu::RenderTarget> blur_target_1;
+	std::unique_ptr<Gpu::RenderTarget> blur_target_2;
 };
 
 }

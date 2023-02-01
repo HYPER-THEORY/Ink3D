@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -85,10 +85,10 @@ int run() {
 	uint32_t time = 0;
 	while (Ink::Window::is_open()) {
 		
-		/* clear default frame buffer */
-		Ink::Gpu::FrameBuffer::activate(nullptr);
-		Ink::Gpu::set_clear_color(t.background_color, 0);
-		Ink::Gpu::clear();
+		/* clear default render target */
+		Ink::Gpu::RenderTarget::activate(nullptr);
+		Ink::Gpu::State::set_clear_color(t.background_color, 0);
+		Ink::Gpu::State::clear();
 		
 		/* update window with delta time */
 		uint32_t delta_time = Ink::Window::get_time() - time;
@@ -97,7 +97,7 @@ int run() {
 		Ink::Window::update();
 		
 		/* print error from OpenGL */
-		std::string error = Ink::Gpu::get_error();
+		std::string error = Ink::Gpu::State::get_error();
 		if (!error.empty()) std::cerr << error;
 		
 #ifdef DEBUG

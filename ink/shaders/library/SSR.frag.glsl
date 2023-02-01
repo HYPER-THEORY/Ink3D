@@ -1,0 +1,133 @@
+#include <common>
+#include <packing>
+#include <transform>
+
+uniform sampler2D map;
+uniform sampler2D buffer_n;
+uniform sampler2D buffer_m;
+uniform sampler2D buffer_d;
+
+uniform int max_steps;
+uniform float intensity;
+uniform float thickness;
+uniform float max_roughness;
+uniform float near;
+uniform float far;
+uniform vec2 screen_size;
+uniform mat4 view;
+uniform mat4 proj;
+uniform mat4 inv_proj;
+
+in vec2 v_uv;
+
+layout(location = 0) out vec4 out_color;
+
+bool out_of_screen(vec2 coord) {
+	return any(bvec4(coord.x < 0., coord.x > 1., coord.y < 0., coord.y > 1.));
+}
+
+void main() {
+	/* sample color from texture */
+	vec3 color = textureLod(map, v_uv, 0).xyz;
+	
+	/* sample depth from texture */
+	float depth = textureLod(buffer_d, v_uv, 0).x;
+	
+	/* ignore the pixels on skybox */
+	out_color = vec4(color, 1.);
+	if (depth == 1.) return;
+	
+	/* sample roughness from texture */
+	float roughness = textureLod(buffer_m, v_uv, 0).w;
+	if (roughness >= max_roughness) return;
+	
+	/* sample world normal from texture */
+	vec3 normal = textureLod(buffer_n, v_uv, 0).xyz;
+	normal = normalize(unpack_normal(normal));
+	normal = mat3(view) * normal;
+	
+	/* transform from screen space to view space */
+	vec4 ndc = vec4(vec3(v_uv.xy, depth) * 2. - 1., 1.);
+	vec4 view_pos = inv_proj * ndc;
+	view_pos /= view_pos.w;
+	vec3 view_dir = normalize(view_pos.xyz);
+	
+	/* calculate reflect direction & position */
+	vec3 reflect_dir = normalize(reflect(view_dir, normal));
+	vec3 reflect_pos = view_pos.xyz + reflect_dir;
+	
+	/* calculate UV and depth of reflected point */
+	vec4 reflect_ndc = proj * vec4(reflect_pos, 1.);
+	reflect_ndc /= reflect_ndc.w;
+	vec2 reflect_uv = reflect_ndc.xy * 0.5 + 0.5;
+	float reflect_z = reflect_ndc.z * 0.5 + 0.5;
+	
+	/* if ray is traced towards camera or out of the far plane */
+	if (any(bvec2(reflect_z < depth, reflect_z > 1.))) return;
+	
+	/* calculate the direction of UV and Z */
+	vec2 direction_uv = reflect_uv - v_uv;
+	float direction_z = reflect_z - depth;
+	
+	/* calculate the minimum ray length to step over one texel */
+	vec2 texel_size = 1. / screen_size;
+	float ray_step = min(texel_size.x, texel_size.y) / length(direction_uv);
+	
+	/* initialize ray length to prevent intersecting at the beginning */
+	float ray_length = 2.5 * ray_step;
+	
+	/* initialize total steps */
+	int total_steps = 0;
+	
+	/* ray matching until total steps exceeds the limit */
+	while (total_steps < max_steps) {
+		
+		/* get the UV of the current ray */
+		vec2 ray_uv = v_uv + direction_uv * ray_length;
+		if (out_of_screen(ray_uv)) break;
+		
+		/* get the Z of the current ray and cell */
+		float ray_z = depth + direction_z * ray_length;
+		float cell_z = textureLod(buffer_d, ray_uv, 0).x;
+		
+		/* if ray has intersected with cell */
+		if (ray_z > cell_z) {
+			
+			/* linearize the depth of the current ray and cell */
+			if (ray_z > 1.) return;
+			ray_z = depth + direction_z * ray_length;
+			float linear_ray_z = linearize_depth_persp(ray_z, near, far);
+			float linear_cell_z = linearize_depth_persp(cell_z, near, far);
+			
+			/* ignore the pixels if the depth of ray is too large */
+			if (linear_ray_z > linear_cell_z + thickness) return;
+			
+			/* calculate intensity attenuation */
+			float attenuation = intensity;
+			
+			/* calculate distance attenuation */
+			attenuation *= 1. - float(total_steps) / float(max_steps);
+			
+			/* calculate screen edge attenuation */
+			vec2 coords = smoothstep(0.2, 0.6, abs(vec2(0.5) - ray_uv.xy));
+			float screen_edge_fade = saturate(1. - (coords.x + coords.y));
+			attenuation *= screen_edge_fade;
+			
+			/* calculate reflected color with Fresnel */
+			float cos_theta = max(dot(normal, view_dir), 0.);
+			vec3 f0 = textureLod(buffer_m, v_uv, 0).xyz;
+			vec3 fresnel = f0 + (1. - f0) * pow(1. - cos_theta, 5.);
+			vec3 reflect_color = textureLod(map, ray_uv, 0).xyz * fresnel;
+			
+			/* calculate final color with reflected color */
+			out_color = vec4(mix(color, reflect_color, attenuation), 1.);
+			return;
+		}
+		
+		/* step to the next cell */
+		ray_length += ray_step;
+		
+		/* accumulate to total steps */
+		++total_steps;
+	}
+}
