@@ -74,9 +74,10 @@ private:
 	static std::unique_ptr<Gpu::Texture> blur_map;
 	
 	static std::unique_ptr<Gpu::RenderTarget> cubemap_target;
+	
 	static std::unique_ptr<Gpu::RenderTarget> blur_target;
 	
-	static bool init_load_texture();
+	static bool init_plane();
 	
 	static void gaussian_weights(float s, int n, float* w);
 };
