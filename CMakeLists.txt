@@ -8,7 +8,6 @@ set(
         ink/renderer/Renderer.cxx
         ink/probes/IBLFilter.cxx
         ink/probes/ReflectionProbe.cxx
-        ink/probes/LightProbe.cxx
         ink/core/File.cxx
         ink/core/Date.cxx
         ink/core/Error.cxx
@@ -22,6 +21,7 @@ set(
         ink/objects/Uniforms.cxx
         ink/objects/Image.cxx
         ink/objects/Mesh.cxx
+        ink/utils/ImageUtils.cxx
         ink/utils/ConvexHull.cxx
         ink/utils/ColorTransform.cxx
         ink/utils/Viewer.cxx
@@ -39,6 +39,8 @@ set(
         ink/audio/Audio.cxx
         ink/loader/Loader.cxx
         ink/window/Window.cxx
+        ink/shaders/ShaderLib.cxx
+        ink/shaders/ShaderCache.cxx
         ink/postprocess/FXAAPass.cxx
         ink/postprocess/ToneMapPass.cxx
         ink/postprocess/BlurPass.cxx
@@ -53,7 +55,6 @@ set(
         ink/physics/Physics.cxx
         ink/scene/Scene.cxx
         ink/graphics/Gpu.cxx
-        ink/graphics/ShaderLib.cxx
         ink/graphics/Software.cxx
         ink/lights/LinearFog.cxx
         ink/lights/Light.cxx
@@ -64,7 +65,6 @@ set(
         ink/lights/Shadow.cxx
         ink/lights/DirectionalLight.cxx
         libs/glad/glad.c
-        test/shading/ShadingTest.cxx
 )
 
 if(NOT SKIP_FIND_SDL2_LIBRARY)
