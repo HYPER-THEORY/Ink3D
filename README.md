@@ -7,7 +7,7 @@ Ink 3D is a lightweight and easy to use framework for 3D rendering.
 
 ![Ink3D - Coffee Cup.png](https://s2.loli.net/2023/02/01/SilvdUzxObpeYCu.png "Coffee Cup - Rendered by Ink3D")
 
-![Ink3D - Paper Plane.png](https://s2.loli.net/2023/02/01/7dL6OSxbrDCKeJ1.png "Paper Plane - Rendered by Ink3D")
+![Ink3D - Paper Plane.png](https://s2.loli.net/2023/02/01/HuALipG27Nal3r4.png "Paper Plane - Rendered by Ink3D")
 
 ### Features ###
 
