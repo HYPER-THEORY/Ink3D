@@ -77,8 +77,7 @@ void Window::update() {
 		int32_t keycode = event.key.keysym.sym;
 		if (keycode > 127) keycode -= 1073741696;
 		if (event.type == SDL_QUIT) {
-			close();
-			return;
+			return close();
 		} else if (event.type == SDL_KEYDOWN) {
 			keypressed[keycode] = !keydown[keycode];
 			keydown[keycode] = true;

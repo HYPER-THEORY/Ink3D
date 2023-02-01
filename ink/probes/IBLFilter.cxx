@@ -64,9 +64,9 @@ void IBLFilter::load_equirect(const Image& i, Gpu::Texture& m, int s) {
 }
 
 void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
-	/* initialize load texture */
+	/* initialize plane vertex object */
 	[[maybe_unused]]
-	bool inited = init_load_texture();
+	static bool inited = init_plane();
 	
 	/* disable depth & stencil & scissor test */
 	Gpu::State::disable_depth_test();
@@ -199,7 +199,7 @@ void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
 	Gpu::RenderTarget::activate(nullptr);
 }
 
-bool IBLFilter::init_load_texture() {
+bool IBLFilter::init_plane() {
 	/* prepare plane mesh */
 	Mesh plane_mesh = Mesh();
 	plane_mesh.groups = {{"default", 0, 3}};
@@ -235,6 +235,7 @@ std::unique_ptr<Gpu::VertexObject> IBLFilter::plane;
 std::unique_ptr<Gpu::Texture> IBLFilter::blur_map;
 
 std::unique_ptr<Gpu::RenderTarget> IBLFilter::cubemap_target;
+
 std::unique_ptr<Gpu::RenderTarget> IBLFilter::blur_target;
 
 }
