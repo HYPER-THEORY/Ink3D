@@ -41,9 +41,9 @@ void RenderPass::set_viewport(const Gpu::Rect& v) {
 }
 
 void RenderPass::render_to(const Gpu::Shader* s, const Gpu::RenderTarget* t) {
-	/* initialize render_to */
+	/* initialize plane vertex object */
 	[[maybe_unused]]
-	static bool inited = init_render_to();
+	static bool inited = init_plane();
 	
 	/* activate render target */
 	Gpu::RenderTarget::activate(t);
@@ -69,7 +69,7 @@ void RenderPass::render_to(const Gpu::Shader* s, const Gpu::RenderTarget* t) {
 	Gpu::RenderTarget::activate(nullptr);
 }
 
-bool RenderPass::init_render_to() {
+bool RenderPass::init_plane() {
 	/* prepare plane mesh */
 	Mesh plane_mesh = Mesh("plane");
 	plane_mesh.groups = {{"default", 0, 3}};

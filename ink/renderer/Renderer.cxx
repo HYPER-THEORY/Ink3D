@@ -566,7 +566,6 @@ void Renderer::set_light_uniforms(const Scene& s, const Gpu::Shader& shader) {
 		shader.set_uniform_f(shadows_i + ".bias", shadow.bias);
 		shader.set_uniform_f(shadows_i + ".normal_bias", shadow.normal_bias);
 		shader.set_uniform_f(shadows_i + ".radius", shadow.radius);
-		shader.set_uniform_m4(shadows_i + ".proj", shadow.camera.projection);
 		shader.set_uniform_m4(shadows_i + ".view_proj", view_proj);
 	}
 	
@@ -641,9 +640,9 @@ void Renderer::set_light_uniforms(const Scene& s, const Gpu::Shader& shader) {
 }
 
 void Renderer::render_skybox_to_buffer(const Camera& c, int r) const {
-	/* initialize skybox */
+	/* initialize cube vertex object */
 	[[maybe_unused]]
-	static bool inited = init_skybox();
+	static bool inited = init_cube();
 	
 	/* set the depth & stencil test */
 	Gpu::State::disable_depth_test();
@@ -1015,7 +1014,7 @@ void Renderer::render_to_shadow(const Scene& s, const Camera& c) const {
 	}
 }
 
-bool Renderer::init_skybox() {
+bool Renderer::init_cube() {
 	cube = std::make_unique<Gpu::VertexObject>();
 	Mesh box = BoxMesh::create();
 	cube->load(box, box.groups[0]);

@@ -398,7 +398,7 @@ private:
 	
 	void render_to_shadow(const Scene& s, const Camera& c) const;
 	
-	static bool init_skybox();
+	static bool init_cube();
 	
 	static void sort_instances(const Camera& c, std::vector<const Instance*>& l, bool t);
 };
