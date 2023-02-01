@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,7 @@ public:
 	explicit LightPass() = default;
 	
 	/**
-	 * Initializes the render pass and prepare the resources for rendering.
+	 * Initializes the render pass and prepares the resources for rendering.
 	 */
 	void init() override;
 	
@@ -57,12 +57,12 @@ public:
 	/**
 	 * Returns the mode in tone mapping.
 	 */
-	int get_tone_mapping_mode() const;
+	int get_tone_map_mode() const;
 	
 	/**
 	 * Returns the exposure in tone mapping.
 	 */
-	float get_tone_mapping_exposure() const;
+	float get_tone_map_exposure() const;
 	
 	/**
 	 * Sets the specified mode and exposure in tone mapping. Default is
@@ -71,7 +71,7 @@ public:
 	 * \param m tone mapping mode
 	 * \param e tone mapping exposure
 	 */
-	void set_tone_mapping(int m, float e);
+	void set_tone_map(int m, float e);
 	
 	/**
 	 * Returns the 2D texture represents the diffuse color buffer in G-Buffers.

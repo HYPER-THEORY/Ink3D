@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,37 +31,8 @@ void Shadow::init(int w, int h, int n) {
 	shadow_map->set_wrap_all(TEXTURE_CLAMP_TO_BORDER);
 	shadow_map->set_filters(TEXTURE_LINEAR, TEXTURE_NEAREST);
 	shadow_map->set_border_color({1, 1, 1, 1});
-	shadow_target = std::make_unique<Gpu::FrameBuffer>();
-	shadow_target->disable_draw();
-}
-
-void Shadow::activate() {
-	if (assigner.empty()) assigner.emplace_back(0);
-	unique_id = assigner.back();
-	assigner.pop_back();
-	if (assigner.empty()) assigner.emplace_back(unique_id + 1);
-}
-
-void Shadow::deactivate() {
-	assigner.emplace_back(unique_id);
-	unique_id = -1;
-}
-
-int Shadow::get_unique_id() const {
-	return unique_id;
-}
-
-const Gpu::FrameBuffer* Shadow::get_target() const {
-	shadow_target->set_depth_attachment(*shadow_map, 0, unique_id);
-	return shadow_target.get();
-}
-
-int Shadow::activate_texture(int l) {
-	return shadow_map->activate(l);
-}
-
-Vec2 Shadow::get_resolution() {
-	return resolution;
+	shadow_target = std::make_unique<Gpu::RenderTarget>();
+	shadow_target->set_target_number(0);
 }
 
 int Shadow::get_samples() {
@@ -72,14 +43,25 @@ void Shadow::set_samples(int s) {
 	samples = s;
 }
 
+Vec2 Shadow::get_resolution() {
+	return resolution;
+}
+
+int Shadow::activate_texture(int l) {
+	return shadow_map->activate(l);
+}
+
+const Gpu::RenderTarget* Shadow::get_target() const {
+	shadow_target->set_depth_texture(*shadow_map, 0, map_id);
+	return shadow_target.get();
+}
+
 int Shadow::samples = 32;
 
 Vec2 Shadow::resolution;
 
-std::vector<int> Shadow::assigner;
-
 std::unique_ptr<Gpu::Texture> Shadow::shadow_map;
 
-std::unique_ptr<Gpu::FrameBuffer> Shadow::shadow_target;
+std::unique_ptr<Gpu::RenderTarget> Shadow::shadow_target;
 
 }

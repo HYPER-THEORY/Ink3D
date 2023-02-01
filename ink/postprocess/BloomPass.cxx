@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,8 @@
 
 #include "BloomPass.h"
 
+#include "../shaders/ShaderLib.h"
+
 namespace Ink {
 
 BloomPass::BloomPass(int w, int h, float t, float i, float r) :
@@ -43,8 +45,7 @@ void BloomPass::init() {
 	bloom_map_2->generate_mipmap();
 	
 	/* prepare bloom render target */
-	bloom_target = std::make_unique<Gpu::FrameBuffer>();
-	bloom_target->draw_attachments({0});
+	bloom_target = std::make_unique<Gpu::RenderTarget>();
 }
 
 void BloomPass::render() const {
@@ -53,10 +54,9 @@ void BloomPass::render() const {
 	
 	/* fetch blur shader from shader lib */
 	Defines blur_defines;
-	blur_defines.set("BLUR_GAUSSIAN");
 	blur_defines.set("TYPE", "vec3");
 	blur_defines.set("SWIZZLE", ".xyz");
-	auto* blur_shader = ShaderLib::fetch("Blur", blur_defines);
+	auto* blur_shader = ShaderLib::fetch("GaussianBlur", blur_defines);
 	
 	/* fetch bloom shader from shader lib */
 	auto* bloom_shader = ShaderLib::fetch("Bloom");
@@ -69,7 +69,7 @@ void BloomPass::render() const {
 	bright_pass_shader->use_program();
 	bright_pass_shader->set_uniform_f("threshold", threshold);
 	bright_pass_shader->set_uniform_i("map", map->activate(0));
-	bloom_target->set_attachment(*bloom_map_1, 0, 0);
+	bloom_target->set_texture(*bloom_map_1, 0, 0);
 	RenderPass::render_to(bright_pass_shader, bloom_target.get());
 	
 	/* initialize size lod */
@@ -84,22 +84,22 @@ void BloomPass::render() const {
 		
 		/* blur texture horizontally */
 		blur_shader->use_program();
-		blur_shader->set_uniform_v2("direction", {1 / size_lod.x, 0});
 		blur_shader->set_uniform_f("lod", fmax(0, lod - 1));
+		blur_shader->set_uniform_v2("direction", {1 / size_lod.x, 0});
 		blur_shader->set_uniform_i("radius", sigma * 3);
 		blur_shader->set_uniform_f("sigma_s", sigma);
 		blur_shader->set_uniform_i("map", bloom_map_1->activate(0));
-		bloom_target->set_attachment(*bloom_map_2, 0, lod);
+		bloom_target->set_texture(*bloom_map_2, 0, lod);
 		RenderPass::render_to(blur_shader, bloom_target.get());
 		
 		/* blur texture vertically */
 		blur_shader->use_program();
-		blur_shader->set_uniform_v2("direction", {0, 1 / size_lod.y});
 		blur_shader->set_uniform_f("lod", lod);
+		blur_shader->set_uniform_v2("direction", {0, 1 / size_lod.y});
 		blur_shader->set_uniform_i("radius", sigma * 3);
 		blur_shader->set_uniform_f("sigma_s", sigma);
 		blur_shader->set_uniform_i("map", bloom_map_2->activate(0));
-		bloom_target->set_attachment(*bloom_map_1, 0, lod);
+		bloom_target->set_texture(*bloom_map_1, 0, lod);
 		RenderPass::render_to(blur_shader, bloom_target.get());
 		
 		/* update size lod to lower lod */

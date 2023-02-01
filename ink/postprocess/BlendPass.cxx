@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +21,8 @@
  */
 
 #include "BlendPass.h"
+
+#include "../shaders/ShaderLib.h"
 
 namespace Ink {
 
@@ -54,12 +56,24 @@ void BlendPass::set_texture_b(const Gpu::Texture* t) {
 	map_b = t;
 }
 
+std::string BlendPass::get_operation() const {
+	return operation;
+}
+
 void BlendPass::set_operation(const std::string& o) {
 	operation = o;
 }
 
+std::string BlendPass::get_swizzle_a() const {
+	return swizzle_a;
+}
+
 void BlendPass::set_swizzle_a(const std::string& s) {
 	swizzle_a = s;
+}
+
+std::string BlendPass::get_swizzle_b() const {
+	return swizzle_b;
 }
 
 void BlendPass::set_swizzle_b(const std::string& s) {

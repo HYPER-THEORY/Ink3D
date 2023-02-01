@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -84,6 +84,7 @@ std::vector<Mesh> Loader::load_obj(const std::string& p, const std::string& g) {
 	
 	/* temporary data */
 	std::vector<Vec3> vertex;
+	std::vector<Vec3> color;
 	std::vector<Vec3> normal;
 	std::vector<Vec2> uv;
 	
@@ -233,30 +234,30 @@ std::vector<Material> Loader::load_mtl(const std::string& p) {
 		
 		/* diffuse color */
 		else if (keyword == "Kd") {
-			Vec3 diffuse;
-			stream >> diffuse.x >> diffuse.y >> diffuse.z;
-			current_material->color = diffuse;
+			Vec3 kd;
+			stream >> kd.x >> kd.y >> kd.z;
+			current_material->color = kd;
 		}
 		
 		/* emissive color */
 		else if (keyword == "Ke") {
-			Vec3 emissive;
-			stream >> emissive.x >> emissive.y >> emissive.z;
-			current_material->emissive = emissive;
+			Vec3 ke;
+			stream >> ke.x >> ke.y >> ke.z;
+			current_material->emissive = ke;
 		}
 		
 		/* dissolve factor */
 		else if (keyword == "d") {
-			float dissolve;
-			stream >> dissolve;
-			current_material->alpha = dissolve;
+			float d;
+			stream >> d;
+			current_material->alpha = d;
 		}
 		
 		/* transparency factor */
 		else if (keyword == "tr") {
-			float transparency;
-			stream >> transparency;
-			current_material->alpha = 1 - transparency;
+			float tr;
+			stream >> tr;
+			current_material->alpha = 1 - tr;
 		}
 		
 		/* not used in PBR material */

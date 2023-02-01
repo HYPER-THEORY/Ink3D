@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,105 +22,40 @@
 
 #include "SSRPass.h"
 
+#include "../shaders/ShaderLib.h"
+
 namespace Ink {
 
 SSRPass::SSRPass(int w, int h, float t, float i) :
 width(w), height(h), thickness(t), intensity(i) {}
 
-void SSRPass::init() {
-	/* calculate max lod and Hierarchical-Z map size */
-	Vec2 max_lod = {ceilf(log2f(width)) - 1, ceilf(log2f(height)) - 1};
-	Vec2 z_map_size = {powf(2, max_lod.x), powf(2, max_lod.y)};
-	
-	/* prepare Hierarchical-Z map */
-	z_map = std::make_unique<Gpu::Texture>();
-	z_map->init_2d(z_map_size.x, z_map_size.y, TEXTURE_R32_SFLOAT);
-	z_map->set_filters(TEXTURE_NEAREST, TEXTURE_NEAREST_MIPMAP_NEAREST);
-	z_map->generate_mipmap();
-	
-	/* prepare Hierarchical-Z frame buffer */
-	hi_z_target = std::make_unique<Gpu::FrameBuffer>();
-	hi_z_target->draw_attachments({0});
-}
+void SSRPass::init() {}
 
 void SSRPass::render() const {
-	/* fetch copy shader from shader lib */
-	auto* copy_shader = ShaderLib::fetch("Copy");
-	
-	/* fetch Hierarchical-Z shader from shader lib */
-	auto* hi_z_shader = ShaderLib::fetch("MinHiZ");
-	
 	/* fetch SSR shader from shader lib */
 	auto* ssr_shader = ShaderLib::fetch("SSR");
 	
-	/* calculate max lod and Hierarchical-Z map size */
-	Vec2 max_lod = {ceilf(log2f(width)) - 1, ceilf(log2f(height)) - 1};
-	Vec2 z_map_size = {powf(2, max_lod.x), powf(2, max_lod.y)};
-	
-	/* the max level used in algorithm */
-	int max_level = fmin(max_lod.x, max_lod.y);
-	
-	/* change the current viewport */
-	Gpu::Rect viewport = RenderPass::get_viewport();
-	RenderPass::set_viewport(Gpu::Rect(z_map_size.x, z_map_size.y));
-	
-	/* 1. copy depth buffer to Hierarchical-Z map */
-	copy_shader->use_program();
-	copy_shader->set_uniform_i("map", buffer_d->activate(0));
-	hi_z_target->set_attachment(*z_map, 0, 0);
-	RenderPass::render_to(copy_shader, hi_z_target.get());
-	
-	/* 2. generate Hierarchical-Z map */
-	Vec2 z_size = z_map_size / 2;
-	for (int lod = 0; lod < max_level; ++lod) {
-		
-		/* set the viewport to Hierarchical-Z map size */
-		RenderPass::set_viewport(Gpu::Rect(z_size.x, z_size.y));
-		
-		/* set the mipmap range of Hierarchical-Z map */
-		/* to avoid reading and writing with the same texture */
-		z_map->set_mipmap_range(lod, lod);
-		
-		/* render to lower level Hierarchical-Z map */
-		hi_z_shader->use_program();
-		hi_z_shader->set_uniform_v2("screen_size", z_size);
-		hi_z_shader->set_uniform_i("lod", lod);
-		hi_z_shader->set_uniform_i("map", z_map->activate(0));
-		hi_z_target->set_attachment(*z_map, 0, lod + 1);
-		RenderPass::render_to(hi_z_shader, hi_z_target.get());
-		
-		/* update the size of Hierarchical-Z map */
-		z_size.x = fmax(1, floorf(z_size.x / 2));
-		z_size.y = fmax(1, floorf(z_size.y / 2));
-	}
-	
-	/* set back to initial the mipmap range */
-	z_map->set_mipmap_range(0, 1000);
-	
-	/* set back to the initial viewport */
-	RenderPass::set_viewport(viewport);
-	
 	/* calculate camera parameters */
-	Mat4 view_proj = camera->projection * camera->viewing;
-	Mat4 inv_view_proj = inverse_4x4(view_proj);
+	Gpu::Rect viewport = RenderPass::get_viewport();
+	Vec2 screen_size = Vec2(viewport.width, viewport.height);
+	Mat4 inv_proj = inverse_4x4(camera->projection);
 	
-	/* 3. render SSR mixing with input map to render target */
+	/* render SSR results to render target */
 	ssr_shader->use_program();
 	ssr_shader->set_uniform_i("max_steps", max_steps);
-	ssr_shader->set_uniform_i("max_level", max_level);
 	ssr_shader->set_uniform_f("intensity", intensity);
 	ssr_shader->set_uniform_f("thickness", thickness);
 	ssr_shader->set_uniform_f("max_roughness", max_roughness);
-	ssr_shader->set_uniform_v3("camera_pos", camera->position);
-	ssr_shader->set_uniform_f("camera_near", camera->near);
-	ssr_shader->set_uniform_f("camera_far", camera->far);
-	ssr_shader->set_uniform_v2("z_map_size", z_map_size);
-	ssr_shader->set_uniform_m4("view_proj", view_proj);
-	ssr_shader->set_uniform_m4("inv_view_proj", inv_view_proj);
+	ssr_shader->set_uniform_f("near", camera->near);
+	ssr_shader->set_uniform_f("far", camera->far);
+	ssr_shader->set_uniform_v2("screen_size", screen_size);
+	ssr_shader->set_uniform_m4("view", camera->viewing);
+	ssr_shader->set_uniform_m4("proj", camera->projection);
+	ssr_shader->set_uniform_m4("inv_proj", inv_proj);
 	ssr_shader->set_uniform_i("map", map->activate(0));
-	ssr_shader->set_uniform_i("z_map", z_map->activate(1));
-	ssr_shader->set_uniform_i("buffer_n", buffer_n->activate(2));
-	ssr_shader->set_uniform_i("buffer_m", buffer_n->activate(3));
+	ssr_shader->set_uniform_i("buffer_n", buffer_n->activate(1));
+	ssr_shader->set_uniform_i("buffer_m", buffer_m->activate(2));
+	ssr_shader->set_uniform_i("buffer_d", buffer_d->activate(3));
 	RenderPass::render_to(ssr_shader, target);
 }
 

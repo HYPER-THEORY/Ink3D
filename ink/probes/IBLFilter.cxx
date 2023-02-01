@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,9 @@
 #include "IBLFilter.h"
 
 #include "../core/Format.h"
-#include "../graphics/ShaderLib.h"
+#include "../math/Constants.h"
+#include "../math/Vector.h"
+#include "../shaders/ShaderLib.h"
 
 namespace Ink {
 
@@ -67,20 +69,20 @@ void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
 	bool inited = init_load_texture();
 	
 	/* disable depth & stencil & scissor test */
-	Gpu::disable_depth_test();
-	Gpu::disable_stencil_test();
-	Gpu::disable_scissor_test();
+	Gpu::State::disable_depth_test();
+	Gpu::State::disable_stencil_test();
+	Gpu::State::disable_scissor_test();
 	
 	/* disable blending & wireframe & culling */
-	Gpu::disable_blending();
-	Gpu::disable_wireframe();
-	Gpu::disable_culling();
+	Gpu::State::disable_blending();
+	Gpu::State::disable_wireframe();
+	Gpu::State::disable_culling();
 	
 	/* enable texture cube seamless */
-	Gpu::enable_texture_cube_seamless();
+	Gpu::State::enable_texture_cube_seamless();
 	
 	/* change the current viewport */
-	Gpu::set_viewport(Gpu::Rect(s, s));
+	Gpu::State::set_viewport(Gpu::Rect(s, s));
 	
 	/* initialize radiance environment map */
 	m.init_cube(s, s, t.get_format());
@@ -97,21 +99,20 @@ void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
 	cubemap_defines.set_if("USE_CUBEMAP", type == TEXTURE_CUBE);
 	auto* cubemap_shader = ShaderLib::fetch("Cubemap", cubemap_defines);
 	
-	/* prepare cubemap frame buffer */
+	/* prepare cubemap render target */
 	if (!cubemap_target) {
-		cubemap_target = std::make_unique<Gpu::FrameBuffer>();
-		cubemap_target->draw_attachments({0});
+		cubemap_target = std::make_unique<Gpu::RenderTarget>();
 	}
 	
 	/* render to cube texture */
 	for (int i = 0; i < 6; ++i) {
-		cubemap_target->set_attachment(m, 0, 0, i);
-		Gpu::FrameBuffer::activate(cubemap_target.get());
+		cubemap_target->set_texture(m, 0, 0, i);
+		Gpu::RenderTarget::activate(cubemap_target.get());
 		cubemap_shader->use_program();
 		cubemap_shader->set_uniform_i("face", i);
 		cubemap_shader->set_uniform_i("map", t.activate(0));
 		plane->attach(*cubemap_shader);
-		plane->draw();
+		plane->render();
 	}
 	
 	/* prepare blur map */
@@ -120,10 +121,9 @@ void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
 	blur_map->generate_mipmap();
 	blur_map->set_filters(TEXTURE_LINEAR, TEXTURE_LINEAR_MIPMAP_LINEAR);
 	
-	/* prepare blur frame buffer */
+	/* prepare blur render target */
 	if (!blur_target) {
-		blur_target = std::make_unique<Gpu::FrameBuffer>();
-		blur_target->draw_attachments({0});
+		blur_target = std::make_unique<Gpu::RenderTarget>();
 	}
 	
 	/* blur cube texture latitudinally and longitudinally */
@@ -144,18 +144,18 @@ void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
 		gaussian_weights(sigma, 20, weights);
 		
 		/* change the current viewport */
-		Gpu::set_viewport(Gpu::Rect(size_lod / 2, size_lod / 2));
+		Gpu::State::set_viewport(Gpu::Rect(size_lod / 2, size_lod / 2));
 		
 		/* blur texture latitudinally */
 		for (int i = 0; i < 6; ++i) {
-			blur_target->set_attachment(*blur_map, 0, lod, i);
-			Gpu::FrameBuffer::activate(blur_target.get());
+			blur_target->set_texture(*blur_map, 0, lod, i);
+			Gpu::RenderTarget::activate(blur_target.get());
 			blur_shader->use_program();
+			blur_shader->set_uniform_f("lod", lod - 1);
 			blur_shader->set_uniform_i("face", i);
 			blur_shader->set_uniform_i("samples", samples);
 			blur_shader->set_uniform_i("latitudinal", 1);
 			blur_shader->set_uniform_f("d_theta", d_theta);
-			blur_shader->set_uniform_f("lod", lod - 1);
 			blur_shader->set_uniform_v3("pole_axis", pole_axis);
 			blur_shader->set_uniform_i("map", m.activate(0));
 			for (int w = 0; w < 20; ++w) {
@@ -163,7 +163,7 @@ void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
 				blur_shader->set_uniform_f(weights_i, weights[w]);
 			}
 			plane->attach(*blur_shader);
-			plane->draw();
+			plane->render();
 		}
 		
 		/* calculate blur parameters */
@@ -176,14 +176,14 @@ void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
 		
 		/* blur texture longitudinally */
 		for (int f = 0; f < 6; ++f) {
-			blur_target->set_attachment(m, 0, lod, f);
-			Gpu::FrameBuffer::activate(blur_target.get());
+			blur_target->set_texture(m, 0, lod, f);
+			Gpu::RenderTarget::activate(blur_target.get());
 			blur_shader->use_program();
+			blur_shader->set_uniform_f("lod", lod);
 			blur_shader->set_uniform_i("face", f);
 			blur_shader->set_uniform_i("samples", samples);
 			blur_shader->set_uniform_i("latitudinal", 0);
 			blur_shader->set_uniform_f("d_theta", d_theta);
-			blur_shader->set_uniform_f("lod", lod);
 			blur_shader->set_uniform_v3("pole_axis", pole_axis);
 			blur_shader->set_uniform_i("map", blur_map->activate(0));
 			for (int w = 0; w < 20; ++w) {
@@ -191,12 +191,12 @@ void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
 				blur_shader->set_uniform_f(weights_i, weights[w]);
 			}
 			plane->attach(*blur_shader);
-			plane->draw();
+			plane->render();
 		}
 	}
 	
-	/* set back to the initial viewport */
-	Gpu::FrameBuffer::activate(nullptr);
+	/* set back to the default render target */
+	Gpu::RenderTarget::activate(nullptr);
 }
 
 bool IBLFilter::init_load_texture() {
@@ -208,7 +208,7 @@ bool IBLFilter::init_load_texture() {
 	
 	/* prepare plane vertex object */
 	plane = std::make_unique<Gpu::VertexObject>();
-	plane->load(plane_mesh);
+	plane->load(plane_mesh, plane_mesh.groups[0]);
 	
 	return true; /* finish */
 }
@@ -234,7 +234,7 @@ std::unique_ptr<Gpu::VertexObject> IBLFilter::plane;
 
 std::unique_ptr<Gpu::Texture> IBLFilter::blur_map;
 
-std::unique_ptr<Gpu::FrameBuffer> IBLFilter::cubemap_target;
-std::unique_ptr<Gpu::FrameBuffer> IBLFilter::blur_target;
+std::unique_ptr<Gpu::RenderTarget> IBLFilter::cubemap_target;
+std::unique_ptr<Gpu::RenderTarget> IBLFilter::blur_target;
 
 }

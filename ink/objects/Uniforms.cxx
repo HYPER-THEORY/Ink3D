@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,16 +24,87 @@
 
 namespace Ink {
 
-const void* Uniforms::get(const std::string& n) const {
-	return vars.at(n);
+size_t Uniforms::count() const {
+	return unifroms.size();
 }
 
-void Uniforms::set(const std::string& n, const void* v) {
-	vars.insert_or_assign(n, v);
+std::string Uniforms::get_name(int i) const {
+	return std::get<0>(unifroms[i]);
 }
 
-bool Uniforms::has(const std::string& n) const {
-	return vars.count(n) != 0;
+int Uniforms::get_type(int i) const {
+	return std::get<1>(unifroms[i]);
+}
+
+int Uniforms::get_location(int i) const {
+	return std::get<2>(unifroms[i]);
+}
+
+const float* Uniforms::get_data() const {
+	return data.data();
+}
+
+void Uniforms::set_i(const std::string& n, int v) {
+	size_t size = data.size();
+	unifroms.emplace_back(std::make_tuple(n, 0, size));
+	data.resize(size + 1);
+	std::copy_n(&v, 1, data.data() + size);
+}
+
+void Uniforms::set_u(const std::string& n, unsigned int v) {
+	size_t size = data.size();
+	unifroms.emplace_back(std::make_tuple(n, 1, size));
+	data.resize(size + 1);
+	std::copy_n(&v, 1, data.data() + size);
+}
+
+void Uniforms::set_f(const std::string& n, float v) {
+	size_t size = data.size();
+	unifroms.emplace_back(std::make_tuple(n, 2, size));
+	data.resize(size + 1);
+	std::copy_n(&v, 1, data.data() + size);
+}
+
+void Uniforms::set_v2(const std::string& n, const Vec2& v) {
+	size_t size = data.size();
+	unifroms.emplace_back(std::make_tuple(n, 3, size));
+	data.resize(size + 2);
+	std::copy_n(&v.x, 2, data.data() + size);
+}
+
+void Uniforms::set_v3(const std::string& n, const Vec3& v) {
+	size_t size = data.size();
+	unifroms.emplace_back(std::make_tuple(n, 4, size));
+	data.resize(size + 3);
+	std::copy_n(&v.x, 3, data.data() + size);
+}
+
+void Uniforms::set_v4(const std::string& n, const Vec4& v) {
+	size_t size = data.size();
+	unifroms.emplace_back(std::make_tuple(n, 5, size));
+	data.resize(size + 4);
+	std::copy_n(&v.x, 4, data.data() + size);
+}
+
+void Uniforms::set_m2(const std::string& n, const Mat2& v) {
+	size_t size = data.size();
+	unifroms.emplace_back(std::make_tuple(n, 6, size));
+	data.resize(size + 4);
+	std::copy_n(v.m[0], 4, data.data() + size);
+}
+
+void Uniforms::set_m3(const std::string& n, const Mat3& v) {
+	size_t size = data.size();
+	unifroms.emplace_back(std::make_tuple(n, 7, size));
+	data.resize(size + 9);
+	std::copy_n(v.m[0], 9, data.data() + size);
+}
+
+void Uniforms::set_m4(const std::string& n, const Mat4& v) {
+	size_t size = data.size();
+	unifroms.emplace_back(std::make_tuple(n, 8, size));
+	data.resize(size + 16);
+	std::copy_n(v.m[0], 16, data.data() + size);
 }
 
 }

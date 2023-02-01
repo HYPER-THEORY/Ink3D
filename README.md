@@ -5,11 +5,9 @@ Ink 3D
 
 Ink 3D is a lightweight and easy to use framework for 3D rendering.
 
-![Forest_Ink3D.png](https://s2.loli.net/2022/09/16/HWl1xMqmyFhAvNp.png "Forest - Render by Ink3D")
+![Ink3D - Coffee Cup.png](https://s2.loli.net/2023/02/01/SilvdUzxObpeYCu.png "Coffee Cup - Rendered by Ink3D")
 
-![Satellite_Ink3D.png](https://s2.loli.net/2022/09/16/dJblkZyncmNR3oF.png "Satellite - Render by Ink3D")
-
-![Platformer_Ink3D.png](https://s2.loli.net/2022/09/19/eO61ZPmyVGjtCSA.png "Platformer Game - Render by Ink3D")
+![Ink3D - Paper Plane.png](https://s2.loli.net/2023/02/01/7dL6OSxbrDCKeJ1.png "Paper Plane - Rendered by Ink3D")
 
 ### Features ###
 
@@ -23,7 +21,7 @@ Ink 3D is a lightweight and easy to use framework for 3D rendering.
 
 - High Quality Shadows (Hard-Edge / PCF / PCSS)
 
-- Probes System (Light Probe / Reflection Probe)
+- Probes System (Reflection Probe)
 
 - Global Fog (Linear Fog / Exponential Square Fog)
 
@@ -55,8 +53,6 @@ Ink::Renderer renderer;
 
 void conf(Settings& t) {
 	t.title = "Ink3D Example";
-	t.width = 960;
-	t.height = 540;
 	t.show_cursor = false;
 	t.lock_cursor = true;
 	t.background_color = Ink::Vec3(1, 0.93, 0.8);
@@ -103,8 +99,6 @@ void quit() {}
 ### Dependencies ###
 
 - [SDL2](https://libsdl.org) Simple Directmedia Layer
-
-- [Glad](https://glad.dav1d.de) Multi-Language Loader-Generator
 
 - [Stb_image](https://github.com/nothings/stb) Image loading/decoding from file/memory
 

@@ -1,5 +1,6 @@
 #include "../../ink/utils/Mainloop.h"
 #include "../../ink/utils/Viewer.h"
+#include "../../ink/utils/ImageUtils.h"
 
 #define HIGH_DPI 1
 
@@ -7,8 +8,6 @@
 #define VP_HEIGHT 540 * (HIGH_DPI + 1)
 
 const char* shader_vert = R"(
-#include <common>
-
 uniform mat4 model_view_proj;
 
 in vec3 vertex;
@@ -19,8 +18,6 @@ void main() {
 )";
 
 const char* shader_frag = R"(
-#include <common>
-
 uniform float index;
 
 layout(location = 0) out float out_color;
@@ -35,7 +32,6 @@ std::unordered_map<std::string, Ink::Material> materials;
 std::unordered_map<std::string, Ink::Instance*> instances;
 
 struct ObjectInfo {
-	float index = 0;
 	Ink::Vec3 direction;
 	Ink::Uniforms uniforms;
 } objects[100];
@@ -49,7 +45,7 @@ Ink::Image index_image;
 
 Ink::Gpu::Texture* index_map = nullptr;
 Ink::Gpu::RenderBuffer* index_buffer = nullptr;
-Ink::Gpu::FrameBuffer* index_target = nullptr;
+Ink::Gpu::RenderTarget* index_target = nullptr;
 
 void conf(Settings& t) {
 	t.title = "Select Box";
@@ -66,8 +62,11 @@ void load() {
 	materials["Box_Red"] = Ink::Material();
 	materials["Box_Red"].color = Ink::Vec3(1, 0.5, 0.5);
 
-	materials["Box_Green"] = Ink::Material();
-	materials["Box_Green"].color = Ink::Vec3(0.5, 1, 0.5);
+	materials["Box_Wire"] = Ink::Material();
+	materials["Box_Wire"].depth_test = false;
+	materials["Box_Wire"].transparent = true;
+	materials["Box_Wire"].alpha = 0.4;
+	materials["Box_Wire"].emissive = Ink::Vec3(1, 1, 0);
 	
 	Ink::Gpu::Shader* shader = new Ink::Gpu::Shader();
 	shader->load_vert(shader_vert);
@@ -77,11 +76,10 @@ void load() {
 	for (int i = 0; i < 100; ++i) {
 		std::string name = Ink::Format::format("Box_{}", i);
 		
-		objects[i].index = i + 1;
 		objects[i].direction = Ink::Vec3::random() * 0.01;
 		
 		auto& uniforms = objects[i].uniforms;
-		uniforms.set("index_f", &objects[i].index);
+		uniforms.set_f("index", i + 1);
 		materials[name].uniforms = &uniforms;
 		materials[name].shader = shader;
 		
@@ -102,8 +100,14 @@ void load() {
 	light->ground_color = Ink::Vec3(0.5, 0.5, 0.5);
 	scene.add_light(light);
 	
+	materials["line"] = Ink::Material();
+	materials["line"].color = Ink::Vec3(1, 1, 1);
+	materials["line"].wireframe = true;
+	
+	scene.set_material("line", &materials["line"]);
+	
 	renderer.set_rendering_mode(Ink::FORWARD_RENDERING);
-	renderer.set_tone_mapping(Ink::ACES_FILMIC_TONE_MAP, 1);
+	renderer.set_tone_map(Ink::ACES_FILMIC_TONE_MAP, 1);
 	
 	renderer.load_scene(scene);
 	renderer.set_viewport(Ink::Gpu::Rect(VP_WIDTH, VP_HEIGHT));
@@ -118,9 +122,9 @@ void load() {
 	index_buffer = new Ink::Gpu::RenderBuffer();
 	index_buffer->init(VP_WIDTH, VP_HEIGHT, Ink::TEXTURE_D24_UNORM);
 	
-	index_target = new Ink::Gpu::FrameBuffer();
-	index_target->set_attachment(*index_map, 0);
-	index_target->set_depth_attachment(*index_buffer);
+	index_target = new Ink::Gpu::RenderTarget();
+	index_target->set_texture(*index_map, 0);
+	index_target->set_depth_buffer(*index_buffer);
 	
 	index_image = Ink::Image(VP_WIDTH, VP_HEIGHT, 1);
 }
@@ -138,7 +142,7 @@ void update(float dt) {
 	Ink::Renderer::update_scene(another_scene);
 	
 	renderer.set_target(index_target);
-	renderer.clear(false, true, false);
+	renderer.clear(true, true, false);
 	renderer.render(another_scene, camera);
 	
 	index_map->copy_to_image(index_image);
@@ -147,17 +151,18 @@ void update(float dt) {
 	auto window_size = Ink::Window::get_size();
 	float cursor_x = static_cast<float>(cursor_pos.first) / window_size.first;
 	float cursor_y = 1 - static_cast<float>(cursor_pos.second) / window_size.second;
-	int index = Ink::Soft::nearest_map(index_image, 0, cursor_x, cursor_y) * 255. - 1;
-	
-	for (int i = 0; i < 100; ++i) {
-		scene.set_material("default", scene.get_child(i), &materials["Box_Red"]);
-	}
-	if (index >= 0) {
-		scene.set_material("default", scene.get_child(index), &materials["Box_Green"]);
-	}
+	int index = Ink::ImageUtils::nearest_sample(index_image, 0, cursor_x, cursor_y) * 255. - 1;
 	
 	renderer.set_target(nullptr);
 	renderer.render(scene, camera);
+	
+	Ink::Scene highlight_scene;
+	if (index >= 0) {
+		highlight_scene.add(scene.get_child(index));
+		highlight_scene.set_material("default", &materials["Box_Wire"]);
+	}
+	renderer.load_scene(highlight_scene);
+	renderer.render_transparent(highlight_scene, camera);
 }
 
 void quit() {}

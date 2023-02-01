@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,8 @@
 
 #include "SSAOPass.h"
 
+#include "../shaders/ShaderLib.h"
+
 namespace Ink {
 
 SSAOPass::SSAOPass(int w, int h, float r, float m, float i) :
@@ -40,15 +42,13 @@ void SSAOPass::init() {
 	blur_map_2->set_filters(TEXTURE_LINEAR, TEXTURE_LINEAR);
 	blur_map_2->set_wrap_all(TEXTURE_CLAMP_TO_EDGE);
 	
-	/* prepare blur frame buffer 1 */
-	blur_target_1 = std::make_unique<Gpu::FrameBuffer>();
-	blur_target_1->set_attachment(*blur_map_1, 0);
-	blur_target_1->draw_attachments({0});
+	/* prepare blur render target 1 */
+	blur_target_1 = std::make_unique<Gpu::RenderTarget>();
+	blur_target_1->set_texture(*blur_map_1, 0);
 	
-	/* prepare blur frame buffer 2 */
-	blur_target_2 = std::make_unique<Gpu::FrameBuffer>();
-	blur_target_2->set_attachment(*blur_map_2, 0);
-	blur_target_2->draw_attachments({0});
+	/* prepare blur render target 2 */
+	blur_target_2 = std::make_unique<Gpu::RenderTarget>();
+	blur_target_2->set_texture(*blur_map_2, 0);
 }
 
 void SSAOPass::render() const {
@@ -59,10 +59,9 @@ void SSAOPass::render() const {
 	
 	/* fetch blur shader from shader lib */
 	Defines blur_defines;
-	blur_defines.set("BLUR_BILATERAL");
 	blur_defines.set("TYPE", "float");
 	blur_defines.set("SWIZZLE", ".x");
-	auto* blur_shader = ShaderLib::fetch("Blur", blur_defines);
+	auto* blur_shader = ShaderLib::fetch("BilateralBlur", blur_defines);
 	
 	/* fetch blend shader from shader lib */
 	Defines blend_defines;
@@ -72,8 +71,7 @@ void SSAOPass::render() const {
 	auto* blend_shader = ShaderLib::fetch("Blend", blend_defines);
 	
 	/* calculate camera & screen parameters */
-	Mat4 view_proj = camera->projection * camera->viewing;
-	Mat4 inv_view_proj = inverse_4x4(view_proj);
+	Mat4 inv_proj = inverse_4x4(camera->projection);
 	Vec2 screen_size = Vec2(width / 2, height / 2);
 	
 	/* change the current viewport */
@@ -82,14 +80,15 @@ void SSAOPass::render() const {
 	
 	/* 1. render SSAO to texture (down-sampling) */
 	ssao_shader->use_program();
+	ssao_shader->set_uniform_f("intensity", intensity);
 	ssao_shader->set_uniform_f("radius", radius);
 	ssao_shader->set_uniform_f("max_radius", max_radius);
-	ssao_shader->set_uniform_f("bias", bias);
-	ssao_shader->set_uniform_f("intensity", intensity);
-	ssao_shader->set_uniform_f("camera_near", camera->near);
-	ssao_shader->set_uniform_f("camera_far", camera->far);
-	ssao_shader->set_uniform_m4("view_proj", view_proj);
-	ssao_shader->set_uniform_m4("inv_view_proj", inv_view_proj);
+	ssao_shader->set_uniform_f("max_depth", max_depth);
+	ssao_shader->set_uniform_f("near", camera->near);
+	ssao_shader->set_uniform_f("far", camera->far);
+	ssao_shader->set_uniform_m4("view", camera->viewing);
+	ssao_shader->set_uniform_m4("proj", camera->projection);
+	ssao_shader->set_uniform_m4("inv_proj", inv_proj);
 	ssao_shader->set_uniform_i("buffer_n", buffer_n->activate(0));
 	ssao_shader->set_uniform_i("buffer_d", buffer_d->activate(1));
 	RenderPass::render_to(ssao_shader, blur_target_1.get());
@@ -99,6 +98,7 @@ void SSAOPass::render() const {
 		
 		/* blur texture horizontally */
 		blur_shader->use_program();
+		blur_shader->set_uniform_f("lod", 0);
 		blur_shader->set_uniform_v2("direction", Vec2(1 / screen_size.x, 0));
 		blur_shader->set_uniform_i("radius", 7);
 		blur_shader->set_uniform_f("sigma_s", 2);
@@ -108,6 +108,7 @@ void SSAOPass::render() const {
 		
 		/* blur texture vertically */
 		blur_shader->use_program();
+		blur_shader->set_uniform_f("lod", 0);
 		blur_shader->set_uniform_v2("direction", Vec2(0, 1 / screen_size.y));
 		blur_shader->set_uniform_i("radius", 7);
 		blur_shader->set_uniform_f("sigma_s", 2);

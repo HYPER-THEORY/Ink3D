@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,6 @@
 #include <memory>
 
 #include "../graphics/Gpu.h"
-#include "../graphics/ShaderLib.h"
 
 namespace Ink {
 
@@ -50,15 +49,15 @@ public:
 	/**
 	 * Returns the current render target if there is, returns nullptr otherwise.
 	 */
-	const Gpu::FrameBuffer* get_target() const;
+	const Gpu::RenderTarget* get_target() const;
 	
 	/**
-	 * Sets the render target. When nullptr is given, the default frame buffer
+	 * Sets the render target. When nullptr is given, the default render target
 	 * is set as the render target.
 	 *
-	 * \param t target frame buffer
+	 * \param t render target
 	 */
-	void set_target(const Gpu::FrameBuffer* t);
+	void set_target(const Gpu::RenderTarget* t);
 	
 	/**
 	 * Returns the viewport region.
@@ -80,10 +79,10 @@ public:
 	 * \param s shader
 	 * \param t render target
 	 */
-	static void render_to(const Gpu::Shader* s, const Gpu::FrameBuffer* t);
+	static void render_to(const Gpu::Shader* s, const Gpu::RenderTarget* t);
 	
 protected:
-	const Gpu::FrameBuffer* target = nullptr;
+	const Gpu::RenderTarget* target = nullptr;
 	
 	static Gpu::Rect viewport;
 	

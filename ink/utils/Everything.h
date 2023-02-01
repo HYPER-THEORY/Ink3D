@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,9 +31,7 @@
 /* math part */
 #include "../math/Constants.h"
 #include "../math/Random.h"
-#include "../math/Vector2.h"
-#include "../math/Vector3.h"
-#include "../math/Vector4.h"
+#include "../math/Vector.h"
 #include "../math/Matrix.h"
 #include "../math/Euler.h"
 #include "../math/Ray.h"
@@ -64,7 +62,10 @@
 /* graphics part */
 #include "../graphics/Software.h"
 #include "../graphics/Gpu.h"
-#include "../graphics/ShaderLib.h"
+
+/* shaders part */
+#include "../shaders/ShaderCache.h"
+#include "../shaders/ShaderLib.h"
 
 /* lights part */
 #include "../lights/LinearFog.h"
@@ -78,7 +79,6 @@
 
 /* probes part */
 #include "../probes/IBLFilter.h"
-#include "../probes/LightProbe.h"
 #include "../probes/ReflectionProbe.h"
 
 /* scene part */

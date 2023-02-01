@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
 #include "LightPass.h"
 
 #include "../core/Format.h"
+#include "../shaders/ShaderLib.h"
 
 namespace Ink {
 
@@ -30,8 +31,9 @@ void LightPass::init() {}
 
 void LightPass::render() const {
 	/* fetch light shader from shader lib */
-	Defines light_defines = Renderer::define_scene(*scene);
-	light_defines.set(Renderer::define_tone_map(tone_map_mode));
+	Defines light_defines;
+	Renderer::set_scene_defines(*scene, light_defines);
+	Renderer::set_tone_map_defines(tone_map_mode, light_defines);
 	auto* light_shader = ShaderLib::fetch("Lighting", light_defines);
 	
 	/* pass parameters and G-Buffers to shader */
@@ -58,6 +60,19 @@ void LightPass::render() const {
 void LightPass::set(const Scene* s, const Camera* c) {
 	scene = s;
 	camera = c;
+}
+
+int LightPass::get_tone_map_mode() const {
+	return tone_map_mode;
+}
+
+float LightPass::get_tone_map_exposure() const {
+	return tone_map_exposure;
+}
+
+void LightPass::set_tone_map(int m, float e) {
+	tone_map_mode = m;
+	tone_map_exposure = e;
 }
 
 const Gpu::Texture* LightPass::get_buffer_c() const {
@@ -98,19 +113,6 @@ const Gpu::Texture* LightPass::get_buffer_d() const {
 
 void LightPass::set_buffer_d(const Gpu::Texture* t) {
 	buffer_d = t;
-}
-
-int LightPass::get_tone_mapping_mode() const {
-	return tone_map_mode;
-}
-
-float LightPass::get_tone_mapping_exposure() const {
-	return tone_map_exposure;
-}
-
-void LightPass::set_tone_mapping(int m, float e) {
-	tone_map_mode = m;
-	tone_map_exposure = e;
 }
 
 }

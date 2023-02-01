@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ public:
 	explicit BlendPass() = default;
 	
 	/**
-	 * Initializes the render pass and prepare the resources for rendering.
+	 * Initializes the render pass and prepares the resources for rendering.
 	 */
 	void init() override;
 	
@@ -68,11 +68,22 @@ public:
 	void set_texture_b(const Gpu::Texture* t);
 	
 	/**
+	 * Returns the operations when applying blending.
+	 */
+	std::string get_operation() const;
+	
+	/**
 	 * Sets the operations when applying blending. Default is "a * b".
 	 *
 	 * \param o operation
 	 */
 	void set_operation(const std::string& o);
+	
+	/**
+	 * Returns the swizzle of texture A as the multiplication factor in
+	 * blending.
+	 */
+	std::string get_swizzle_a() const;
 	
 	/**
 	 * Sets the swizzle of texture A as the multiplication factor in blending.
@@ -81,6 +92,12 @@ public:
 	 * \param s swizzle A
 	 */
 	void set_swizzle_a(const std::string& s);
+	
+	/**
+	 * Returns the swizzle of texture B as the multiplication factor in
+	 * blending.
+	 */
+	std::string get_swizzle_b() const;
 	
 	/**
 	 * Sets the swizzle of texture B as the multiplication factor in blending.

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2022 Hypertheory
+ * Copyright (C) 2021-2023 Hypertheory
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,20 +27,20 @@
 namespace Ink {
 
 enum BlurType {
-	BLUR_SIMPLE,
+	BLUR_BOX,
 	BLUR_GAUSSIAN,
 	BLUR_BILATERAL,
 };
 
 class BlurPass : public RenderPass {
 public:
-	int type = BLUR_SIMPLE;    /**< the type of the blur */
-	int width = 0;             /**< the width of screen */
-	int height = 0;            /**< the height of screen */
-	int channel = 4;           /**< the channel of texture */
-	int radius = 3;            /**< the radius of the blur */
-	float sigma_s = 2.0;       /**< the sigma of space, used in gaussian or bilateral blur */
-	float sigma_r = 0.25;      /**< the sigma of range, only used in bilateral blur */
+	int type = BLUR_BOX;     /**< the type of the blur */
+	int width = 0;           /**< the width of screen */
+	int height = 0;          /**< the height of screen */
+	int channel = 4;         /**< the channel of texture */
+	int radius = 3;          /**< the radius of the blur */
+	float sigma_s = 2.0;     /**< the sigma of space, for Gaussian or bilateral blur */
+	float sigma_r = 0.25;    /**< the sigma of range, only for bilateral blur */
 	
 	/**
 	 * Creates a new BlurPass object.
@@ -56,7 +56,7 @@ public:
 	explicit BlurPass(int w, int h);
 	
 	/**
-	 * Initializes the render pass and prepare the resources for rendering.
+	 * Initializes the render pass and prepares the resources for rendering.
 	 */
 	void init() override;
 	
@@ -83,8 +83,8 @@ private:
 	std::unique_ptr<Gpu::Texture> blur_map_1;
 	std::unique_ptr<Gpu::Texture> blur_map_2;
 	
-	std::unique_ptr<Gpu::FrameBuffer> blur_target_1;
-	std::unique_ptr<Gpu::FrameBuffer> blur_target_2;
+	std::unique_ptr<Gpu::RenderTarget> blur_target_1;
+	std::unique_ptr<Gpu::RenderTarget> blur_target_2;
 };
 
 }
