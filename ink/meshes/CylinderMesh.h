@@ -30,8 +30,14 @@ class CylinderMesh {
 public:
 	/**
 	 * Returns a cylinder shaped mesh with 1 unit height and 0.5 unit radius.
+	 * The cylinder is centred on the origin.
 	 */
 	static Mesh create();
+	
+private:
+	static std::vector<Vec3> vertex;
+	static std::vector<Vec2> uv;
+	static std::vector<Vec3> normal;
 };
 
 }

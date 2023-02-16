@@ -32,10 +32,9 @@ uniform Exp2Fog fog;
 uniform float exposure;
 
 vec3 light_process(Material mat, Geometry geom, vec3 light, float occlusion) {
+	/* apply point / spot / directional / hemisphere lights */
 	vec3 direct_light = vec3(0.);
 	vec3 indirect_light = light;
-	
-	/* apply point / spot / directional / hemisphere lights */
 	#if NUM_POINT_LIGHT > 0
 		for (int i = 0; i < NUM_POINT_LIGHT; ++i) {
 			direct_light += apply_light(point_lights[i], mat, geom);
@@ -56,8 +55,6 @@ vec3 light_process(Material mat, Geometry geom, vec3 light, float occlusion) {
 			indirect_light += apply_light(hemisphere_lights[i], mat, geom);
 		}
 	#endif
-	
-	/* calculate total light */
 	vec3 total_light = direct_light + indirect_light * occlusion;
 	
 	/* apply fog and tone mapping on total light */

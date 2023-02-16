@@ -24,25 +24,25 @@
 
 namespace Ink {
 
-const std::vector<Vec3> sphere_mesh_vertex = {
-#include "SphereMesh.v"
-};
-
-const std::vector<Vec3> sphere_mesh_normal = {
-#include "SphereMesh.n"
-};
-
-const std::vector<Vec2> sphere_mesh_uv = {
-#include "SphereMesh.u"
-};
-
 Mesh SphereMesh::create() {
 	Mesh mesh = Mesh("Sphere");
 	mesh.groups = {{"default", 0, 672}};
-	mesh.vertex = sphere_mesh_vertex;
-	mesh.normal = sphere_mesh_normal;
-	mesh.uv = sphere_mesh_uv;
+	mesh.vertex = vertex;
+	mesh.uv = uv;
+	mesh.normal = normal;
 	return mesh;
 }
+
+std::vector<Vec3> SphereMesh::vertex = {
+#include "SphereMesh.v"
+};
+
+std::vector<Vec2> SphereMesh::uv = {
+#include "SphereMesh.u"
+};
+
+std::vector<Vec3> SphereMesh::normal = {
+#include "SphereMesh.n"
+};
 
 }

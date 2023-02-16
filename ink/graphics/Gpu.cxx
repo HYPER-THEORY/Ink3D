@@ -26,10 +26,10 @@
 #include <iostream>
 #include <memory>
 
-#include "../../libs/opengl/glad.h"
-
 #include "../core/Error.h"
 #include "../core/File.h"
+
+#include "../../libs/opengl/glad.h"
 
 namespace Ink::Gpu {
 
@@ -665,10 +665,16 @@ void MaterialState::set_stencil(const Material& m) {
 }
 
 void MaterialState::set_blending(const Material& m) {
-	if (!m.blending) return State::disable_blending();
-	State::enable_blending();
-	State::set_blend_op(m.blend_op, m.blend_op_alpha);
-	State::set_blend_factor(m.blend_src, m.blend_dst, m.blend_src_alpha, m.blend_dst_alpha);
+	if (!m.transparent) {
+		if (!m.blending) return State::disable_blending();
+		State::enable_blending();
+		State::set_blend_op(m.blend_op, m.blend_op_alpha);
+		State::set_blend_factor(m.blend_src, m.blend_dst, m.blend_src_alpha, m.blend_dst_alpha);
+	} else {
+		State::enable_blending();
+		State::set_blend_op(BLEND_ADD);
+		State::set_blend_factor(FACTOR_SRC_ALPHA, FACTOR_ONE_MINUS_SRC_ALPHA);
+	}
 }
 
 void MaterialState::set_wireframe(const Material& m) {

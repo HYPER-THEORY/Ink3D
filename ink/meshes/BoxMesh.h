@@ -30,9 +30,14 @@ class BoxMesh {
 public:
 	/**
 	 * Returns a box shaped mesh with 1 unit width, 1 unit height and 1 unit
-	 * depth.
+	 * depth. The box is centred on the origin.
 	 */
 	static Mesh create();
+	
+private:
+	static std::vector<Vec3> vertex;
+	static std::vector<Vec2> uv;
+	static std::vector<Vec3> normal;
 };
 
 }

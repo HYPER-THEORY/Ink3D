@@ -69,6 +69,8 @@ public:
 	static void load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s = 256);
 	
 private:
+	static Vec3 axes[];
+	
 	static std::unique_ptr<Gpu::VertexObject> plane;
 	
 	static std::unique_ptr<Gpu::Texture> blur_map;

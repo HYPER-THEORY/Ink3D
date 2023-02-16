@@ -186,13 +186,22 @@ void ShaderCache::resolve_includes(std::string& s) {
 		
 		/* search for the include name */
 		size_t char_1 = line.find_first_not_of(" \t");
-		if (char_1 == -1 || line[char_1] != '#') continue;
+		if (char_1 == -1 || line[char_1] != '#') {
+			continue;
+		}
 		size_t char_2 = line.find_first_not_of(" \t", char_1 + 1);
-		if (char_2 == -1 || line.substr(char_2, 7) != "include") continue;
+		if (char_2 == -1 || line.substr(char_2, 7) != "include") {
+			continue;
+		}
 		size_t char_3 = line.find_first_not_of(" \t", char_2 + 7);
-		if (char_3 == -1 || line[char_3] != '<') continue;
+		if (char_3 == -1 || line[char_3] != '<') {
+			continue;
+		}
 		size_t char_4 = line.find('>', char_3 + 1);
-		if (char_4 == -1) continue;
+		if (char_4 == -1) {
+			Error::set("ShaderCache: Invalid preprocessing directive");
+			continue;
+		}
 		std::string include = line.substr(char_3 + 1, char_4 - char_3 - 1);
 		
 		/* read included file into content */

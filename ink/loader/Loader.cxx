@@ -25,10 +25,10 @@
 #include <fstream>
 #include <sstream>
 
+#include "../core/Error.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../libs/stb/stb_image.h"
-
-#include "../core/Error.h"
 
 namespace Ink {
 

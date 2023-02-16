@@ -32,19 +32,6 @@ namespace Ink {
 constexpr float PHI = 1.618033989;
 constexpr float INV_PHI = 0.618033989;
 
-const Vec3 AXES[] = {
-	{ 1      , 1      ,  1      },
-	{-1      , 1      ,  1      },
-	{ 1      , 1      , -1      },
-	{-1      , 1      , -1      },
-	{ 0      , PHI    ,  INV_PHI},
-	{ 0      , PHI    , -INV_PHI},
-	{ INV_PHI, 0      ,  PHI    },
-	{-INV_PHI, 0      ,  PHI    },
-	{ PHI    , INV_PHI,  0      },
-	{-PHI    , INV_PHI,  0      },
-};
-
 void IBLFilter::load_cubemap(const Image& px, const Image& nx,
 							 const Image& py, const Image& ny,
 							 const Image& pz, const Image& nz,
@@ -137,7 +124,7 @@ void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
 		if (lod == 1) sigma_radians = 2.f / size_lod;
 		
 		/* calculate blur parameters */
-		Vec3 pole_axis = AXES[(lod - 1) % 10];
+		Vec3 pole_axis = axes[(lod - 1) % 10];
 		float d_theta = PI / (size_lod * 2 - 2);
 		float sigma = sigma_radians / d_theta;
 		int samples = 1 + floorf(sigma * 3);
@@ -229,6 +216,19 @@ void IBLFilter::gaussian_weights(float s, int n, float* w) {
 		w[i] /= weight_sum;
 	}
 }
+
+Vec3 IBLFilter::axes[] = {
+	{ 1,     1,      1},
+	{-1,     1,      1},
+	{ 1,     1,     -1},
+	{-1,     1,     -1},
+	{ 0, PHI,  INV_PHI},
+	{ 0, PHI, -INV_PHI},
+	{ INV_PHI, 0,  PHI},
+	{-INV_PHI, 0,  PHI},
+	{ PHI, INV_PHI,  0},
+	{-PHI, INV_PHI,  0},
+};
 
 std::unique_ptr<Gpu::VertexObject> IBLFilter::plane;
 

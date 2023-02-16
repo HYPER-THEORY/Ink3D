@@ -24,25 +24,25 @@
 
 namespace Ink {
 
-const std::vector<Vec3> box_mesh_vertex = {
-#include "BoxMesh.v"
-};
-
-const std::vector<Vec3> box_mesh_normal = {
-#include "BoxMesh.n"
-};
-
-const std::vector<Vec2> box_mesh_uv = {
-#include "BoxMesh.u"
-};
-
 Mesh BoxMesh::create() {
 	Mesh mesh = Mesh("Box");
 	mesh.groups = {{"default", 0, 36}};
-	mesh.vertex = box_mesh_vertex;
-	mesh.normal = box_mesh_normal;
-	mesh.uv = box_mesh_uv;
+	mesh.vertex = vertex;
+	mesh.uv = uv;
+	mesh.normal = normal;
 	return mesh;
 }
+
+std::vector<Vec3> BoxMesh::vertex = {
+#include "BoxMesh.v"
+};
+
+std::vector<Vec2> BoxMesh::uv = {
+#include "BoxMesh.u"
+};
+
+std::vector<Vec3> BoxMesh::normal = {
+#include "BoxMesh.n"
+};
 
 }

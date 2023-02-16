@@ -213,7 +213,6 @@ void main() {
 		geometry.normal = t_normal;
 		
 		/* calculate color with light pipeline */
-		vec3 light = light_process(material, geometry, indirect_light, t_occlusion);
-		out_color = vec4(light, t_color.w);
+		out_color = vec4(light_process(material, geometry, indirect_light, t_occlusion), t_color.w);
 	#endif
 }

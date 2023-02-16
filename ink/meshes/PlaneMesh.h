@@ -29,9 +29,15 @@ namespace Ink {
 class PlaneMesh {
 public:
 	/**
-	 * Returns a plane shaped mesh with 1 unit width and 1 unit height.
+	 * Returns a plane shaped mesh with 1 unit width and 1 unit height. The
+	 * plane is centred on the origin.
 	 */
 	static Mesh create();
+	
+private:
+	static std::vector<Vec3> vertex;
+	static std::vector<Vec2> uv;
+	static std::vector<Vec3> normal;
 };
 
 }

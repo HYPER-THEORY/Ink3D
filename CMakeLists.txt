@@ -64,7 +64,7 @@ set(
         ink/lights/Exp2Fog.cxx
         ink/lights/Shadow.cxx
         ink/lights/DirectionalLight.cxx
-        libs/glad/glad.c
+        libs/opengl/glad.c
 )
 
 if(NOT SKIP_FIND_SDL2_LIBRARY)

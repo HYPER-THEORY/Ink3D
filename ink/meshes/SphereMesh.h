@@ -29,9 +29,15 @@ namespace Ink {
 class SphereMesh {
 public:
 	/**
-	 * Returns a sphere shaped mesh with 0.5 unit radius.
+	 * Returns a sphere shaped mesh with 0.5 unit radius. The sphere is centred
+	 * on the origin.
 	 */
 	static Mesh create();
+	
+private:
+	static std::vector<Vec3> vertex;
+	static std::vector<Vec2> uv;
+	static std::vector<Vec3> normal;
 };
 
 }
