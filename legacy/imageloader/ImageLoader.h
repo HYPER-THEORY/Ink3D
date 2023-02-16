@@ -38,6 +38,7 @@ public:
 	 *
 	 * \param f the URL to the file
 	 * \param i target image
+	 * \param c color conversion
 	 */
 	static void load_image(const std::string& f, Image* i, int c);
 };
