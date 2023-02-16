@@ -119,6 +119,9 @@ private:
 	
 	std::unique_ptr<Gpu::RenderTarget> blur_target_1;
 	std::unique_ptr<Gpu::RenderTarget> blur_target_2;
+	
+	static std::string shader_vert;
+	static std::string shader_frag;
 };
 
 }

@@ -24,14 +24,13 @@
 
 #include <string>
 #include <unordered_map>
-#include <initializer_list>
+
+#include "../../ink/graphics/Gpu.h"
 
 namespace Ink::Legacy {
 
 class Uniforms {
 public:
-	std::unordered_map<std::string, const void*> vars;
-	
 	/**
 	 * Creates a new Uniforms object.
 	 */
@@ -73,6 +72,17 @@ public:
 	 * \param n variable name
 	 */
 	bool has(const std::string& n) const;
+	
+	/**
+	 * Sets the uniforms object to the specified shader. These values will be
+	 * passed to vertex, geometry and fragment shaders.
+	 *
+	 * \param s shader
+	 */
+	void set_shader_uniforms(const Gpu::Shader& s) const;
+	
+private:
+	std::unordered_map<std::string, const void*> vars;
 };
 
 }
