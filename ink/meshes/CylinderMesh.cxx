@@ -24,25 +24,25 @@
 
 namespace Ink {
 
-const std::vector<Vec3> cylinder_mesh_vertex = {
-#include "CylinderMesh.v"
-};
-
-const std::vector<Vec3> cylinder_mesh_normal = {
-#include "CylinderMesh.n"
-};
-
-const std::vector<Vec2> cylinder_mesh_uv = {
-#include "CylinderMesh.u"
-};
-
 Mesh CylinderMesh::create() {
 	Mesh mesh = Mesh("Cylinder");
 	mesh.groups = {{"default", 0, 192}};
-	mesh.vertex = cylinder_mesh_vertex;
-	mesh.normal = cylinder_mesh_normal;
-	mesh.uv = cylinder_mesh_uv;
+	mesh.vertex = vertex;
+	mesh.uv = uv;
+	mesh.normal = normal;
 	return mesh;
 }
+
+std::vector<Vec3> CylinderMesh::vertex = {
+#include "CylinderMesh.v"
+};
+
+std::vector<Vec2> CylinderMesh::uv = {
+#include "CylinderMesh.u"
+};
+
+std::vector<Vec3> CylinderMesh::normal = {
+#include "CylinderMesh.n"
+};
 
 }

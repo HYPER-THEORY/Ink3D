@@ -596,7 +596,6 @@ void Renderer::set_light_uniforms(const Scene& s, const Gpu::Shader& shader) {
 		shader.set_uniform_f(shadows_i + ".bias", shadow.bias);
 		shader.set_uniform_f(shadows_i + ".normal_bias", shadow.normal_bias);
 		shader.set_uniform_f(shadows_i + ".radius", shadow.radius);
-		shader.set_uniform_m4(shadows_i + ".proj", shadow.camera.projection);
 		shader.set_uniform_m4(shadows_i + ".view_proj", view_proj);
 	}
 	
@@ -888,13 +887,6 @@ void Renderer::render_to_buffer(const Scene& s, const Camera& c, int r, bool t) 
 			
 			/* apply the render side setting for material */
 			Gpu::MaterialState::set_side(*material);
-			
-			/* set the blendings to render transparent objects correctly */
-			if (material->transparent) {
-				Gpu::State::enable_blending();
-				Gpu::State::set_blend_op(BLEND_ADD);
-				Gpu::State::set_blend_factor(FACTOR_SRC_ALPHA, FACTOR_ONE_MINUS_SRC_ALPHA);
-			}
 			
 			/* cull back side of face if side is DOUBLE_SIDE */
 			if (is_transparent && material->side == DOUBLE_SIDE) {

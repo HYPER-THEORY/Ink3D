@@ -105,7 +105,7 @@ float get_shadow(Shadow shadow, vec3 world_pos, vec3 normal) {
 		return 1. - shadow_pcf(shadow, light_pos, texel_size, shadow.radius);
 	}
 	if (shadow.type == SHADOW_PCSS) {
-		float search_radius = global_shadow.size.x * 0.015625;
+		float search_radius = global_shadow.size.x * 0.03125;
 		return 1. - shadow_pcss(shadow, light_pos, texel_size, search_radius);
 	}
 }

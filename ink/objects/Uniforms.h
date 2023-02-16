@@ -66,6 +66,11 @@ public:
 	/**
 	 * Returns the data from the uniform data block.
 	 */
+	float* get_data();
+	
+	/**
+	 * Returns the data from the uniform data block.
+	 */
 	const float* get_data() const;
 	
 	/**

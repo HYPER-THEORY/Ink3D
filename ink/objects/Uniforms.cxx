@@ -40,6 +40,10 @@ int Uniforms::get_location(int i) const {
 	return std::get<2>(unifroms[i]);
 }
 
+float* Uniforms::get_data() {
+	return data.data();
+}
+
 const float* Uniforms::get_data() const {
 	return data.data();
 }
@@ -90,21 +94,21 @@ void Uniforms::set_m2(const std::string& n, const Mat2& v) {
 	size_t size = data.size();
 	unifroms.emplace_back(std::make_tuple(n, 6, size));
 	data.resize(size + 4);
-	std::copy_n(v.m[0], 4, data.data() + size);
+	std::copy_n(&v[0][0], 4, data.data() + size);
 }
 
 void Uniforms::set_m3(const std::string& n, const Mat3& v) {
 	size_t size = data.size();
 	unifroms.emplace_back(std::make_tuple(n, 7, size));
 	data.resize(size + 9);
-	std::copy_n(v.m[0], 9, data.data() + size);
+	std::copy_n(&v[0][0], 9, data.data() + size);
 }
 
 void Uniforms::set_m4(const std::string& n, const Mat4& v) {
 	size_t size = data.size();
 	unifroms.emplace_back(std::make_tuple(n, 8, size));
 	data.resize(size + 16);
-	std::copy_n(v.m[0], 16, data.data() + size);
+	std::copy_n(&v[0][0], 16, data.data() + size);
 }
 
 }

@@ -103,8 +103,14 @@
 /* audio part */
 #include "../audio/Audio.h"
 
+/* window part */
+#include "../window/Window.h"
+
 /* physics part */
 #include "../physics/Physics.h"
 
-/* window part */
-#include "../window/Window.h"
+/* utils part */
+#include "../utils/ConvexHull.h"
+#include "../utils/Viewer.h"
+#include "../utils/ImageUtils.h"
+#include "../utils/ColorTransform.h"

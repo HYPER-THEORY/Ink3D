@@ -107,11 +107,11 @@ void Instance::update_matrix_global() {
 }
 
 Vec3 Instance::global_to_local(const Vec3& v) const {
-	return static_cast<Vec3>(inverse_4x4(matrix_global) * Vec4(v, 1));
+	return inverse_4x4(matrix_global) * Vec4(v, 1);
 }
 
 Vec3 Instance::local_to_global(const Vec3& v) const {
-	return static_cast<Vec3>(matrix_global * Vec4(v, 1));
+	return matrix_global * Vec4(v, 1);
 }
 
 Mat4 Instance::transform() const {
@@ -120,7 +120,7 @@ Mat4 Instance::transform() const {
 
 Mat4 Instance::transform_global() const {
 	const Instance* instance = this;
-	Mat4 matrix = Mat4::identity(4);
+	Mat4 matrix = Mat4::identity();
 	while (instance->parent != nullptr) {
 		matrix = instance->transform() * matrix;
 		instance = instance->parent;

@@ -235,11 +235,12 @@ std::vector<const Instance*> Scene::to_visible_instances() const {
 	while (!unvisited.empty()) {
 		const Instance* current = unvisited.back();
 		unvisited.pop_back();
+		if (!current->visible) continue;
 		size_t count = current->get_child_count();
 		for (int i = 0; i < count; ++i) {
 			unvisited.emplace_back(current->get_child(i));
 		}
-		if (current->visible && current->mesh != nullptr) {
+		if (current->mesh != nullptr) {
 			instances.emplace_back(current);
 		}
 	}

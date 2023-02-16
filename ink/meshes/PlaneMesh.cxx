@@ -24,25 +24,25 @@
 
 namespace Ink {
 
-const std::vector<Vec3> plane_mesh_vertex = {
-#include "PlaneMesh.v"
-};
-
-const std::vector<Vec3> plane_mesh_normal = {
-#include "PlaneMesh.n"
-};
-
-const std::vector<Vec2> plane_mesh_uv = {
-#include "PlaneMesh.u"
-};
-
 Mesh PlaneMesh::create() {
 	Mesh mesh = Mesh("Plane");
 	mesh.groups = {{"default", 0, 6}};
-	mesh.vertex = plane_mesh_vertex;
-	mesh.normal = plane_mesh_normal;
-	mesh.uv = plane_mesh_uv;
+	mesh.vertex = vertex;
+	mesh.uv = uv;
+	mesh.normal = normal;
 	return mesh;
 }
+
+std::vector<Vec3> PlaneMesh::vertex = {
+#include "PlaneMesh.v"
+};
+
+std::vector<Vec2> PlaneMesh::uv = {
+#include "PlaneMesh.u"
+};
+
+std::vector<Vec3> PlaneMesh::normal = {
+#include "PlaneMesh.n"
+};
 
 }

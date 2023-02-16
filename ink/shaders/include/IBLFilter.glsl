@@ -3,7 +3,7 @@
 
 /* Sample the environment map with roughness. */
 vec4 texture_env(samplerCube map, float max_lod, vec3 dir, float roughness) {
-	float mip = 0.0;
+	float mip = 0.;
 	if (roughness >= 0.4) {
 		mip = (0.8 - roughness) * 7.5 - 1.;
 	} else if (roughness >= 0.305) {
