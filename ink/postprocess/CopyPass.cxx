@@ -31,6 +31,7 @@ void CopyPass::init() {}
 void CopyPass::render() const {
 	auto* copy_shader = ShaderLib::fetch("Copy");
 	copy_shader->use_program();
+	copy_shader->set_uniform_f("lod", 0);
 	copy_shader->set_uniform_i("map", map->activate(0));
 	RenderPass::render_to(copy_shader, target);
 }

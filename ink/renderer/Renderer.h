@@ -22,11 +22,11 @@
 
 #pragma once
 
-#include <functional>
-
 #include "../graphics/Gpu.h"
 #include "../scene/Scene.h"
 #include "../probes/ReflectionProbe.h"
+
+#include <functional>
 
 namespace Ink {
 
@@ -42,10 +42,10 @@ enum ToneMappingMode {
 	ACES_FILMIC_TONE_MAP,
 };
 
-using TextureCallback = std::function<void(Gpu::Texture&)>;
-
 class Renderer {
 public:
+	using TextureCallback = std::function<void(Gpu::Texture&)>;
+	
 	/**
 	 * Creates a new Renderer object.
 	 */
@@ -164,7 +164,7 @@ public:
 	/**
 	 * Sets the texture callback which will be called when texture is created.
 	 *
-	 * \param f texture callback
+	 * \param f texture callback function
 	 */
 	void set_texture_callback(const TextureCallback& f);
 	
@@ -302,14 +302,13 @@ public:
 	void update_shadow(const Scene& s, DirectionalLight& l) const;
 	
 	/**
-	 * Updates the reflection probe at the specified position. The scene will be
-	 * rendered in forward rendering mode.
+	 * Updates the reflection probe at its position. The scene will be rendered
+	 * in forward rendering mode.
 	 *
 	 * \param s scene
-	 * \param p position
 	 * \param r reflection probe
 	 */
-	void update_probe(const Scene& s, const Vec3& p, ReflectionProbe& r) const;
+	void update_probe(const Scene& s, ReflectionProbe& r) const;
 	
 	/**
 	 * Updates all the descendant instances in the scene before rendering the

@@ -22,10 +22,10 @@
 
 #pragma once
 
-#include "../camera/OrthoCamera.h"
-
 #include "Light.h"
 #include "Shadow.h"
+
+#include "../camera/OrthoCamera.h"
 
 namespace Ink {
 

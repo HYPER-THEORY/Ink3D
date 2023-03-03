@@ -32,8 +32,8 @@ void LightPass::init() {}
 void LightPass::render() const {
 	/* fetch light shader from shader lib */
 	Defines light_defines;
-	Renderer::set_scene_defines(*scene, light_defines);
 	Renderer::set_tone_map_defines(tone_map_mode, light_defines);
+	Renderer::set_scene_defines(*scene, light_defines);
 	auto* light_shader = ShaderLib::fetch("Lighting", light_defines);
 	
 	/* pass parameters and G-Buffers to shader */

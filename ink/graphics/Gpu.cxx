@@ -22,14 +22,14 @@
 
 #include "Gpu.h"
 
-#include <array>
-#include <iostream>
-#include <memory>
-
 #include "../core/Error.h"
 #include "../core/File.h"
 
 #include "../../libs/opengl/glad.h"
+
+#include <array>
+#include <iostream>
+#include <memory>
 
 namespace Ink::Gpu {
 

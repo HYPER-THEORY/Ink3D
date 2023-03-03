@@ -22,6 +22,7 @@
 
 #include "BloomPass.h"
 
+#include "../core/Error.h"
 #include "../shaders/ShaderLib.h"
 
 namespace Ink {
@@ -30,6 +31,11 @@ BloomPass::BloomPass(int w, int h, float t, float i, float r) :
 width(w), height(h), threshold(t), intensity(i), radius(r) {}
 
 void BloomPass::init() {
+	/* check the width and height */
+	if (width == 0 || height == 0) {
+		return Error::set("BloomPass: Width or height should be greater than 0");
+	}
+	
 	/* prepare bloom map 1 */
 	bloom_map_1 = std::make_unique<Gpu::Texture>();
 	bloom_map_1->init_2d(width / 2, height / 2, TEXTURE_R16G16B16_SFLOAT);

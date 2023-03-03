@@ -22,10 +22,11 @@
 
 #pragma once
 
+#include "../math/Vector.h"
+#include "../math/Euler.h"
+
 #include <vector>
 #include <string>
-
-#include "../math/Vector.h"
 
 namespace Ink {
 
@@ -53,6 +54,70 @@ public:
 	 * \param n mesh name
 	 */
 	explicit Mesh(const std::string& n = "");
+	
+	/**
+	 * Translates the mesh. This operation will modify the mesh data.
+	 *
+	 * \param x X coordinate
+	 * \param y Y coordinate
+	 * \param z Z coordinate
+	 */
+	void translate(float x, float y, float z);
+	
+	/**
+	 * Translates the mesh. This operation will modify the mesh data.
+	 *
+	 * \param t translate vector
+	 */
+	void translate(const Vec3& t);
+	
+	/**
+	 * Rotates the mesh about the X axis. This operation will modify the mesh
+	 * data.
+	 *
+	 * \param a angle
+	 */
+	void rotate_x(float a);
+	
+	/**
+	 * Rotates the mesh about the Y axis. This operation will modify the mesh
+	 * data.
+	 *
+	 * \param a angle
+	 */
+	void rotate_y(float a);
+	
+	/**
+	 * Rotates the mesh about the Z axis. This operation will modify the mesh
+	 * data.
+	 *
+	 * \param a angle
+	 */
+	void rotate_z(float a);
+	
+	/**
+	 * Rotates the mesh with Euler angle. This operation will modify the mesh
+	 * data.
+	 *
+	 * \param e Euler angle
+	 */
+	void rotate(const Euler& e);
+	
+	/**
+	 * Scales the mesh. This operation will modify the mesh data.
+	 *
+	 * \param x X coordinate
+	 * \param y Y coordinate
+	 * \param z Z coordinate
+	 */
+	void scale(float x, float y, float z);
+	
+	/**
+	 * Scales the mesh. This operation will modify the mesh data.
+	 *
+	 * \param s scale vector
+	 */
+	void scale(const Vec3& s);
 	
 	/**
 	 * Normalizes all the normal vectors in the mesh.

@@ -51,9 +51,9 @@ void IBLFilter::load_equirect(const Image& i, Gpu::Texture& m, int s) {
 }
 
 void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
-	/* initialize plane vertex object */
+	/* initialize fullscreen plane */
 	[[maybe_unused]]
-	static bool inited = init_plane();
+	static bool inited = init_fullscreen_plane();
 	
 	/* disable depth & stencil & scissor test */
 	Gpu::State::disable_depth_test();
@@ -98,8 +98,8 @@ void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
 		cubemap_shader->use_program();
 		cubemap_shader->set_uniform_i("face", i);
 		cubemap_shader->set_uniform_i("map", t.activate(0));
-		plane->attach(*cubemap_shader);
-		plane->render();
+		fullscreen_plane->attach(*cubemap_shader);
+		fullscreen_plane->render();
 	}
 	
 	/* prepare blur map */
@@ -149,8 +149,8 @@ void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
 				std::string weights_i = Format::format("weights[{}]", w);
 				blur_shader->set_uniform_f(weights_i, weights[w]);
 			}
-			plane->attach(*blur_shader);
-			plane->render();
+			fullscreen_plane->attach(*blur_shader);
+			fullscreen_plane->render();
 		}
 		
 		/* calculate blur parameters */
@@ -177,8 +177,8 @@ void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
 				std::string weights_i = Format::format("weights[{}]", w);
 				blur_shader->set_uniform_f(weights_i, weights[w]);
 			}
-			plane->attach(*blur_shader);
-			plane->render();
+			fullscreen_plane->attach(*blur_shader);
+			fullscreen_plane->render();
 		}
 	}
 	
@@ -186,16 +186,16 @@ void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
 	Gpu::RenderTarget::activate(nullptr);
 }
 
-bool IBLFilter::init_plane() {
-	/* prepare plane mesh */
-	Mesh plane_mesh = Mesh();
-	plane_mesh.groups = {{"default", 0, 3}};
-	plane_mesh.vertex = {{-1, 3, 0}, {-1, -1, 0}, {3, -1, 0}};
-	plane_mesh.uv = {{0, 2}, {0, 0}, {2, 0}};
+bool IBLFilter::init_fullscreen_plane() {
+	/* prepare triangle mesh */
+	Mesh triangle_mesh = Mesh("fullscreen");
+	triangle_mesh.groups = {{"default", 0, 3}};
+	triangle_mesh.vertex = {{-1, 3, 0}, {-1, -1, 0}, {3, -1, 0}};
+	triangle_mesh.uv = {{0, 2}, {0, 0}, {2, 0}};
 	
-	/* prepare plane vertex object */
-	plane = std::make_unique<Gpu::VertexObject>();
-	plane->load(plane_mesh, plane_mesh.groups[0]);
+	/* prepare fullscreen plane vertex object */
+	fullscreen_plane = std::make_unique<Gpu::VertexObject>();
+	fullscreen_plane->load(triangle_mesh, triangle_mesh.groups[0]);
 	
 	return true; /* finish */
 }
@@ -230,7 +230,7 @@ Vec3 IBLFilter::axes[] = {
 	{-PHI, INV_PHI,  0},
 };
 
-std::unique_ptr<Gpu::VertexObject> IBLFilter::plane;
+std::unique_ptr<Gpu::VertexObject> IBLFilter::fullscreen_plane;
 
 std::unique_ptr<Gpu::Texture> IBLFilter::blur_map;
 

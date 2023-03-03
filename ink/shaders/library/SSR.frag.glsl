@@ -106,7 +106,8 @@ void main() {
 			float attenuation = intensity;
 			
 			/* calculate distance attenuation */
-			attenuation *= 1. - float(total_steps) / float(max_steps);
+			float max_f = float(max_steps);
+			attenuation *= 1. - smoothstep(max_f * 0.5, max_f, float(total_steps));
 			
 			/* calculate screen edge attenuation */
 			vec2 coords = smoothstep(0.2, 0.6, abs(vec2(0.5) - ray_uv.xy));

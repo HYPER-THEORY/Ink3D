@@ -20,9 +20,9 @@
  * SOFTWARE.
  */
 
-#include "RenderPass.h"
-
 #pragma once
+
+#include "RenderPass.h"
 
 namespace Ink {
 

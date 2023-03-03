@@ -41,9 +41,9 @@ void RenderPass::set_viewport(const Gpu::Rect& v) {
 }
 
 void RenderPass::render_to(const Gpu::Shader* s, const Gpu::RenderTarget* t) {
-	/* initialize plane vertex object */
+	/* initialize fullscreen plane */
 	[[maybe_unused]]
-	static bool inited = init_plane();
+	static bool inited = init_fullscreen_plane();
 	
 	/* activate render target */
 	Gpu::RenderTarget::activate(t);
@@ -61,30 +61,30 @@ void RenderPass::render_to(const Gpu::Shader* s, const Gpu::RenderTarget* t) {
 	/* set the viewport region */
 	Gpu::State::set_viewport(viewport);
 	
-	/* draw the plane with shader */
-	plane->attach(*s);
-	plane->render();
+	/* draw the fullscreen plane with shader */
+	fullscreen_plane->attach(*s);
+	fullscreen_plane->render();
 	
 	/* set to default render target */
 	Gpu::RenderTarget::activate(nullptr);
 }
 
-bool RenderPass::init_plane() {
-	/* prepare plane mesh */
-	Mesh plane_mesh = Mesh("plane");
-	plane_mesh.groups = {{"default", 0, 3}};
-	plane_mesh.vertex = {{-1, 3, 0}, {-1, -1, 0}, {3, -1, 0}};
-	plane_mesh.uv = {{0, 2}, {0, 0}, {2, 0}};
+bool RenderPass::init_fullscreen_plane() {
+	/* prepare triangle mesh */
+	Mesh triangle_mesh = Mesh("fullscreen");
+	triangle_mesh.groups = {{"default", 0, 3}};
+	triangle_mesh.vertex = {{-1, 3, 0}, {-1, -1, 0}, {3, -1, 0}};
+	triangle_mesh.uv = {{0, 2}, {0, 0}, {2, 0}};
 	
-	/* prepare plane vertex object */
-	plane = std::make_unique<Gpu::VertexObject>();
-	plane->load(plane_mesh, plane_mesh.groups[0]);
+	/* prepare fullscreen plane vertex object */
+	fullscreen_plane = std::make_unique<Gpu::VertexObject>();
+	fullscreen_plane->load(triangle_mesh, triangle_mesh.groups[0]);
 	
 	return true; /* finish */
 }
 
 Gpu::Rect RenderPass::viewport;
 
-std::unique_ptr<Gpu::VertexObject> RenderPass::plane;
+std::unique_ptr<Gpu::VertexObject> RenderPass::fullscreen_plane;
 
 }

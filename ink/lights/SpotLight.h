@@ -22,11 +22,11 @@
 
 #pragma once
 
-#include "../math/Constants.h"
-#include "../camera/PerspCamera.h"
-
 #include "Light.h"
 #include "Shadow.h"
+
+#include "../math/Constants.h"
+#include "../camera/PerspCamera.h"
 
 namespace Ink {
 

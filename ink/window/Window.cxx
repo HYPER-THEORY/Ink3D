@@ -22,10 +22,11 @@
 
 #include "Window.h"
 
-#include <algorithm>
+#include "../core/Error.h"
 
 #include "../../libs/opengl/glad.h"
-#include "../core/Error.h"
+
+#include <algorithm>
 
 namespace Ink {
 
@@ -74,6 +75,9 @@ void Window::update() {
 	/* handle events */
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
+		if (event_callback && !std::invoke(event_callback, event)) {
+			continue;
+		}
 		int32_t keycode = event.key.keysym.sym;
 		if (keycode > 127) keycode -= 1073741696;
 		if (event.type == SDL_QUIT) {
@@ -101,10 +105,15 @@ void Window::update() {
 				keydown[2] = false;
 			}
 		} else if (event.type == SDL_MOUSEMOTION) {
-			cursor_x = event.motion.x;
-			cursor_y = event.motion.y;
+			if (!ignore_cursor_motion) {
+				cursor_x = event.motion.x;
+				cursor_y = event.motion.y;
+			}
 		}
 	}
+	
+	/* use ignore cursor motion to discard events */
+	ignore_cursor_motion = false;
 	
 	/* lock cursor to the center of window */
 	if (cursor_locked && SDL_GetKeyboardFocus()) {
@@ -194,6 +203,7 @@ void Window::set_cursor_position(int x, int y) {
 	SDL_WarpMouseInWindow(sdl_window, x, y);
 	cursor_x = x;
 	cursor_y = y;
+	ignore_cursor_motion = true;
 }
 
 void Window::set_cursor_visible(bool v) {
@@ -219,12 +229,20 @@ bool Window::is_released(unsigned int k) {
 	return keyreleased[k];
 }
 
+void Window::set_event_callback(const EventCallback& f) {
+	event_callback = f;
+}
+
 bool Window::open = true;
 int Window::cursor_x = 0;
 int Window::cursor_y = 0;
 bool Window::cursor_locked = false;
+bool Window::ignore_cursor_motion = false;
+
 uint32_t Window::time = 0;
 uint32_t Window::interval = 0;
+
+Window::EventCallback Window::event_callback;
 
 SDL_Window* Window::sdl_window = nullptr;
 SDL_GLContext Window::context = nullptr;

@@ -22,9 +22,9 @@
 
 #pragma once
 
-#include <memory>
-
 #include "../graphics/Gpu.h"
+
+#include <memory>
 
 namespace Ink {
 

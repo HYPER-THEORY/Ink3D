@@ -27,10 +27,10 @@
 
 namespace Ink {
 
-using ErrorCallback = std::function<void(const std::string&)>;
-
 class Error {
 public:
+	using ErrorCallback = std::function<void(const std::string&)>;
+	
 	/**
 	 * Returns the specific string describing the error.
 	 */

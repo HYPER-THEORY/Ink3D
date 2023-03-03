@@ -175,7 +175,9 @@ void Renderer::load_image(const Image* i) {
 	auto p = image_cache.insert({i, std::make_unique<Gpu::Texture>()});
 	auto* texture = p.first->second.get();
 	texture->init_2d(*i, Gpu::Texture::default_format(*i));
-	std::invoke(texture_callback, *texture);
+	if (texture_callback) {
+		std::invoke(texture_callback, *texture);
+	}
 }
 
 void Renderer::unload_image(const Image* i) {
@@ -354,7 +356,7 @@ void Renderer::update_shadow(const Scene& s, DirectionalLight& l) const {
 	render_shadow(s, l.shadow);
 }
 
-void Renderer::update_probe(const Scene& s, const Vec3& p, ReflectionProbe& r) const {
+void Renderer::update_probe(const Scene& s, ReflectionProbe& r) const {
 	/* set the viewport with the resolution of probe */
 	Gpu::State::set_viewport(Gpu::Rect(r.resolution, r.resolution));
 	
@@ -385,7 +387,7 @@ void Renderer::update_probe(const Scene& s, const Vec3& p, ReflectionProbe& r) c
 	
 	for (int i = 0; i < 6; ++i) {
 		/* update camera for each side of cube */
-		camera.lookat(p, CUBE_DIRECTIONS[i], CUBE_UPS[i]);
+		camera.lookat(r.position, CUBE_DIRECTIONS[i], CUBE_UPS[i]);
 		
 		/* update and activate render target */
 		probe_target->set_texture(*probe_map, 0, 0, i);
@@ -456,9 +458,6 @@ void Renderer::set_material_defines(const Material& m, Defines& d) {
 	
 	/* check whether to use specular map */
 	d.set_if("USE_SPECULAR_MAP", m.specular_map != nullptr);
-	
-	/* check whether to use light probe */
-	d.set_if("USE_LIGHT_PROBE", m.light_probe != nullptr);
 	
 	/* check whether to use reflection probe */
 	d.set_if("USE_REFLECTION_PROBE", m.reflection_probe != nullptr);

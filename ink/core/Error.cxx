@@ -44,6 +44,6 @@ void Error::set_callback(const ErrorCallback& f) {
 
 std::string Error::message;
 
-ErrorCallback Error::callback;
+Error::ErrorCallback Error::callback;
 
 }

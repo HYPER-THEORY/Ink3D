@@ -24,9 +24,9 @@
 
 #include <vector>
 
-#include "../math/Vector.h"
-
 #include "Enums.h"
+
+#include "../math/Vector.h"
 
 namespace Ink {
 

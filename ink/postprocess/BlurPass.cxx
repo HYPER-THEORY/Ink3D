@@ -38,6 +38,11 @@ const std::string SWIZZLES[] = {
 BlurPass::BlurPass(int w, int h) : width(w), height(h) {}
 
 void BlurPass::init() {
+	/* check the width and height */
+	if (width == 0 || height == 0) {
+		return Error::set("BlurPass: Width or height should be greater than 0");
+	}
+	
 	/* get default format with channel */
 	int format = Gpu::Texture::default_format(channel, 1);
 	

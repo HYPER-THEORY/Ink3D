@@ -24,23 +24,20 @@ void conf(Settings& t) {
 }
 
 void load() {
-	auto* cube = Instance::create();
+	Instance* cube = Instance::create();
 	cube->mesh = new Mesh(BoxMesh::create());
 	scene.add(cube);
 	
-	auto* image = new Image(12, 12, 3);
+	Image* image = new Image(12, 12, 3);
 	std::copy_n(block, 12 * 12 * 3, &image->data[0]);
 	
-	auto* material = new Material();
+	Material* material = new Material();
 	material->color_map = image;
 	scene.set_material("default", material);
 	
-	auto* light = new HemisphereLight(Vec3(1), Vec3(0.5));
+	HemisphereLight* light = new HemisphereLight(Vec3(1), Vec3(0.5));
 	light->direction = Vec3(0, 0, -1);
 	scene.add_light(light);
-	
-	viewer = Viewer(PerspCamera(75 * DEG_TO_RAD, 1.77, 0.05, 500));
-	viewer.set_position(Vec3(0, 0, -2));
 	
 	renderer.set_rendering_mode(FORWARD_RENDERING);
 	renderer.set_texture_callback([](Gpu::Texture& t) -> void {
@@ -48,12 +45,15 @@ void load() {
 	});
 	renderer.load_scene(scene);
 	renderer.set_viewport(Gpu::Rect(960, 540));
+	
+	viewer = Viewer(new PerspCamera(75 * DEG_TO_RAD, 1.77, 0.05, 500));
+	viewer.set_position(Vec3(0, 0, -2));
 }
 
 void update(float dt) {
 	Renderer::update_scene(scene);
 	viewer.update(dt);
-	renderer.render(scene, viewer.get_camera());
+	renderer.render(scene, *viewer.get_camera());
 }
 
 void quit() {}

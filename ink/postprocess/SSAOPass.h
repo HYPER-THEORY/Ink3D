@@ -20,11 +20,11 @@
  * SOFTWARE.
  */
 
-#include "../camera/Camera.h"
+#pragma once
 
 #include "RenderPass.h"
 
-#pragma once
+#include "../camera/Camera.h"
 
 namespace Ink {
 

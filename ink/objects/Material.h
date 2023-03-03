@@ -22,15 +22,15 @@
 
 #pragma once
 
-#include <string>
-#include <unordered_map>
-
-#include "../math/Vector.h"
-
 #include "Enums.h"
 #include "Defines.h"
 #include "Uniforms.h"
 #include "Image.h"
+
+#include "../math/Vector.h"
+
+#include <string>
+#include <unordered_map>
 
 namespace Ink {
 
@@ -130,9 +130,7 @@ public:
 	
 	void* shader = nullptr;               /**< custom shader determines how lights affect material */
 	
-	void* light_probe = nullptr;          /**< light probe affects the diffuse light of material */
-	
-	void* reflection_probe = nullptr;     /**< reflection probe affects the specular light of material */
+	void* reflection_probe = nullptr;     /**< reflection probe affects the environment light of material */
 	
 	Uniforms* uniforms = nullptr;         /**< the custom uniforms of material */
 	
