@@ -22,6 +22,7 @@
 
 #include "SSAOPass.h"
 
+#include "../core/Error.h"
 #include "../shaders/ShaderLib.h"
 
 namespace Ink {
@@ -30,6 +31,11 @@ SSAOPass::SSAOPass(int w, int h, float r, float m, float i) :
 width(w), height(h), radius(r), max_radius(m), intensity(i) {}
 
 void SSAOPass::init() {
+	/* check the width and height */
+	if (width == 0 || height == 0) {
+		return Error::set("SSAOPass: Width or height should be greater than 0");
+	}
+	
 	/* prepare blur map 1 */
 	blur_map_1 = std::make_unique<Gpu::Texture>();
 	blur_map_1->init_2d(width / 2, height / 2, TEXTURE_R8_UNORM);

@@ -22,10 +22,10 @@
 
 #pragma once
 
+#include "Vector4.h"
+
 #include <algorithm>
 #include <sstream>
-
-#include "Vector4.h"
 
 namespace Ink {
 

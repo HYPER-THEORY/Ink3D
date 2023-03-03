@@ -22,9 +22,9 @@
 
 #pragma once
 
-#include <iostream>
-
 #include "Everything.h"
+
+#include <iostream>
 
 struct Settings {
 	int x = -1;                    /**< the x-coordinate of the window's position */
@@ -41,7 +41,7 @@ struct Settings {
 	int depth = 24;                /**< the size of depth buffer in OpenGL */
 	int stencil = 8;               /**< the size of stencil buffer in OpenGL */
 	int msaa = 0;                  /**< the number of samples in MSAA in OpenGL */
-	int fps = 30;                  /**< the maximum fps */
+	int fps = 60;                  /**< the maximum fps */
 	bool show_cursor = true;       /**< whether to hide system cursor */
 	bool lock_cursor = false;      /**< whether to lock cursor to the center of window */
 	std::string title;             /**< the title of window */

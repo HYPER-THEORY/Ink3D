@@ -22,9 +22,9 @@
 
 #pragma once
 
-#include <memory>
-
 #include "../graphics/Gpu.h"
+
+#include <memory>
 
 namespace Ink {
 
@@ -71,7 +71,7 @@ public:
 private:
 	static Vec3 axes[];
 	
-	static std::unique_ptr<Gpu::VertexObject> plane;
+	static std::unique_ptr<Gpu::VertexObject> fullscreen_plane;
 	
 	static std::unique_ptr<Gpu::Texture> blur_map;
 	
@@ -79,7 +79,7 @@ private:
 	
 	static std::unique_ptr<Gpu::RenderTarget> blur_target;
 	
-	static bool init_plane();
+	static bool init_fullscreen_plane();
 	
 	static void gaussian_weights(float s, int n, float* w);
 };

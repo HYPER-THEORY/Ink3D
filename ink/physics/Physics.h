@@ -22,10 +22,10 @@
 
 #pragma once
 
+#include "../math/Vector.h"
+
 #include <vector>
 #include <unordered_set>
-
-#include "../math/Vector.h"
 
 namespace Ink {
 

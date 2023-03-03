@@ -22,11 +22,11 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
-
 #include "../math/Vector.h"
 #include "../math/Matrix.h"
+
+#include <string>
+#include <vector>
 
 namespace Ink {
 

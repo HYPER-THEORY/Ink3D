@@ -22,9 +22,9 @@
 
 #include "ShaderLib.h"
 
-#include "../core/File.h"
-
 #include "ShaderCache.h"
+
+#include "../core/File.h"
 
 namespace Ink {
 

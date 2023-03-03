@@ -22,9 +22,6 @@
 
 #pragma once
 
-#include <vector>
-#include <unordered_map>
-
 #include "../objects/Material.h"
 #include "../objects/Instance.h"
 #include "../lights/PointLight.h"
@@ -33,6 +30,9 @@
 #include "../lights/HemisphereLight.h"
 #include "../lights/Exp2Fog.h"
 #include "../lights/LinearFog.h"
+
+#include <vector>
+#include <unordered_map>
 
 namespace Ink {
 

@@ -20,41 +20,38 @@
  * SOFTWARE.
  */
 
-#pragma once
-
-#include "../math/Vector.h"
+#include "ColorUtils.h"
 
 namespace Ink {
 
-class ColorTransform {
-public:
-	/**
-	 * Transforms from hex color code to RGB color.
-	 *
-	 * \param c hex color code
-	 */
-	static Vec3 to_rgb(unsigned int c);
-	
-	/**
-	 * Transforms from hex color code to RGBA color.
-	 *
-	 * \param c hex color code
-	 */
-	static Vec4 to_rgba(unsigned int c);
-	
-	/**
-	 * Transforms from RGB color to hex color code.
-	 *
-	 * \param c RGB color
-	 */
-	static unsigned int to_hex(const Vec3& c);
-	
-	/**
-	 * Transforms from RGBA color to hex color code.
-	 *
-	 * \param c RGBA color
-	 */
-	static unsigned int to_hex(const Vec4& c);
-};
+Vec3 ColorUtils::to_rgb(unsigned int c) {
+	float r = (c / 0x10000) / 255.f;
+	float g = (c / 0x00100 % 0x100) / 255.f;
+	float b = (c / 0x00001 % 0x100) / 255.f;
+	return {r, g, b};
+}
+
+Vec4 ColorUtils::to_rgba(unsigned int c) {
+	float r = (c / 0x1000000) / 255.f;
+	float g = (c / 0x0010000 % 0x100) / 255.f;
+	float b = (c / 0x0000100 % 0x100) / 255.f;
+	float a = (c / 0x0000001 % 0x100) / 255.f;
+	return {r, g, b, a};
+}
+
+unsigned int ColorUtils::to_hex(const Vec3& c) {
+	unsigned int r = roundf(c.x * 0xff) * 0x10000;
+	unsigned int g = roundf(c.y * 0xff) * 0x00100;
+	unsigned int b = roundf(c.z * 0xff) * 0x00001;
+	return r + g + b;
+}
+
+unsigned int ColorUtils::to_hex(const Vec4& c) {
+	unsigned int r = roundf(c.x * 0xff) * 0x1000000;
+	unsigned int g = roundf(c.y * 0xff) * 0x0010000;
+	unsigned int b = roundf(c.z * 0xff) * 0x0000100;
+	unsigned int a = roundf(c.w * 0xff) * 0x0000001;
+	return r + g + b + a;
+}
 
 }

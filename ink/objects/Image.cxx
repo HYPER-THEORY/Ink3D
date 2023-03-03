@@ -22,9 +22,9 @@
 
 #include "Image.h"
 
-#include <algorithm>
-
 #include "../core/Error.h"
+
+#include <algorithm>
 
 namespace Ink {
 

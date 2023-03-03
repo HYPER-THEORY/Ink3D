@@ -22,14 +22,17 @@
 
 #pragma once
 
+#include <SDL2/SDL.h>
+
 #include <string>
 #include <vector>
-#include <SDL2/SDL.h>
 
 namespace Ink {
 
 class Window {
 public:
+	using EventCallback = std::function<bool(const SDL_Event&)>;
+	
 	/**
 	 * Initializes Window with title, positions, size and DPI.
 	 *
@@ -206,13 +209,25 @@ public:
 	 */
 	static bool is_released(unsigned int k);
 	
+	/**
+	 * Sets the event callback which will be called to handle window events.
+	 * Window will discard events if callback returns true.
+	 *
+	 * \param f event callback function
+	 */
+	static void set_event_callback(const EventCallback& f);
+	
 private:
 	static bool open;
 	static int cursor_x;
 	static int cursor_y;
 	static bool cursor_locked;
+	static bool ignore_cursor_motion;
+	
 	static uint32_t time;
 	static uint32_t interval;
+	
+	static EventCallback event_callback;
 	
 	static SDL_Window* sdl_window;
 	static SDL_GLContext context;

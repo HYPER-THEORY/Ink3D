@@ -23,7 +23,7 @@ set(
         ink/objects/Mesh.cxx
         ink/utils/ImageUtils.cxx
         ink/utils/ConvexHull.cxx
-        ink/utils/ColorTransform.cxx
+        ink/utils/ColorUtils.cxx
         ink/utils/Viewer.cxx
         ink/math/Euler.cxx
         ink/math/Matrix.cxx

@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "../camera/PerspCamera.h"
+#include "../camera/Camera.h"
 #include "../window/Window.h"
 
 namespace Ink {
@@ -36,7 +36,7 @@ class Viewer {
 public:
 	int mode = VIEWER_FLY;        /**< movement mode */
 	float speed = 1;              /**< moving speed */
-	float sensitivity = .001f;    /**< mouse sensitivity */
+	float sensitivity = 0.001;    /**< mouse sensitivity */
 	
 	int key_up = SDLK_w;          /**< the key controls camera move forward */
 	int key_down = SDLK_s;        /**< the key controls camera move back */
@@ -50,7 +50,7 @@ public:
 	 * \param c camera
 	 * \param s moving speed
 	 */
-	explicit Viewer(const Camera& c = Camera(), float s = 1);
+	explicit Viewer(Camera* c = nullptr, float s = 1);
 	
 	/**
 	 * Updates the viewing camera. This function should be called every frame.
@@ -63,7 +63,7 @@ public:
 	 * Returns the viewing camera. The camera will be updated after calling the
 	 * update function.
 	 */
-	const Camera& get_camera() const;
+	Camera* get_camera() const;
 	
 	/**
 	 * Sets the specified viewing camera. All the parameters of camera will be
@@ -71,7 +71,7 @@ public:
 	 *
 	 * \param c camera
 	 */
-	void set_camera(const Camera& c);
+	void set_camera(Camera* c);
 	
 	/**
 	 * Sets the specified position parameter of viewing camera.
@@ -88,9 +88,10 @@ public:
 	void set_direction(const Vec3& d);
 	
 private:
-	Camera camera;
 	float axis_y = 0;
 	float axis_z = 0;
+	
+	Camera* camera = nullptr;
 };
 
 }

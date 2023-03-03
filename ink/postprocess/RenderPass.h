@@ -22,10 +22,10 @@
 
 #pragma once
 
+#include "../graphics/Gpu.h"
+
 #include <functional>
 #include <memory>
-
-#include "../graphics/Gpu.h"
 
 namespace Ink {
 
@@ -86,9 +86,9 @@ protected:
 	
 	static Gpu::Rect viewport;
 	
-	static std::unique_ptr<Gpu::VertexObject> plane;
+	static std::unique_ptr<Gpu::VertexObject> fullscreen_plane;
 	
-	static bool init_plane();
+	static bool init_fullscreen_plane();
 };
 
 }

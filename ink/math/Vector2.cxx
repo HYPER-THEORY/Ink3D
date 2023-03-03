@@ -22,10 +22,10 @@
 
 #include "Vector2.h"
 
-#include <sstream>
-
 #include "Constants.h"
 #include "Random.h"
+
+#include <sstream>
 
 namespace Ink {
 

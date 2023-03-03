@@ -113,10 +113,11 @@ void main() {
 	if (t_color.w < alpha_test) discard;
 	
 	/* calculate world space normal */
-	vec3 t_normal = normalize(v_normal);
+	float normal_dir = gl_FrontFacing ? 1. : -1.;
+	vec3 t_normal = normalize(v_normal) * normal_dir;
 	#ifdef IN_TANGENT_SPACE
-		vec3 tangent = normalize(v_tangent);
-		vec3 bitangent = normalize(v_bitangent);
+		vec3 tangent = normalize(v_tangent) * normal_dir;
+		vec3 bitangent = normalize(v_bitangent) * normal_dir;
 		mat3 tbn_mat = mat3(tangent, bitangent, t_normal);
 	#endif
 	#ifdef USE_NORMAL_MAP

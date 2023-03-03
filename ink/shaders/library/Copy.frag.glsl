@@ -2,7 +2,7 @@
 
 uniform sampler2D map;
 
-uniform float lod = 0;
+uniform float lod;
 
 in vec2 v_uv;
 

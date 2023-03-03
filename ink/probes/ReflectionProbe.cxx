@@ -24,8 +24,8 @@
 
 namespace Ink {
 
-ReflectionProbe::ReflectionProbe(float i, int r) :
-intensity(i), resolution(r) {}
+ReflectionProbe::ReflectionProbe(float i, int r, const Vec3& p) :
+intensity(i), resolution(r), position(p) {}
 
 void ReflectionProbe::load_cubemap(const Image& px, const Image& nx,
 								   const Image& py, const Image& ny,

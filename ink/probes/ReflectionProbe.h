@@ -30,15 +30,17 @@ class ReflectionProbe {
 public:
 	int resolution = 256;    /**< the resolution of reflection probe */
 	float intensity = 1;     /**< the intensity of reflection probe */
+	Vec3 position;           /**< the position of reflection probe */
 	
 	/**
-	 * Creates a new ReflectionProbe object and initializes it with intensity
-	 * and resolution.
+	 * Creates a new ReflectionProbe object and initializes it with intensity,
+	 * resolution and position.
 	 *
 	 * \param i the intensity of reflection probe
 	 * \param r the resolution of reflection probe
+	 * \param p the position of reflection probe
 	 */
-	explicit ReflectionProbe(float i = 1, int r = 256);
+	explicit ReflectionProbe(float i = 1, int r = 256, const Vec3& p = {0, 0, 0});
 	
 	/**
 	 * Loads a set of specified cube images to the reflection probe.

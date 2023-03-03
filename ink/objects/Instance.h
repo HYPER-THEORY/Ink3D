@@ -22,9 +22,9 @@
 
 #pragma once
 
-#include "../math/Euler.h"
-
 #include "Mesh.h"
+
+#include "../math/Euler.h"
 
 namespace Ink {
 

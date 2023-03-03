@@ -26,7 +26,7 @@
 
 namespace Ink {
 
-Viewer::Viewer(const Camera& c, float s) : camera(c), speed(s) {}
+Viewer::Viewer(Camera* c, float s) : camera(c), speed(s) {}
 
 void Viewer::update(float dt) {
 	/* receive keyboard event */
@@ -53,37 +53,37 @@ void Viewer::update(float dt) {
 	if (axis_z < -PI_2) axis_z = -PI_2;
 	
 	/* update the viewing direction of camera */
-	camera.direction.x = sinf(axis_y) * cosf(axis_z);
-	camera.direction.y = sinf(axis_z);
-	camera.direction.z = cosf(axis_y) * cosf(axis_z);
+	camera->direction.x = sinf(axis_y) * cosf(axis_z);
+	camera->direction.y = sinf(axis_z);
+	camera->direction.z = cosf(axis_y) * cosf(axis_z);
 	
 	/* update the view-up vector of camera */
-	camera.up.x = -sinf(axis_y) * sinf(axis_z);
-	camera.up.y = cosf(axis_z);
-	camera.up.z = -cosf(axis_y) * sinf(axis_z);
+	camera->up.x = -sinf(axis_y) * sinf(axis_z);
+	camera->up.y = cosf(axis_z);
+	camera->up.z = -cosf(axis_y) * sinf(axis_z);
 	
 	/* update the movement of camera */
 	if (mode == VIEWER_WALK) {
-		camera.position.x += move.z * sinf(axis_y) - move.x * cosf(axis_y);
-		camera.position.z += move.z * cosf(axis_y) + move.x * sinf(axis_y);
+		camera->position.x += move.z * sinf(axis_y) - move.x * cosf(axis_y);
+		camera->position.z += move.z * cosf(axis_y) + move.x * sinf(axis_y);
 	} else if (mode == VIEWER_FLY) {
-		camera.position += move.z * camera.direction;
-		camera.position += move.x * (camera.direction.cross(camera.up));
+		camera->position += move.z * camera->direction;
+		camera->position += move.x * (camera->direction.cross(camera->up));
 	}
-	camera.lookat(camera.position, -camera.direction, camera.up);
+	camera->lookat(camera->position, -camera->direction, camera->up);
 }
 
-const Camera& Viewer::get_camera() const {
+Camera* Viewer::get_camera() const {
 	return camera;
 }
 
-void Viewer::set_camera(const Camera& c) {
+void Viewer::set_camera(Camera* c) {
 	camera = c;
-	set_direction(c.direction);
+	set_direction(c->direction);
 }
 
 void Viewer::set_position(const Vec3& p) {
-	camera.position = p;
+	camera->position = p;
 }
 
 void Viewer::set_direction(const Vec3& d) {

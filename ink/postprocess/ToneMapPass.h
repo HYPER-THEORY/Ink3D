@@ -22,9 +22,9 @@
 
 #pragma once
 
-#include "../renderer/Renderer.h"
-
 #include "RenderPass.h"
+
+#include "../renderer/Renderer.h"
 
 namespace Ink {
 
