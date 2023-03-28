@@ -1,19 +1,24 @@
 #ifndef TRANSFORM_GLSL
 #define TRANSFORM_GLSL
 
-/* Returns true if camera is perspective. */
-bool is_perspective(mat4 proj) {
-	return proj[2][3] == -1.;
+/* Converts from view Z to depth in perspective camera. */
+float z_to_depth_persp(float z, float near, float far) {
+	return (2. * near * far / z + near + far) / (far - near) * 0.5 + 0.5;
 }
 
-/* Returns the linearized depth with perspective camera. */
-float linearize_depth_persp(float depth, float near, float far) {
-	return 2. * near * far / (near + far + (depth * 2. - 1.) * (near - far));
+/* Converts from depth to view Z in perspective camera. */
+float depth_to_z_persp(float depth, float near, float far) {
+	return -2. * near * far / (near + far + (depth * 2. - 1.) * (near - far));
 }
 
-/* Returns the linearized depth with orthographic camera. */
-float linearize_depth_ortho(float depth, float near, float far) {
-	return (near + far - (depth * 2. - 1.) * (near - far)) * .5;
+/* Converts from view Z to depth in orthographic camera. */
+float z_to_depth_ortho(float z, float near, float far) {
+	return (2. * z + near + far) / (near - far) * 0.5 + 0.5;
+}
+
+/* Converts from depth to view Z in orthographic camera. */
+float depth_to_z_ortho(float depth, float near, float far) {
+	return -0.5 * (near + far - (depth * 2. - 1.) * (near - far));
 }
 
 #endif

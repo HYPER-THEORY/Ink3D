@@ -52,6 +52,7 @@ set(
         ink/postprocess/ColorGradePass.cxx
         ink/postprocess/SSRPass.cxx
         ink/postprocess/BloomPass.cxx
+        ink/postprocess/GrainPass.cxx
         ink/physics/Physics.cxx
         ink/scene/Scene.cxx
         ink/graphics/Gpu.cxx

@@ -43,7 +43,7 @@ Image Image::subimage(int x1, int y1, int x2, int y2) {
 	
 	/* check whether the sub-image region is legal */
 	if (x1 < 0 || x2 > width || y1 < 0 || y2 > height) {
-		Error::set("Image: Illegal slicing region");
+		Error::set("Image", "Illegal slicing region");
 	}
 	
 	/* create a new image */
@@ -116,10 +116,10 @@ std::vector<Image> Image::split() const {
 	return images;
 }
 
-void Image::convert(int c) {
+void Image::convert(ColorConversion c) {
 	/* check the number of channels */
 	if (channel != 3 && channel != 4) {
-		return Error::set("Image: Image's channel must be 3 or 4");
+		return Error::set("Image", "Image's channel must be 3 or 4");
 	}
 	
 	/* convert from RGB color space to BGR color space */

@@ -38,51 +38,49 @@ class Material {
 public:
 	std::string name;                     /**< material name */
 	
+	RenderSide side;                      /**< which side of faces will be rendered */
+	
+	RenderSide shadow_side;               /**< which side of faces will cast shadows */
+	
 	bool visible = true;                  /**< whether the material will be rendered */
-	
-	int side = FRONT_SIDE;                /**< which side of faces will be rendered */
-	
-	int shadow_side = BACK_SIDE;          /**< which side of faces will cast shadows */
-	
-	bool transparent = false;             /**< whether the material is transparent */
 	
 	bool wireframe = false;               /**< whether to render mesh as wireframe */
 	
 	bool depth_test = true;               /**< whether to enable depth test in rendering */
 	
-	int depth_func = FUNC_LEQUAL;         /**< which depth comparison function to use */
+	ComparisonFunc depth_func;            /**< which depth comparison function to use */
 	
 	bool stencil_test = false;            /**< whether to enable stencil test in rendering */
 	
 	int stencil_writemask = 0xFF;         /**< the mask when writing to stencil buffer */
 	
-	int stencil_func = FUNC_ALWAYS;       /**< which stencil comparison function to use */
-	
 	int stencil_ref = 0;                  /**< the reference value to be used in stencil comparison */
 	
 	int stencil_mask = 0xFF;              /**< the mask to be used in stencil comparison */
 	
-	int stencil_fail = STENCIL_KEEP;      /**< the operation when the stencil test fails */
+	ComparisonFunc stencil_func;          /**< which stencil comparison function to use */
 	
-	int stencil_zfail = STENCIL_KEEP;     /**< the operation when the stencil test passes but depth test fails */
+	StencilOperation stencil_fail;        /**< the operation when the stencil test fails */
 	
-	int stencil_zpass = STENCIL_KEEP;     /**< the operation when both the stencil test and depth test pass */
+	StencilOperation stencil_zfail;       /**< the operation when the stencil test passes but depth test fails */
+	
+	StencilOperation stencil_zpass;       /**< the operation when both the stencil test and depth test pass */
 	
 	bool blending = false;                /**< whether to enable blending in rendering */
 	
-	int blend_op = BLEND_ADD;             /**< which blend operation to use in RGB blending */
+	BlendOperation blend_op_rgb;          /**< which RGB blend operation to use in blending */
 	
-	int blend_op_alpha = BLEND_ADD;       /**< which blend operation to use in alpha blending */
+	BlendOperation blend_op_alpha;        /**< which alpha blend operation to use in blending */
 	
-	int blend_src = FACTOR_ONE;           /**< the RGB source blend factor in blending */
+	BlendFactor blend_src_rgb;            /**< the RGB source blend factor in blending */
 	
-	int blend_src_alpha = FACTOR_ONE;     /**< the alpha source blend factor in blending */
+	BlendFactor blend_src_alpha;          /**< the alpha source blend factor in blending */
 	
-	int blend_dst = FACTOR_ZERO;          /**< the RGB destination blend factor in blending */
+	BlendFactor blend_dst_rgb;            /**< the RGB destination blend factor in blending */
 	
-	int blend_dst_alpha = FACTOR_ZERO;    /**< the alpha destination blend factor in blending */
+	BlendFactor blend_dst_alpha;          /**< the alpha destination blend factor in blending */
 	
-	float alpha_test = 0;                 /**< the threshold, pixels with lower alpha will be discarded */
+	float alpha_test = 0;                 /**< threshold of alpha test, pixels with lower alpha will be discarded */
 	
 	bool map_with_alpha = true;           /**< whether to use alpha channel from color map */
 	
@@ -98,17 +96,17 @@ public:
 	
 	float alpha = 1;                      /**< the opacity of material, range is 0 to 1 */
 	
-	Vec3 emissive = {0, 0, 0};            /**< the emissive color of material, default is black */
-	
-	float emissive_intensity = 1;         /**< the emissive intensity of material, range is 0 to 1 */
-	
-	float ao_intensity = 1;               /**< the occlusion intensity of material, range is 0 to 1 */
-	
 	float specular = 0.5;                 /**< how specular the material appears, range is 0 to 1 */
 	
 	float metalness = 0;                  /**< how metallic the material appears, range is 0 to 1 */
 	
 	float roughness = 1;                  /**< how rough the material appears, range is 0 to 1 */
+	
+	Vec3 emissive = {0, 0, 0};            /**< the emissive color of material, default is black */
+	
+	float emissive_intensity = 1;         /**< the emissive intensity of material, range is 0 to 1 */
+	
+	float ao_intensity = 1;               /**< the occlusion intensity of material, range is 0 to 1 */
 	
 	Image* normal_map = nullptr;          /**< the map determines the normals of mesh */
 	
@@ -118,15 +116,17 @@ public:
 	
 	Image* alpha_map = nullptr;           /**< the map affects the alpha of material */
 	
-	Image* emissive_map = nullptr;        /**< the map affects the emissive color of material */
-	
-	Image* ao_map = nullptr;              /**< the map affects the ambient occlusion of material */
-	
 	Image* roughness_map = nullptr;       /**< the map affects how rough the material appears */
 	
 	Image* metalness_map = nullptr;       /**< the map affects how metallic the material appears */
 	
 	Image* specular_map = nullptr;        /**< the map affects how specular the material appears */
+	
+	Image* emissive_map = nullptr;        /**< the map affects the emissive color of material */
+	
+	Image* ao_map = nullptr;              /**< the map affects the ambient occlusion of material */
+	
+	Image* custom_maps[16];               /**< the custom maps of material */
 	
 	void* shader = nullptr;               /**< custom shader determines how lights affect material */
 	
@@ -140,36 +140,6 @@ public:
 	 * \param n material name
 	 */
 	explicit Material(const std::string& n = "");
-	
-	/**
-	 * Returns the custom image at the specified index in the material.
-	 *
-	 * \param i the index of image
-	 */
-	Image* get_image(int i) const;
-	
-	/**
-	 * Sets a custom image at the specified index to the material.
-	 *
-	 * \param i image index
-	 * \param c custom image
-	 */
-	void set_image(int i, Image* c);
-	
-	/**
-	 * Removes the custom image at the specified index from the material.
-	 *
-	 * \param i image index
-	 */
-	void remove_image(int i);
-	
-	/**
-	 * Clears all the custom images from the material.
-	 */
-	void clear_images();
-	
-private:
-	std::unordered_map<int, Image*> images;
 };
 
 }

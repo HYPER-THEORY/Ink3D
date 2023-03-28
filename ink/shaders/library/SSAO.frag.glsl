@@ -11,13 +11,13 @@
 #define POISSON_3D POISSON_3D_64
 #endif
 
-uniform sampler2D buffer_n;
-uniform sampler2D buffer_d;
+uniform sampler2D g_normal;
+uniform sampler2D z_map;
 
 uniform float intensity;
 uniform float radius;
 uniform float max_radius;
-uniform float max_depth;
+uniform float max_z;
 uniform float near;
 uniform float far;
 uniform mat4 view;
@@ -33,16 +33,16 @@ bool out_of_screen(vec2 coord) {
 }
 
 void main() {
-	/* sample depth from texture */
-	float depth = textureLod(buffer_d, v_uv, 0).x;
-	float linear_depth = linearize_depth_persp(depth, near, far);
+	/* sample depth from Z-Buffer */
+	float depth = textureLod(z_map, v_uv, 0).x;
+	float z = depth_to_z_persp(depth, near, far);
 	
 	/* ignore the pixels on skybox */
 	out_color = vec4(1., 1., 1., 1.);
-	if (linear_depth > max_depth) return;
+	if (z > max_z) return;
 	
-	/* sample world normal from texture */
-	vec3 normal = textureLod(buffer_n, v_uv, 0).xyz;
+	/* sample world normal from G-Buffer normal */
+	vec3 normal = textureLod(g_normal, v_uv, 0).xyz;
 	normal = normalize(unpack_normal(normal));
 	normal = mat3(view) * normal;
 	
@@ -74,10 +74,10 @@ void main() {
 		/* discard when sample UV is out of screen */
 		if (out_of_screen(sample_uv)) continue;
 		
-		/* calcualte difference between linear depths */
-		float sample_depth = textureLod(buffer_d, sample_uv, 0).x;
-		float sample_z = linearize_depth_persp(sample_depth, near, far);
-		float delta = -sample_pos.z - sample_z;
+		/* calcualte difference between depths */
+		float sample_depth = textureLod(z_map, sample_uv, 0).x;
+		float sample_z = depth_to_z_persp(sample_depth, near, far);
+		float delta = sample_z - sample_pos.z;
 		
 		/* compare depths and accumulate occlusion */
 		float range_fade = 1. - smoothstep(max_radius * 0.75, max_radius, delta);
@@ -85,6 +85,6 @@ void main() {
 	}
 	
 	/* output ambient occlusion */
-	occlusion *= 1. - smoothstep(max_depth * 0.75, max_depth, linear_depth);
+	occlusion *= 1. - smoothstep(max_z * 0.75, max_z, z);
 	out_color = vec4(1. - intensity * occlusion / SAMPLES);
 }

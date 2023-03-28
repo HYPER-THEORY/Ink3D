@@ -126,13 +126,13 @@ public:
 	
 	/**
 	 * Calculates normals and adds them to the mesh. Normals are calculated by
-	 * the vertices in the mesh.
+	 * the vertex infomation.
 	 */
 	void create_normals();
 	
 	/**
 	 * Calculates tangents and adds them to the mesh. Tangents are calculated by
-	 * the vertices, normals and UVs in the mesh.
+	 * the vertex, normal and UV infomation.
 	 */
 	void create_tangents();
 };

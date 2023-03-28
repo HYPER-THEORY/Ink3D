@@ -26,14 +26,6 @@ namespace Ink {
 
 Instance::Instance(const std::string& n) : name(n) {}
 
-Instance* Instance::create(const std::string& n) {
-	return new Instance(n);
-}
-
-void Instance::destroy(const Instance* i) {
-	delete i;
-}
-
 void Instance::add(Instance* i) {
 	i->parent = this;
 	children.emplace_back(i);

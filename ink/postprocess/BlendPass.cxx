@@ -28,7 +28,7 @@ namespace Ink {
 
 void BlendPass::init() {}
 
-void BlendPass::render() const {
+void BlendPass::render() {
 	Defines blend_defines;
 	blend_defines.set("BLEND_OP(a, b)", operation);
 	blend_defines.set("A_SWIZZLE", swizzle_a);

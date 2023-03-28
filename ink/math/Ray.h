@@ -45,12 +45,39 @@ public:
 	explicit Ray(const Vec3& o, const Vec3& d);
 	
 	/**
-	 * Returns the distance between origin and intersection point if the ray
-	 * will intersect with the triangle ABC, returns -1 otherwise.
+	 * Intersects the ray with the AABB box. Returns the distance to the
+	 * intersection point if there is an intersection, returns -1 otherwise.
 	 *
-	 * \param a triangle's vertex A
-	 * \param b triangle's vertex B
-	 * \param c triangle's vertex C
+	 * \param l the lower boundary of box
+	 * \param u the upper boundary of box
+	 */
+	float intersect_box(const Vec3& l, const Vec3& u) const;
+	
+	/**
+	 * Intersects the ray with the plane. Returns the distance to the
+	 * intersection point if there is an intersection, returns -1 otherwise.
+	 *
+	 * \param n the normal of plane, must be normalized
+	 * \param d the distance from the origin to the plane
+	 */
+	float intersect_plane(const Vec3& n, float d) const;
+	
+	/**
+	 * Intersects the ray with the sphere. Returns the distance to the
+	 * intersection point if there is an intersection, returns -1 otherwise.
+	 *
+	 * \param c the center of sphere
+	 * \param r the radius of sphere
+	 */
+	float intersect_shpere(const Vec3& c, float r) const;
+	
+	/**
+	 * Intersects the ray with the triangle ABC. Returns the distance to the
+	 * intersection point if there is an intersection, returns -1 otherwise.
+	 *
+	 * \param a the vertex A of triangle
+	 * \param b the vertex B of triangle
+	 * \param c the vertex C of triangle
 	 */
 	float intersect_triangle(const Vec3& a, const Vec3& b, const Vec3& c) const;
 };

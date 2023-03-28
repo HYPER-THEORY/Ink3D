@@ -39,7 +39,7 @@ Image Loader::load_image(const std::string& p) {
 	/* get image data from file */
 	auto* image_ptr = stbi_load(p.c_str(), &image.width, &image.height, &image.channel, 0);
 	if (image_ptr == nullptr) {
-		Error::set("Loader: Error reading from image");
+		Error::set("Loader", "Failed to read from image");
 		return Image();
 	}
 	
@@ -59,7 +59,7 @@ Image Loader::load_image_hdr(const std::string& p) {
 	/* get image data from file */
 	auto* image_ptr = stbi_loadf(p.c_str(), &image.width, &image.height, &image.channel, 0);
 	if (image_ptr == nullptr) {
-		Error::set("Loader: Error reading from image");
+		Error::set("Loader", "Failed to read from image");
 		return Image();
 	}
 	
@@ -76,8 +76,8 @@ std::vector<Mesh> Loader::load_obj(const std::string& p, const std::string& g) {
 	/* prepare the file stream */
 	std::ifstream stream;
 	stream.open(p, std::ifstream::in);
-	if (!stream) {
-		Error::set("Loader: Error reading from obj file");
+	if (stream.fail()) {
+		Error::set("Loader", "Failed to read from obj file");
 		return std::vector<Mesh>();
 	}
 	size_t stream_max = std::numeric_limits<std::streamsize>::max();
@@ -206,8 +206,8 @@ std::vector<Material> Loader::load_mtl(const std::string& p) {
 	/* prepare the file stream */
 	std::ifstream stream;
 	stream.open(p, std::ifstream::in);
-	if (!stream) {
-		Error::set("Loader: Error reading from mtl file");
+	if (stream.fail()) {
+		Error::set("Loader", "Failed to read from mtl file");
 		return std::vector<Material>();
 	}
 	size_t stream_max = std::numeric_limits<std::streamsize>::max();

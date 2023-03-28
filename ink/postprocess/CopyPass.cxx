@@ -28,7 +28,7 @@ namespace Ink {
 
 void CopyPass::init() {}
 
-void CopyPass::render() const {
+void CopyPass::render() {
 	auto* copy_shader = ShaderLib::fetch("Copy");
 	copy_shader->use_program();
 	copy_shader->set_uniform_f("lod", 0);

@@ -170,7 +170,7 @@ public:
 	/**
 	 * Returns the comparison function in depth test.
 	 */
-	static int get_depth_func();
+	static ComparisonFunc get_depth_func();
 	
 	/**
 	 * Sets the specified comparison function in depth test. Default is
@@ -178,7 +178,7 @@ public:
 	 *
 	 * \param f comparison function
 	 */
-	static void set_depth_func(int f);
+	static void set_depth_func(ComparisonFunc f);
 	
 	/**
 	 * Enables stencil test. If enabled, do stencil testing and update the
@@ -219,7 +219,7 @@ public:
 	/**
 	 * Returns the comparison function in stencil test.
 	 */
-	static int get_stencil_func();
+	static ComparisonFunc get_stencil_func();
 	
 	/**
 	 * Returns the reference value in stencil test.
@@ -239,22 +239,22 @@ public:
 	 * \param r reference value
 	 * \param m mask
 	 */
-	static void set_stencil_func(int f, int r, int m);
+	static void set_stencil_func(ComparisonFunc f, int r, int m);
 	
 	/**
 	 * Returns the operation when the stencil test fails.
 	 */
-	static int get_stencil_fail();
+	static StencilOperation get_stencil_fail();
 	
 	/**
 	 * Returns the operation when the stencil test passes but depth test fails.
 	 */
-	static int get_stencil_zfail();
+	static StencilOperation get_stencil_zfail();
 	
 	/**
 	 * Returns the operation when both the stencil test and depth test pass.
 	 */
-	static int get_stencil_zpass();
+	static StencilOperation get_stencil_zpass();
 	
 	/**
 	 * Sets the specified operations for different cases in stencil test and
@@ -264,7 +264,9 @@ public:
 	 * \param zf the operation when the stencil test passes but depth test fails
 	 * \param zp the operation when both the stencil test and depth test pass
 	 */
-	static void set_stencil_op(int f, int zf, int zp);
+	static void set_stencil_op(StencilOperation f,
+							   StencilOperation zf,
+							   StencilOperation zp);
 	
 	/**
 	 * Enables blending. If enabled, blend the computed fragment color values
@@ -281,19 +283,19 @@ public:
 	/**
 	 * Returns the blend operation of RGB color components in blending.
 	 */
-	static int get_blend_op_rgb();
+	static BlendOperation get_blend_op_rgb();
 	
 	/**
 	 * Returns the blend operation of alpha color component in blending.
 	 */
-	static int get_blend_op_alpha();
+	static BlendOperation get_blend_op_alpha();
 	
 	/**
 	 * Sets the specified blend operation in blending. Default is BLEND_ADD.
 	 *
 	 * \param o blend operation
 	 */
-	static void set_blend_op(int o);
+	static void set_blend_op(BlendOperation o);
 	
 	/**
 	 * Sets the specified blend operation in blending. Default is BLEND_ADD,
@@ -302,49 +304,50 @@ public:
 	 * \param rgb RGB blend operation
 	 * \param a alpha blend operation
 	 */
-	static void set_blend_op(int rgb, int a);
+	static void set_blend_op(BlendOperation rgb, BlendOperation a);
 	
 	/**
 	 * Returns the source blend factor of RGB color components in blending.
 	 */
-	static int get_blend_src_rgb();
+	static BlendFactor get_blend_src_rgb();
 	
 	/**
 	 * Returns the source blend factor of alpha color component in blending.
 	 */
-	static int get_blend_src_alpha();
+	static BlendFactor get_blend_src_alpha();
 	
 	/**
 	 * Returns the source destination factor of RGB color components in
 	 * blending.
 	 */
-	static int get_blend_dst_rgb();
+	static BlendFactor get_blend_dst_rgb();
 	
 	/**
 	 * Returns the source destination factor of alpha color component in
 	 * blending.
 	 */
-	static int get_blend_dst_alpha();
+	static BlendFactor get_blend_dst_alpha();
 	
 	/**
 	 * Sets the specified source and destination blend factors in blending.
 	 * Default is FACTOR_ONE and FACTOR_ZERO.
 	 *
-	 * \param s source blend function
-	 * \param d destination blend function
+	 * \param s source blend factor
+	 * \param d destination blend factor
 	 */
-	static void set_blend_factor(int s, int d);
+	static void set_blend_factor(BlendFactor s, BlendFactor d);
 	
 	/**
 	 * Sets the specified source and destination blend factors in blending.
 	 * Default is FACTOR_ONE, FACTOR_ZERO, FACTOR_ONE, FACTOR_ZERO.
 	 *
-	 * \param srgb RGB source blend function
-	 * \param drgb RGB destination blend function
-	 * \param sa alpha source blend function
-	 * \param da alpha destination blend function
+	 * \param sr RGB source blend factor
+	 * \param dr RGB destination blend factor
+	 * \param sa alpha source blend factor
+	 * \param da alpha destination blend factor
 	 */
-	static void set_blend_factor(int srgb, int drgb, int sa, int da);
+	static void set_blend_factor(BlendFactor sr, BlendFactor dr,
+								 BlendFactor sa, BlendFactor da);
 	
 	/**
 	 * Returns the viewport region.
@@ -411,14 +414,14 @@ public:
 	/**
 	 * Determines which side of face will be culled.
 	 */
-	static int get_cull_side();
+	static RenderSide get_cull_side();
 	
 	/**
 	 * Determines which side of face will be culled. Default is BACK_SIDE.
 	 *
 	 * \param s culling side
 	 */
-	static void set_cull_side(int s);
+	static void set_cull_side(RenderSide s);
 	
 	/**
 	 * Enables polygon offset. If enabled, and if the wireframe is disabled, an
@@ -869,7 +872,7 @@ public:
 	 * \param f texture format
 	 * \param t image data type
 	 */
-	void init_1d(int w, int f, int t = IMAGE_UBYTE);
+	void init_1d(int w, TextureFormat f, ImageType t = IMAGE_UBYTE);
 	
 	/**
 	 * Initializes the texture as 2d texture with empty data.
@@ -879,7 +882,7 @@ public:
 	 * \param f texture format
 	 * \param t image data type
 	 */
-	void init_2d(int w, int h, int f, int t = IMAGE_UBYTE);
+	void init_2d(int w, int h, TextureFormat f, ImageType t = IMAGE_UBYTE);
 	
 	/**
 	 * Initializes the texture as 2d texture with the specified image.
@@ -887,7 +890,7 @@ public:
 	 * \param i image
 	 * \param f texture format
 	 */
-	void init_2d(const Image& i, int f);
+	void init_2d(const Image& i, TextureFormat f);
 	
 	/**
 	 * Initializes the texture as 3d texture with empty data.
@@ -898,7 +901,7 @@ public:
 	 * \param f texture format
 	 * \param t image data type
 	 */
-	void init_3d(int w, int h, int d, int f, int t = IMAGE_UBYTE);
+	void init_3d(int w, int h, int d, TextureFormat f, ImageType t = IMAGE_UBYTE);
 	
 	/**
 	 * Initializes the texture as cube texture with empty data.
@@ -908,7 +911,7 @@ public:
 	 * \param f texture format
 	 * \param t image data type
 	 */
-	void init_cube(int w, int h, int f, int t = IMAGE_UBYTE);
+	void init_cube(int w, int h, TextureFormat f, ImageType t = IMAGE_UBYTE);
 	
 	/**
 	 * Initializes the texture as cube texture with the specified images from
@@ -923,7 +926,7 @@ public:
 	 * \param f texture format
 	 */
 	void init_cube(const Image& px, const Image& nx, const Image& py,
-				   const Image& ny, const Image& pz, const Image& nz, int f);
+				   const Image& ny, const Image& pz, const Image& nz, TextureFormat f);
 	
 	/**
 	 * Initializes the texture as 1D array texture with empty data.
@@ -933,7 +936,7 @@ public:
 	 * \param f texture format
 	 * \param t image data type
 	 */
-	void init_1d_array(int w, int l, int f, int t = IMAGE_UBYTE);
+	void init_1d_array(int w, int l, TextureFormat f, ImageType t = IMAGE_UBYTE);
 	
 	/**
 	 * Initializes the texture as 2D array texture with empty data.
@@ -944,7 +947,7 @@ public:
 	 * \param f image format
 	 * \param t image data type
 	 */
-	void init_2d_array(int w, int h, int l, int f, int t = IMAGE_UBYTE);
+	void init_2d_array(int w, int h, int l, TextureFormat f, ImageType t = IMAGE_UBYTE);
 	
 	/**
 	 * Initializes the texture as cube array texture with empty data.
@@ -955,19 +958,7 @@ public:
 	 * \param f texture format
 	 * \param t image data type
 	 */
-	void init_cube_array(int w, int h, int l, int f, int t = IMAGE_UBYTE);
-	
-	/**
-	 * Returns the type of texture if the texture is legal, returns -1
-	 * otherwise.
-	 */
-	int get_type() const;
-	
-	/**
-	 * Returns the format of texture if the texture is legal, returns -1
-	 * otherwise.
-	 */
-	int get_format() const;
+	void init_cube_array(int w, int h, int l, TextureFormat f, ImageType t = IMAGE_UBYTE);
 	
 	/**
 	 * Returns the width of texture if the texture is legal, returns 0
@@ -995,6 +986,16 @@ public:
 	int get_layer() const;
 	
 	/**
+	 * Returns the type of texture.
+	 */
+	TextureType get_type() const;
+	
+	/**
+	 * Returns the format of texture.
+	 */
+	TextureFormat get_format() const;
+	
+	/**
 	 * Copys texture to the specified image. The type of texture must be
 	 * TEXTURE_2D.
 	 */
@@ -1010,28 +1011,28 @@ public:
 	 *
 	 * \param m wrapping mode
 	 */
-	void set_wrap_s(int m) const;
+	void set_wrap_s(TextureWrappingMode m) const;
 	
 	/**
 	 * Sets the wrapping mode on T coordinate. Default is TEXTURE_REPEAT.
 	 *
 	 * \param m wrapping mode
 	 */
-	void set_wrap_t(int m) const;
+	void set_wrap_t(TextureWrappingMode m) const;
 	
 	/**
 	 * Sets the wrapping mode on R coordinate. Default is TEXTURE_REPEAT.
 	 *
 	 * \param m wrapping mode
 	 */
-	void set_wrap_r(int m) const;
+	void set_wrap_r(TextureWrappingMode m) const;
 	
 	/**
 	 * Sets the wrapping modes on S, T and R coordinates.
 	 *
 	 * \param m wrapping mode
 	 */
-	void set_wrap_all(int m) const;
+	void set_wrap_all(TextureWrappingMode m) const;
 	
 	/**
 	 * Sets the magnification and minification filters of texture. Default is
@@ -1040,7 +1041,7 @@ public:
 	 * \param mag magnification filter
 	 * \param min minification filter
 	 */
-	void set_filters(int mag, int min) const;
+	void set_filters(TextureFilter mag, TextureFilter min) const;
 	
 	/**
 	 * Sets the border color used for border texels. Default is (0, 0, 0, 0).
@@ -1076,7 +1077,7 @@ public:
 	 *
 	 * \param i image
 	 */
-	static int default_format(const Image& i);
+	static TextureFormat default_format(const Image& i);
 	
 	/**
 	 * Returns the default texture format for the specified channel and byte.
@@ -1084,14 +1085,10 @@ public:
 	 * \param c channel
 	 * \param b byte
 	 */
-	static int default_format(int c, int b);
+	static TextureFormat default_format(int c, int b);
 	
 private:
 	uint32_t id = 0;
-	
-	int type = -1;
-	
-	int format = -1;
 	
 	int width = 0;
 	
@@ -1099,7 +1096,13 @@ private:
 	
 	int depth = 0;
 	
-	void set_parameters(int t, int f, int w, int h, int d);
+	TextureType type;
+	
+	TextureFormat format;
+	
+	void set_dimensions(int w, int h, int d);
+	
+	void set_parameters(TextureType t, TextureFormat f);
 	
 	friend class RenderTarget;
 };
@@ -1132,9 +1135,9 @@ public:
 	 *
 	 * \param w the width of render buffer
 	 * \param h the height of render buffer
-	 * \param f image format
+	 * \param f texture format
 	 */
-	void init(int w, int h, int f) const;
+	void init(int w, int h, TextureFormat f) const;
 	
 private:
 	uint32_t id = 0;

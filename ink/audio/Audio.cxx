@@ -34,7 +34,7 @@ Audio::Audio(const std::string& p) {
 	if (SDL_LoadWAV(p.c_str(), &spec, &buffer, &length) == nullptr) {
 		auto error = SDL_GetError();
 		printf("%s\n", error);
-		Error::set("Audio: Error reading from WAVE file");
+		Error::set("Audio", "Failed to read from WAVE file");
 	}
 	ratio = spec.channels * spec.freq * (spec.format >> 3 & 0x1F);
 	spec.userdata = this;

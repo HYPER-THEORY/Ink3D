@@ -28,7 +28,7 @@ namespace Ink {
 
 void FXAAPass::init() {}
 
-void FXAAPass::render() const {
+void FXAAPass::render() {
 	auto* fxaa_shader = ShaderLib::fetch("FXAA");
 	Gpu::Rect viewport = RenderPass::get_viewport();
 	Vec2 screen_size = Vec2(viewport.width, viewport.height);

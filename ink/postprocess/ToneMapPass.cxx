@@ -29,7 +29,7 @@ namespace Ink {
 
 void ToneMapPass::init() {}
 
-void ToneMapPass::render() const {
+void ToneMapPass::render() {
 	Defines tone_map_defines;
 	Renderer::set_tone_map_defines(mode, tone_map_defines);
 	auto* tone_map_shader = ShaderLib::fetch("ToneMapping", tone_map_defines);

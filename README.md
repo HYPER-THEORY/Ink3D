@@ -7,7 +7,9 @@ Ink 3D is a lightweight and easy to use framework for 3D rendering.
 
 ### Screenshots ###
 
-![Ink3D - Coffee Time.png](https://s2.loli.net/2023/02/01/SilvdUzxObpeYCu.png "Coffee Time - Rendered by Ink3D")
+![Ink3D - Black Cat.png](https://s2.loli.net/2023/03/28/znxmQqjsBlkL2M8.png "Black Cat - Rendered by Ink3D")
+
+![Ink3D - Coffee Time.png](https://s2.loli.net/2023/03/28/1z5ipOKQlqru4Zg.png "Coffee Time - Rendered by Ink3D")
 
 ![Ink3D - Paper Plane.png](https://s2.loli.net/2023/02/01/HuALipG27Nal3r4.png "Paper Plane - Rendered by Ink3D")
 
@@ -44,7 +46,7 @@ Ink 3D is a lightweight and easy to use framework for 3D rendering.
 
 using namespace Ink;
 
-const char* block =
+const char* BLOCK =
 A B B B B B B B B B B A B B B B B A A A B B B B B B B B C C C A B B B B
 B B B B C C C B B B B B B B B B B A A A B B B B B B B B C C C A A A B B
 B B B B C C C C C A A B B B A A A B B C C C A B B C C C A A A C C C A B
@@ -58,16 +60,16 @@ void conf(Settings& t) {
 	t.title = "Ink3D Example";
 	t.show_cursor = false;
 	t.lock_cursor = true;
-	t.background_color = Vec3(1, 0.93, 0.8);
+	t.background_color = Vec3(1.0, 0.93, 0.8);
 }
 
 void load() {
-	Instance* cube = Instance::create();
-	cube->mesh = new Mesh(BoxMesh::create());
-	scene.add(cube);
+	Instance* instance = new Instance();
+	instance->mesh = new Mesh(BoxMesh::create());
+	scene.add(instance);
 	
 	Image* image = new Image(12, 12, 3);
-	std::copy_n(block, 12 * 12 * 3, &image->data[0]);
+	std::copy_n(BLOCK, 12 * 12 * 3, &image->data[0]);
 	
 	Material* material = new Material();
 	material->color_map = image;

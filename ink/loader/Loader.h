@@ -48,9 +48,9 @@ public:
 	 * Loads the mesh data from the specified OBJ file into mesh vector.
 	 *
 	 * \param p the path to the file
-	 * \param g grouping keyword, default is "o"
+	 * \param g grouping keyword, default is "g"
 	 */
-	static std::vector<Mesh> load_obj(const std::string& p, const std::string& g = "o");
+	static std::vector<Mesh> load_obj(const std::string& p, const std::string& g = "g");
 	
 	/**
 	 * Loads the material data from the specified MTL file into material vector.

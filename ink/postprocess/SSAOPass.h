@@ -35,8 +35,8 @@ public:
 	int samples = 32;         /**< sample number, must be 16, 32 or 64 */
 	float radius = 0;         /**< radius to search for occluders */
 	float max_radius = 0;     /**< the maximum radius from occluder to pixel */
+	float max_z = 100;        /**< the maximum depth to render ambient occlusion */
 	float intensity = 1;      /**< the intensity of ambient occlusion, range is 0 to 1 */
-	float max_depth = 100;    /**< the maximum depth to render ambient occlusion */
 	
 	/**
 	 * Creates a new SSAOPass (Screen Space Ambient Occlusion) object.
@@ -63,14 +63,19 @@ public:
 	/**
 	 * Compiles the required shaders and renders to the render target.
 	 */
-	void render() const override;
+	void render() override;
 	
 	/**
-	 * Sets the specified parameters to render pass before the rendering starts.
+	 * Returns the camera represents the input of rendering pass.
+	 */
+	const Camera* get_camera() const;
+	
+	/**
+	 * Sets the specified camera as the input of rendering pass.
 	 *
 	 * \param c camera
 	 */
-	void set(const Camera* c);
+	void set_camera(const Camera* c);
 	
 	/**
 	 * Returns the 2D texture represents the input of rendering pass.
@@ -87,33 +92,33 @@ public:
 	/**
 	 * Returns the 2D texture represents the world normal buffer in G-Buffers.
 	 */
-	const Gpu::Texture* get_buffer_n() const;
+	const Gpu::Texture* get_texture_normal() const;
 	
 	/**
 	 * Sets the specified 2D texture as the world normal buffer in G-Buffers.
 	 *
-	 * \param n normal buffer texture
+	 * \param t world normal texture
 	 */
-	void set_buffer_n(const Gpu::Texture* n);
+	void set_texture_normal(const Gpu::Texture* t);
 	
 	/**
-	 * Returns the 2D texture represents the depth buffer in G-Buffers.
+	 * Returns the 2D texture represents the depth buffer / Z-Buffer.
 	 */
-	const Gpu::Texture* get_buffer_d() const;
+	const Gpu::Texture* get_texture_depth() const;
 	
 	/**
-	 * Sets the specified 2D texture as the depth buffer in G-Buffers.
+	 * Sets the specified 2D texture as the depth buffer / Z-Buffer.
 	 *
-	 * \param d depth buffer texture
+	 * \param t depth texture
 	 */
-	void set_buffer_d(const Gpu::Texture* d);
+	void set_texture_depth(const Gpu::Texture* t);
 	
 private:
 	const Camera* camera = nullptr;
 	
 	const Gpu::Texture* map = nullptr;
-	const Gpu::Texture* buffer_n = nullptr;
-	const Gpu::Texture* buffer_d = nullptr;
+	const Gpu::Texture* g_normal = nullptr;
+	const Gpu::Texture* z_map = nullptr;
 	
 	std::unique_ptr<Gpu::Texture> blur_map_1;
 	std::unique_ptr<Gpu::Texture> blur_map_2;

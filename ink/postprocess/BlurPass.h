@@ -34,13 +34,13 @@ enum BlurType {
 
 class BlurPass : public RenderPass {
 public:
-	int type = BLUR_BOX;     /**< the type of the blur */
-	int width = 0;           /**< the width of screen */
-	int height = 0;          /**< the height of screen */
-	int channel = 4;         /**< the channel of texture */
-	int radius = 3;          /**< the radius of the blur */
-	float sigma_s = 2.0;     /**< the sigma of space, for Gaussian or bilateral blur */
-	float sigma_r = 0.25;    /**< the sigma of range, only for bilateral blur */
+	BlurType type = BLUR_BOX;    /**< the type of the blur */
+	int width = 0;               /**< the width of screen */
+	int height = 0;              /**< the height of screen */
+	int channel = 4;             /**< the channel of texture */
+	int radius = 3;              /**< the radius of the blur */
+	float sigma_s = 2.0;         /**< the sigma of space, for Gaussian or bilateral blur */
+	float sigma_r = 0.25;        /**< the sigma of range, only for bilateral blur */
 	
 	/**
 	 * Creates a new BlurPass object.
@@ -63,7 +63,7 @@ public:
 	/**
 	 * Compiles the required shaders and renders to the render target.
 	 */
-	void render() const override;
+	void render() override;
 	
 	/**
 	 * Returns the 2D texture represents the input of rendering pass.

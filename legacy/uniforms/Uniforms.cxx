@@ -96,7 +96,7 @@ void Uniforms::set_shader_uniforms(const Gpu::Shader& s) const {
 		
 		/* unknown variable suffix */
 		else {
-			Error::set("Shader: Unknown variable suffix");
+			Error::set("Shader", "Unknown variable suffix");
 		}
 	}
 }

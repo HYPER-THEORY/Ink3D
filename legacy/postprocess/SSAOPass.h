@@ -62,7 +62,7 @@ public:
 	/**
 	 * Compiles the required shaders and renders to the render target.
 	 */
-	void render() const override;
+	void render() override;
 	
 	/**
 	 * Sets the specified parameters to render pass before the rendering starts.

@@ -65,7 +65,7 @@ void Window::init_opengl(int v, int d, int s, int m, bool a) {
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, a);
 	context = SDL_GL_CreateContext(sdl_window);
 	SDL_GL_SetSwapInterval(v);
-	if (gladLoadGL() == 0) Error::set("Window: Failed to load OpenGL");
+	if (gladLoadGL() == 0) Error::set("Window", "Failed to load OpenGL");
 }
 
 void Window::close() {

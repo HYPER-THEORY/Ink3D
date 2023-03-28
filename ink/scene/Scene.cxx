@@ -29,19 +29,25 @@ namespace Ink {
 Scene::Scene(const std::string& n) : Instance(n) {}
 
 Material* Scene::get_material(const std::string& n) const {
-	if (material_library.count(n) == 0) return nullptr;
+	if (material_library.count(n) == 0) {
+		return nullptr;
+	}
 	return material_library.at(n);
 }
 
-Material* Scene::get_material(const std::string& n, const Mesh* s) const {
-	std::string name = Format::format("M{}#{}", reinterpret_cast<size_t>(s), n);
-	if (material_library.count(name) == 0) return nullptr;
+Material* Scene::get_material(const std::string& n, const Mesh& s) const {
+	auto name = Format::format("M{}#{}", reinterpret_cast<size_t>(&s), n);
+	if (material_library.count(name) == 0) {
+		return nullptr;
+	}
 	return material_library.at(name);
 }
 
-Material* Scene::get_material(const std::string& n, const Instance* s) const {
-	std::string name = Format::format("I{}#{}", reinterpret_cast<size_t>(s), n);
-	if (material_library.count(name) == 0) return nullptr;
+Material* Scene::get_material(const std::string& n, const Instance& s) const {
+	auto name = Format::format("I{}#{}", reinterpret_cast<size_t>(&s), n);
+	if (material_library.count(name) == 0) {
+		return nullptr;
+	}
 	return material_library.at(name);
 }
 
@@ -49,13 +55,13 @@ void Scene::set_material(const std::string& n, Material* m) {
 	material_library.insert_or_assign(n, m);
 }
 
-void Scene::set_material(const std::string& n, const Mesh* s, Material* m) {
-	auto name = Format::format("M{}#{}", reinterpret_cast<size_t>(s), n);
+void Scene::set_material(const std::string& n, const Mesh& s, Material* m) {
+	auto name = Format::format("M{}#{}", reinterpret_cast<size_t>(&s), n);
 	material_library.insert_or_assign(name, m);
 }
 
-void Scene::set_material(const std::string& n, const Instance* s, Material* m) {
-	auto name = Format::format("I{}#{}", reinterpret_cast<size_t>(s), n);
+void Scene::set_material(const std::string& n, const Instance& s, Material* m) {
+	auto name = Format::format("I{}#{}", reinterpret_cast<size_t>(&s), n);
 	material_library.insert_or_assign(name, m);
 }
 
@@ -63,13 +69,13 @@ void Scene::remove_material(const std::string& n) {
 	material_library.erase(n);
 }
 
-void Scene::remove_material(const std::string& n, const Mesh* s) {
-	auto name = Format::format("M{}#{}", reinterpret_cast<size_t>(s), n);
+void Scene::remove_material(const std::string& n, const Mesh& s) {
+	auto name = Format::format("M{}#{}", reinterpret_cast<size_t>(&s), n);
 	material_library.erase(name);
 }
 
-void Scene::remove_material(const std::string& n, const Instance* s) {
-	auto name = Format::format("I{}#{}", reinterpret_cast<size_t>(s), n);
+void Scene::remove_material(const std::string& n, const Instance& s) {
+	auto name = Format::format("I{}#{}", reinterpret_cast<size_t>(&s), n);
 	material_library.erase(name);
 }
 

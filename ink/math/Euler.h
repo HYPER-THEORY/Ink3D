@@ -37,10 +37,10 @@ enum EulerOrder {
 
 class Euler {
 public:
-	float x = 0;              /* the rotation angle of X axis */
-	float y = 0;              /* the rotation angle of Y axis */
-	float z = 0;              /* the rotation angle of Z axis */
-	int order = EULER_XYZ;    /* the order of rotations */
+	float x = 0;                     /**< the rotation angle of X axis */
+	float y = 0;                     /**< the rotation angle of Y axis */
+	float z = 0;                     /**< the rotation angle of Z axis */
+	EulerOrder order = EULER_XYZ;    /**< the order of rotations */
 	
 	/**
 	 * Creates a new Euler object.
@@ -55,7 +55,7 @@ public:
 	 * \param z the rotation angle of Z axis
 	 * \param o the order of rotations
 	 */
-	explicit Euler(float x, float y, float z, int o = EULER_XYZ);
+	explicit Euler(float x, float y, float z, EulerOrder o = EULER_XYZ);
 	
 	/**
 	 * Creates a new Euler object and initializes it with rotations and order.
@@ -63,7 +63,7 @@ public:
 	 * \param r the rotation vector
 	 * \param o the order of rotations
 	 */
-	explicit Euler(Vec3 r, int o = EULER_XYZ);
+	explicit Euler(Vec3 r, EulerOrder o = EULER_XYZ);
 	
 	/**
 	 * Transforms the Euler angles to rotation matrix.

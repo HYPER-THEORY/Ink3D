@@ -44,15 +44,7 @@ public:
 	/**
 	 * Compiles the required shaders and renders to the render target.
 	 */
-	void render() const override;
-	
-	/**
-	 * Sets the specified parameters to render pass before the rendering starts.
-	 *
-	 * \param s scene
-	 * \param c camera
-	 */
-	void set(const Scene* s, const Camera* c);
+	void render() override;
 	
 	/**
 	 * Returns the mode in tone mapping.
@@ -74,64 +66,88 @@ public:
 	void set_tone_map(int m, float e);
 	
 	/**
-	 * Returns the 2D texture represents the diffuse color buffer in G-Buffers.
+	 * Returns the scene represents the input of render pass.
 	 */
-	const Gpu::Texture* get_buffer_c() const;
+	const Scene* get_scene() const;
 	
 	/**
-	 * Sets the specified 2D texture as the diffuse color buffer in G-Buffers.
+	 * Sets the specified scene as the input of render pass.
 	 *
-	 * \param t color buffer texture
+	 * \param s scene
 	 */
-	void set_buffer_c(const Gpu::Texture* t);
+	void set_scene(const Scene* s);
+	
+	/**
+	 * Returns the camera represents the input of render pass.
+	 */
+	const Camera* get_camera() const;
+	
+	/**
+	 * Sets the specified camera as the input of render pass.
+	 *
+	 * \param c camera
+	 */
+	void set_camera(const Camera* c);
+	
+	/**
+	 * Returns the 2D texture represents the base color buffer in G-Buffers.
+	 */
+	const Gpu::Texture* get_texture_color() const;
+	
+	/**
+	 * Sets the specified 2D texture as the base color buffer in G-Buffers.
+	 *
+	 * \param t base color texture
+	 */
+	void set_texture_color(const Gpu::Texture* t);
 	
 	/**
 	 * Returns the 2D texture represents the world normal buffer in G-Buffers.
 	 */
-	const Gpu::Texture* get_buffer_n() const;
+	const Gpu::Texture* get_texture_normal() const;
 	
 	/**
 	 * Sets the specified 2D texture as the world normal buffer in G-Buffers.
 	 *
-	 * \param t normal buffer texture
+	 * \param t world normal texture
 	 */
-	void set_buffer_n(const Gpu::Texture* t);
+	void set_texture_normal(const Gpu::Texture* t);
 	
 	/**
-	 * Returns the 2D texture represents the material buffer in G-Buffers.
+	 * Returns the 2D texture represents the material data buffer in G-Buffers.
 	 */
-	const Gpu::Texture* get_buffer_m() const;
+	const Gpu::Texture* get_texture_material() const;
 	
 	/**
-	 * Sets the specified 2D texture as the material buffer in G-Buffers.
+	 * Sets the specified 2D texture as the material data buffer in G-Buffers.
 	 *
-	 * \param t material buffer texture
+	 * \param t material data texture
 	 */
-	void set_buffer_m(const Gpu::Texture* t);
+	void set_texture_material(const Gpu::Texture* t);
 	
 	/**
-	 * Returns the 2D texture represents the additional buffer in G-Buffers.
+	 * Returns the 2D texture represents the indirect light buffer in G-Buffers.
 	 */
-	const Gpu::Texture* get_buffer_a() const;
+	const Gpu::Texture* get_texture_light() const;
 	
 	/**
-	 * Sets the specified 2D texture as the additional buffer in G-Buffers.
+	 * Sets the specified 2D texture as the indirect light buffer in G-Buffers.
 	 *
-	 * \param t additional buffer texture
+	 * \param t indirect light texture
 	 */
-	void set_buffer_a(const Gpu::Texture* t);
+	void set_texture_light(const Gpu::Texture* t);
 	
 	/**
-	 * Returns the 2D texture represents the depth buffer in G-Buffers.
+	 * Returns the 2D texture represents the depth buffer / Z-Buffer.
 	 */
-	const Gpu::Texture* get_buffer_d() const;
+	const Gpu::Texture* get_texture_depth() const;
 	
 	/**
-	 * Sets the specified 2D texture as the depth buffer in G-Buffers.
+	 * Sets the specified 2D texture as the depth buffer / Z-Buffer.
 	 *
-	 * \param d depth buffer texture
+	 * \param d depth texture
 	 */
-	void set_buffer_d(const Gpu::Texture* d);
+	void set_texture_depth(const Gpu::Texture* d);
 	
 private:
 	int tone_map_mode = LINEAR_TONE_MAP;
@@ -142,15 +158,15 @@ private:
 	
 	const Camera* camera = nullptr;
 	
-	const Gpu::Texture* buffer_c = nullptr;
+	const Gpu::Texture* g_color = nullptr;
 	
-	const Gpu::Texture* buffer_n = nullptr;
+	const Gpu::Texture* g_normal = nullptr;
 	
-	const Gpu::Texture* buffer_m = nullptr;
+	const Gpu::Texture* g_material = nullptr;
 	
-	const Gpu::Texture* buffer_a = nullptr;
+	const Gpu::Texture* g_light = nullptr;
 	
-	const Gpu::Texture* buffer_d = nullptr;
+	const Gpu::Texture* z_map = nullptr;
 };
 
 }

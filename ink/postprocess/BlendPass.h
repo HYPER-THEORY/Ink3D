@@ -41,7 +41,7 @@ public:
 	/**
 	 * Compiles the required shaders and renders to the render target.
 	 */
-	void render() const override;
+	void render() override;
 	
 	/**
 	 * Returns the 2D texture A represents the input of rendering pass.

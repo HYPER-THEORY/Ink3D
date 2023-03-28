@@ -61,14 +61,19 @@ public:
 	/**
 	 * Compiles the required shaders and renders to the render target.
 	 */
-	void render() const override;
+	void render() override;
 	
 	/**
-	 * Sets the specified parameters to render pass before the rendering starts.
+	 * Returns the camera represents the input of rendering pass.
+	 */
+	const Camera* get_camera() const;
+	
+	/**
+	 * Sets the specified camera as the input of rendering pass.
 	 *
 	 * \param c camera
 	 */
-	void set(const Camera* c);
+	void set_camera(const Camera* c);
 	
 	/**
 	 * Returns the 2D texture represents the input of rendering pass.
@@ -85,47 +90,47 @@ public:
 	/**
 	 * Returns the 2D texture represents the world normal buffer in G-Buffers.
 	 */
-	const Gpu::Texture* get_buffer_n() const;
+	const Gpu::Texture* get_texture_normal() const;
 	
 	/**
 	 * Sets the specified 2D texture as the world normal buffer in G-Buffers.
 	 *
-	 * \param n normal buffer texture
+	 * \param n world normal texture
 	 */
-	void set_buffer_n(const Gpu::Texture* n);
+	void set_texture_normal(const Gpu::Texture* n);
 	
 	/**
 	 * Returns the 2D texture represents the material buffer in G-Buffers.
 	 */
-	const Gpu::Texture* get_buffer_m() const;
+	const Gpu::Texture* get_texture_material() const;
 	
 	/**
 	 * Sets the specified 2D texture as the material buffer in G-Buffers.
 	 *
-	 * \param m material buffer texture
+	 * \param t material data texture
 	 */
-	void set_buffer_m(const Gpu::Texture* m);
+	void set_texture_material(const Gpu::Texture* t);
 	
 	/**
-	 * Returns the 2D texture represents the depth buffer in G-Buffers.
+	 * Returns the 2D texture represents the depth buffer / Z-Buffer.
 	 */
-	const Gpu::Texture* get_buffer_d() const;
+	const Gpu::Texture* get_texture_depth() const;
 	
 	/**
-	 * Sets the specified 2D texture as the depth buffer in G-Buffers. Insures
-	 * the texture is set to linear filtering.
+	 * Sets the specified 2D texture as the depth buffer / Z-Buffer. Insures the
+	 * texture is set to linear filtering.
 	 *
-	 * \param d G-Buffer depth buffer
+	 * \param t depth buffer
 	 */
-	void set_buffer_d(const Gpu::Texture* d);
+	void set_texture_depth(const Gpu::Texture* t);
 	
 private:
 	const Camera* camera = nullptr;
 	
 	const Gpu::Texture* map = nullptr;
-	const Gpu::Texture* buffer_n = nullptr;
-	const Gpu::Texture* buffer_m = nullptr;
-	const Gpu::Texture* buffer_d = nullptr;
+	const Gpu::Texture* g_normal = nullptr;
+	const Gpu::Texture* g_material = nullptr;
+	const Gpu::Texture* z_map = nullptr;
 };
 
 }

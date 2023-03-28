@@ -34,14 +34,14 @@ enum ViewerMode {
 
 class Viewer {
 public:
-	int mode = VIEWER_FLY;        /**< movement mode */
-	float speed = 1;              /**< moving speed */
-	float sensitivity = 0.001;    /**< mouse sensitivity */
+	ViewerMode mode = VIEWER_FLY;    /**< movement mode */
+	float speed = 1;                 /**< moving speed */
+	float sensitivity = 0.001;       /**< mouse sensitivity */
 	
-	int key_up = SDLK_w;          /**< the key controls camera move forward */
-	int key_down = SDLK_s;        /**< the key controls camera move back */
-	int key_left = SDLK_a;        /**< the key controls camera move left */
-	int key_right = SDLK_d;       /**< the key controls camera move right */
+	int key_up = SDLK_w;             /**< the key controls camera move forward */
+	int key_down = SDLK_s;           /**< the key controls camera move back */
+	int key_left = SDLK_a;           /**< the key controls camera move left */
+	int key_right = SDLK_d;          /**< the key controls camera move right */
 	
 	/**
 	 * Creates a new Viewer object and initializes it with camera and moving

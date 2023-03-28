@@ -37,12 +37,12 @@ enum ShadowType {
 
 class Shadow {
 public:
-	int type = SHADOW_PCF;    /**< the type of shadow */
-	int map_id = 0;           /**< the ID of shadow map */
-	float bias = 0;           /**< shadow bias, should be close to 0 */
-	float normal_bias = 0;    /**< shadow bias along the object normal, range is 0 to 1 */
-	float radius = 3;         /**< the radius of blurred edge, only used in PCF or PCSS */
-	Camera camera;            /**< light's view camera of shadow */
+	ShadowType type = SHADOW_PCF;    /**< the type of shadow */
+	int map_id = 0;                  /**< the ID of shadow map */
+	float bias = 0;                  /**< shadow bias, should be close to 0 */
+	float normal_bias = 0;           /**< shadow bias along the object normal, range is 0 to 1 */
+	float radius = 3;                /**< the radius of blurred edge, only used in PCF or PCSS */
+	Camera camera;                   /**< light's view camera of shadow */
 	
 	/**
 	 * Sets the resolution of shadow map and the max number of shadows.

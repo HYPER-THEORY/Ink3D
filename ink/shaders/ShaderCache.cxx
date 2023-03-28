@@ -98,7 +98,7 @@ const Gpu::Shader* ShaderCache::fetch(const std::string& n) {
 	if (vert_shaders.count(n) != 0) {
 		shader->load_vert(vert_shaders[n]);
 	} else {
-		Error::set("ShaderCache: Vertex shader is missing");
+		Error::set("ShaderCache", "Vertex shader is missing");
 	}
 	if (geom_shaders.count(n) != 0) {
 		shader->load_geom(geom_shaders[n]);
@@ -106,7 +106,7 @@ const Gpu::Shader* ShaderCache::fetch(const std::string& n) {
 	if (frag_shaders.count(n) != 0) {
 		shader->load_frag(frag_shaders[n]);
 	} else {
-		Error::set("ShaderCache: Fragment shader is missing");
+		Error::set("ShaderCache", "Fragment shader is missing");
 	}
 	
 	/* compile shader */
@@ -130,7 +130,7 @@ const Gpu::Shader* ShaderCache::fetch(const std::string& n, const Defines& d) {
 	if (vert_shaders.count(n) != 0) {
 		shader->load_vert(vert_shaders[n]);
 	} else {
-		Error::set("ShaderCache: Vertex shader is missing");
+		Error::set("ShaderCache", "Vertex shader is missing");
 	}
 	if (geom_shaders.count(n) != 0) {
 		shader->load_geom(geom_shaders[n]);
@@ -138,7 +138,7 @@ const Gpu::Shader* ShaderCache::fetch(const std::string& n, const Defines& d) {
 	if (frag_shaders.count(n) != 0) {
 		shader->load_frag(frag_shaders[n]);
 	} else {
-		Error::set("ShaderCache: Fragment shader is missing");
+		Error::set("ShaderCache", "Fragment shader is missing");
 	}
 	
 	/* set defines and compile shader */
@@ -199,7 +199,7 @@ void ShaderCache::resolve_includes(std::string& s) {
 		}
 		size_t char_4 = line.find('>', char_3 + 1);
 		if (char_4 == -1) {
-			Error::set("ShaderCache: Invalid preprocessing directive");
+			Error::set("ShaderCache", "Invalid preprocessing directive");
 			continue;
 		}
 		std::string include = line.substr(char_3 + 1, char_4 - char_3 - 1);
@@ -213,7 +213,7 @@ void ShaderCache::resolve_includes(std::string& s) {
 		
 		/* check if there is circular include dependency */
 		if (include_times++ == max_include_times) {
-			return Error::set("ShaderCache: Circular include dependency");
+			return Error::set("ShaderCache", "Circular include dependency");
 		}
 	}
 }
