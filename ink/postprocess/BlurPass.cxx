@@ -40,11 +40,11 @@ BlurPass::BlurPass(int w, int h) : width(w), height(h) {}
 void BlurPass::init() {
 	/* check the width and height */
 	if (width == 0 || height == 0) {
-		return Error::set("BlurPass: Width or height should be greater than 0");
+		return Error::set("BlurPass", "Width and height should be greater than 0");
 	}
 	
 	/* get default format with channel */
-	int format = Gpu::Texture::default_format(channel, 1);
+	TextureFormat format = Gpu::Texture::default_format(channel, 1);
 	
 	/* prepare blur map 1 */
 	blur_map_1 = std::make_unique<Gpu::Texture>();
@@ -67,8 +67,8 @@ void BlurPass::init() {
 	blur_target_2->set_texture(*blur_map_2, 0);
 }
 
-void BlurPass::render() const {
-	/* fetch blur shader from shader lib */
+void BlurPass::render() {
+	/* fetch box / Gaussian / bilateral blur shader from shader lib */
 	Defines blur_defines;
 	blur_defines.set("TYPE", TYPES[channel - 1]);
 	blur_defines.set("SWIZZLE", SWIZZLES[channel - 1]);

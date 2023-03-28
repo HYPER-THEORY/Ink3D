@@ -22,6 +22,8 @@
 
 #include "Mesh.h"
 
+#include "../core/Error.h"
+
 #include <unordered_map>
 
 namespace Ink {
@@ -161,6 +163,9 @@ void Mesh::normalize() {
 }
 
 void Mesh::create_normals() {
+	if (vertex.empty()) {
+		return Error::set("Mesh", "Vertex information is missing");
+	}
 	size_t size = vertex.size();
 	normal.resize(size);
 	std::unordered_map<std::string, Vec3> normals;
@@ -185,6 +190,15 @@ void Mesh::create_normals() {
 }
 
 void Mesh::create_tangents() {
+	if (vertex.empty()) {
+		return Error::set("Mesh", "Vertex information is missing");
+	}
+	if (uv.empty()) {
+		return Error::set("Mesh", "UV information is missing");
+	}
+	if (normal.empty()) {
+		return Error::set("Mesh", "Normal information is missing");
+	}
 	size_t size = vertex.size();
 	tangent.resize(size);
 	for (int i = 0; i < size; i += 3) {

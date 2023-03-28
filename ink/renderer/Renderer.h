@@ -35,7 +35,7 @@ enum RenderingMode {
 	DEFERRED_RENDERING,
 };
 
-enum ToneMappingMode {
+enum ToneMapMode {
 	LINEAR_TONE_MAP,
 	REINHARD_TONE_MAP,
 	OPTIMIZED_TONE_MAP,
@@ -116,7 +116,7 @@ public:
 	 * Returns the mode in rendering. If mode is DEFERRED_RENDERING, the number
 	 * of render targets should be 4.
 	 */
-	int get_rendering_mode() const;
+	RenderingMode get_rendering_mode() const;
 	
 	/**
 	 * Sets the specified mode in rendering. If mode is DEFERRED_RENDERING, the
@@ -124,13 +124,13 @@ public:
 	 *
 	 * \param m rendering mode
 	 */
-	void set_rendering_mode(int m);
+	void set_rendering_mode(RenderingMode m);
 	
 	/**
 	 * Returns the mode in tone mapping. This term will only be used when the
 	 * rendering mode is FORWARD_RENDERING.
 	 */
-	int get_tone_map_mode() const;
+	ToneMapMode get_tone_map_mode() const;
 	
 	/**
 	 * Returns the exposure in tone mapping. This term will only be used when
@@ -146,7 +146,7 @@ public:
 	 * \param m tone mapping mode
 	 * \param e tone mapping exposure
 	 */
-	void set_tone_map(int m, float e);
+	void set_tone_map(ToneMapMode m, float e);
 	
 	/**
 	 * Returns the current render target if there is, returns nullptr otherwise.
@@ -214,12 +214,18 @@ public:
 	 *
 	 * \param m mesh
 	 */
-	void load_mesh(const Mesh* m);
+	void load_mesh(const Mesh& m);
 	
 	/**
 	 * Unloads the specified mesh and deletes corresponding vertex object.
 	 */
-	void unload_mesh(const Mesh* m);
+	void unload_mesh(const Mesh& m);
+	
+	/**
+	 * Clears all values from the image cache. The caches will be generated
+	 * automatically when loading meshes.
+	 */
+	void clear_mesh_caches();
 	
 	/**
 	 * Loads the specified image and creates corresponding texture. This function
@@ -227,14 +233,20 @@ public:
 	 *
 	 * \param i image
 	 */
-	void load_image(const Image* i);
+	void load_image(const Image& i);
 	
 	/**
 	 * Unloads the specified image and deletes corresponding texture.
 	 *
 	 * \param i image
 	 */
-	void unload_image(const Image* i);
+	void unload_image(const Image& i);
+	
+	/**
+	 * Clears all values from the image cache. The caches will be generated
+	 * automatically when loading images.
+	 */
+	void clear_image_caches();
 	
 	/**
 	 * Loads all the meshes and images in the scene.
@@ -252,7 +264,7 @@ public:
 	
 	/**
 	 * Clears all values from the scene cache. The caches will be generated
-	 * automatically when loading mesh, image or scene.
+	 * automatically when loading meshes, images or scenes.
 	 */
 	void clear_scene_caches();
 	
@@ -369,9 +381,9 @@ private:
 		t.generate_mipmap(); /* generate mipmap for every texture */
 	};
 	
-	int rendering_mode = DEFERRED_RENDERING;
+	RenderingMode rendering_mode = DEFERRED_RENDERING;
 	
-	int tone_map_mode = LINEAR_TONE_MAP;
+	ToneMapMode tone_map_mode = LINEAR_TONE_MAP;
 	
 	float tone_map_exposure = 1;
 	
@@ -391,9 +403,9 @@ private:
 	
 	static std::unique_ptr<Gpu::RenderTarget> probe_target;
 	
-	void render_skybox_to_buffer(const Camera& c, int r) const;
+	void render_skybox_to_buffer(const Camera& c, RenderingMode r) const;
 	
-	void render_to_buffer(const Scene& s, const Camera& c, int r, bool t) const;
+	void render_to_buffer(const Scene& s, const Camera& c, RenderingMode r, bool t) const;
 	
 	void render_to_shadow(const Scene& s, const Camera& c) const;
 	

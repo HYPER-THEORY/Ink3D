@@ -78,15 +78,15 @@ void Renderer::set_scissor(const Gpu::Rect& s) {
 	scissor = s;
 }
 
-int Renderer::get_rendering_mode() const {
+RenderingMode Renderer::get_rendering_mode() const {
 	return rendering_mode;
 }
 
-void Renderer::set_rendering_mode(int m) {
+void Renderer::set_rendering_mode(RenderingMode m) {
 	rendering_mode = m;
 }
 
-int Renderer::get_tone_map_mode() const {
+ToneMapMode Renderer::get_tone_map_mode() const {
 	return tone_map_mode;
 }
 
@@ -94,7 +94,7 @@ float Renderer::get_tone_map_exposure() const {
 	return tone_map_exposure;
 }
 
-void Renderer::set_tone_map(int m, float e) {
+void Renderer::set_tone_map(ToneMapMode m, float e) {
 	tone_map_mode = m;
 	tone_map_exposure = e;
 }
@@ -156,73 +156,81 @@ void Renderer::render_skybox(const Camera& c) const {
 	Gpu::RenderTarget::activate(nullptr);
 }
 
-void Renderer::load_mesh(const Mesh* m) {
-	if (mesh_cache.count(m) != 0) return;
-	size_t size = m->groups.size();
-	auto p = mesh_cache.insert({m, std::make_unique<Gpu::VertexObject[]>(size)});
+void Renderer::load_mesh(const Mesh& m) {
+	if (mesh_cache.count(&m) != 0) return;
+	size_t size = m.groups.size();
+	auto p = mesh_cache.insert({&m, std::make_unique<Gpu::VertexObject[]>(size)});
 	auto* vertex_object = p.first->second.get();
 	for (int i = 0; i < size; ++i) {
-		vertex_object[i].load(*m, m->groups[i]);
+		vertex_object[i].load(m, m.groups[i]);
 	}
 }
 
-void Renderer::unload_mesh(const Mesh* m) {
-	mesh_cache.erase(m);
+void Renderer::unload_mesh(const Mesh& m) {
+	mesh_cache.erase(&m);
 }
 
-void Renderer::load_image(const Image* i) {
-	if (image_cache.count(i) != 0) return;
-	auto p = image_cache.insert({i, std::make_unique<Gpu::Texture>()});
+void Renderer::clear_mesh_caches() {
+	mesh_cache.clear();
+}
+
+void Renderer::load_image(const Image& i) {
+	if (image_cache.count(&i) != 0) return;
+	auto p = image_cache.insert({&i, std::make_unique<Gpu::Texture>()});
 	auto* texture = p.first->second.get();
-	texture->init_2d(*i, Gpu::Texture::default_format(*i));
+	texture->init_2d(i, Gpu::Texture::default_format(i));
 	if (texture_callback) {
 		std::invoke(texture_callback, *texture);
 	}
 }
 
-void Renderer::unload_image(const Image* i) {
-	image_cache.erase(i);
+void Renderer::unload_image(const Image& i) {
+	image_cache.erase(&i);
+}
+
+void Renderer::clear_image_caches() {
+	image_cache.clear();
 }
 
 void Renderer::load_scene(const Scene& s) {
 	/* load the meshes linked with instance */
 	for (auto& instance : s.to_instances()) {
 		auto* mesh = instance->mesh;
-		if (mesh != nullptr) load_mesh(mesh);
+		if (mesh != nullptr) load_mesh(*mesh);
 	}
 	
 	/* load the images linked with instance */
 	for (auto& material : s.get_materials()) {
 		for (int i = 0; i < 16; ++i) {
-			auto* image = material->get_image(i);
-			if (image != nullptr) load_image(image);
+			auto* image = material->custom_maps[i];
+			if (image != nullptr) load_image(*image);
 		}
 		if (material->normal_map != nullptr) {
-			load_image(material->normal_map);
+			load_image(*material->normal_map);
 		}
 		if (material->displacement_map != nullptr) {
-			load_image(material->displacement_map);
+			load_image(*material->displacement_map);
 		}
 		if (material->color_map != nullptr) {
-			load_image(material->color_map);
+			load_image(*material->color_map);
 		}
 		if (material->alpha_map != nullptr) {
-			load_image(material->alpha_map);
+			load_image(*material->alpha_map);
 		}
 		if (material->emissive_map != nullptr) {
-			load_image(material->emissive_map);
+			load_image(*material->emissive_map);
 		}
 		if (material->ao_map != nullptr) {
-			load_image(material->ao_map);
+			load_image(*material->ao_map);
 		}
 		if (material->roughness_map != nullptr) {
-			load_image(material->roughness_map);
+			load_image(*material->roughness_map);
 		}
 		if (material->metalness_map != nullptr) {
-			load_image(material->metalness_map);
+			load_image(*material->metalness_map);
 		}
 		if (material->specular_map != nullptr) {
-			load_image(material->specular_map);
+			load_image(*material->specular_map);
 		}
 	}
 }
@@ -231,41 +239,41 @@ void Renderer::unload_scene(const Scene& s) {
 	/* unload the meshes linked with instance */
 	for (auto& instance : s.to_instances()) {
 		auto* mesh = instance->mesh;
-		if (mesh != nullptr) unload_mesh(mesh);
+		if (mesh != nullptr) unload_mesh(*mesh);
 	}
 	
 	/* unload the images linked with instance */
 	for (auto& material : s.get_materials()) {
 		for (int i = 0; i < 16; ++i) {
-			auto* image = material->get_image(i);
-			if (image != nullptr) unload_image(image);
+			auto* image = material->custom_maps[i];
+			if (image != nullptr) unload_image(*image);
 		}
 		if (material->normal_map != nullptr) {
-			unload_image(material->normal_map);
+			unload_image(*material->normal_map);
 		}
 		if (material->displacement_map != nullptr) {
-			unload_image(material->displacement_map);
+			unload_image(*material->displacement_map);
 		}
 		if (material->color_map != nullptr) {
-			unload_image(material->color_map);
+			unload_image(*material->color_map);
 		}
 		if (material->alpha_map != nullptr) {
-			unload_image(material->alpha_map);
+			unload_image(*material->alpha_map);
 		}
 		if (material->emissive_map != nullptr) {
-			unload_image(material->emissive_map);
+			unload_image(*material->emissive_map);
 		}
 		if (material->ao_map != nullptr) {
-			unload_image(material->ao_map);
+			unload_image(*material->ao_map);
 		}
 		if (material->roughness_map != nullptr) {
-			unload_image(material->roughness_map);
+			unload_image(*material->roughness_map);
 		}
 		if (material->metalness_map != nullptr) {
-			unload_image(material->metalness_map);
+			unload_image(*material->metalness_map);
 		}
 		if (material->specular_map != nullptr) {
-			unload_image(material->specular_map);
+			unload_image(*material->specular_map);
 		}
 	}
 }
@@ -394,10 +402,13 @@ void Renderer::update_probe(const Scene& s, ReflectionProbe& r) const {
 		Gpu::RenderTarget::activate(probe_target.get());
 		
 		/* clear depth buffer before rendering */
-		Gpu::State::clear(false, true, false);
+		Gpu::State::set_clear_color(clear_color);
+		Gpu::State::clear(true, true, false);
 		
 		/* render skybox loaded by renderer */
-		render_skybox_to_buffer(camera, FORWARD_RENDERING);
+		if (skybox_map) {
+			render_skybox_to_buffer(camera, FORWARD_RENDERING);
+		}
 		
 		/* render the opaque objects in scene */
 		render_to_buffer(s, camera, FORWARD_RENDERING, false);
@@ -637,12 +648,12 @@ void Renderer::set_light_uniforms(const Scene& s, const Gpu::Shader& shader) {
 	}
 }
 
-void Renderer::render_skybox_to_buffer(const Camera& c, int r) const {
+void Renderer::render_skybox_to_buffer(const Camera& c, RenderingMode r) const {
 	/* initialize cube vertex object */
 	[[maybe_unused]]
 	static bool inited = init_cube();
 	
-	/* set the depth & stencil test */
+	/* disable the depth & stencil test */
 	Gpu::State::disable_depth_test();
 	Gpu::State::disable_stencil_test();
 	
@@ -690,7 +701,7 @@ void Renderer::render_skybox_to_buffer(const Camera& c, int r) const {
 	cube->render();
 }
 
-void Renderer::render_to_buffer(const Scene& s, const Camera& c, int r, bool t) const {
+void Renderer::render_to_buffer(const Scene& s, const Camera& c, RenderingMode r, bool t) const {
 	/* create transform matrices & vectors */
 	Mat4 model;
 	Mat4 view = c.viewing;
@@ -722,7 +733,7 @@ void Renderer::render_to_buffer(const Scene& s, const Camera& c, int r, bool t) 
 		
 		/* check whether the scene is loaded */
 		if (mesh_cache.count(mesh) == 0) {
-			return Error::set("Renderer: Scene is not loaded");
+			return Error::set("Renderer", "Scene is not loaded");
 		}
 		
 		/* get vertex objects from mesh cache */
@@ -732,23 +743,23 @@ void Renderer::render_to_buffer(const Scene& s, const Camera& c, int r, bool t) 
 			
 			/* get material from material groups */
 			auto& group = mesh->groups[i];
-			auto* material = s.get_material(group.name, instance);
+			auto* material = s.get_material(group.name, *instance);
 			if (material == nullptr) {
-				material = s.get_material(group.name, mesh);
+				material = s.get_material(group.name, *mesh);
 			}
 			if (material == nullptr) {
 				material = s.get_material(group.name);
 			}
 			if (material == nullptr) {
-				Error::set("Renderer: Material is not linked");
+				Error::set("Renderer", "Material is not linked");
 				continue;
 			}
 			
 			/* check whether the material is visible */
 			if (!material->visible) continue;
 			
-			/* check whether the material is transparent or blending */
-			bool is_transparent = material->transparent || material->blending;
+			/* check whether the material is transparent */
+			bool is_transparent = material->blending;
 			if (is_transparent != t) continue;
 			
 			/* fetch the standard shader from shader lib */
@@ -818,7 +829,7 @@ void Renderer::render_to_buffer(const Scene& s, const Camera& c, int r, bool t) 
 			
 			/* pass the images linked with material */
 			for (int j = 0; j < 16; ++j) {
-				auto* image = material->get_image(j);
+				auto* image = material->custom_maps[j];
 				if (image != nullptr) image_cache.at(image)->activate(j);
 			}
 			if (material->normal_map != nullptr) {
@@ -927,7 +938,7 @@ void Renderer::render_to_shadow(const Scene& s, const Camera& c) const {
 		
 		/* check whether the scene is loaded */
 		if (mesh_cache.count(mesh) == 0) {
-			Error::set("Renderer: Scene is not loaded");
+			Error::set("Renderer", "Scene is not loaded");
 			continue;
 		}
 		
@@ -938,12 +949,12 @@ void Renderer::render_to_shadow(const Scene& s, const Camera& c) const {
 			
 			/* get material from material groups */
 			auto& group = mesh->groups[i];
-			auto* material = s.get_material(group.name, mesh);
+			auto* material = s.get_material(group.name, *mesh);
 			if (material == nullptr) {
 				material = s.get_material(group.name);
 			}
 			if (material == nullptr) {
-				Error::set("Renderer: Material is not linked");
+				Error::set("Renderer", "Material is not linked");
 				continue;
 			}
 			
@@ -960,8 +971,8 @@ void Renderer::render_to_shadow(const Scene& s, const Camera& c) const {
 			/* check whether the material is visible */
 			if (!material->visible) continue;
 			
-			/* check whether the material is transparent or using blending */
-			if (material->transparent || material->blending) continue;
+			/* check whether the material is transparent */
+			if (material->blending) continue;
 			
 			/* render vertex object with shader */
 			shader->use_program();

@@ -24,23 +24,36 @@
 
 namespace Ink {
 
-Material::Material(const std::string& n) : name(n) {}
-
-Image* Material::get_image(int i) const {
-	if (images.count(i) == 0) return nullptr;
-	return images.at(i);
-}
-
-void Material::set_image(int i, Image* c) {
-	images.insert_or_assign(i, c);
-}
-
-void Material::remove_image(int i) {
-	images.erase(i);
-}
-
-void Material::clear_images() {
-	images.clear();
+Material::Material(const std::string& n) : name(n) {
+	custom_maps[0]  = nullptr;
+	custom_maps[1]  = nullptr;
+	custom_maps[2]  = nullptr;
+	custom_maps[3]  = nullptr;
+	custom_maps[4]  = nullptr;
+	custom_maps[5]  = nullptr;
+	custom_maps[6]  = nullptr;
+	custom_maps[7]  = nullptr;
+	custom_maps[8]  = nullptr;
+	custom_maps[9]  = nullptr;
+	custom_maps[10] = nullptr;
+	custom_maps[11] = nullptr;
+	custom_maps[12] = nullptr;
+	custom_maps[13] = nullptr;
+	custom_maps[14] = nullptr;
+	custom_maps[15] = nullptr;
+	side            = FRONT_SIDE;
+	shadow_side     = BACK_SIDE;
+	depth_func      = FUNC_LEQUAL;
+	stencil_func    = FUNC_ALWAYS;
+	stencil_fail    = STENCIL_KEEP;
+	stencil_zfail   = STENCIL_KEEP;
+	stencil_zpass   = STENCIL_KEEP;
+	blend_op_rgb    = BLEND_ADD;
+	blend_op_alpha  = BLEND_ADD;
+	blend_src_rgb   = FACTOR_SRC_ALPHA;
+	blend_src_alpha = FACTOR_SRC_ALPHA;
+	blend_dst_rgb   = FACTOR_ONE_MINUS_SRC_ALPHA;
+	blend_dst_alpha = FACTOR_ONE_MINUS_SRC_ALPHA;
 }
 
 }

@@ -33,7 +33,7 @@ width(w), height(h), threshold(t), intensity(i), radius(r) {}
 void BloomPass::init() {
 	/* check the width and height */
 	if (width == 0 || height == 0) {
-		return Error::set("BloomPass: Width or height should be greater than 0");
+		return Error::set("BloomPass", "Width and height should be greater than 0");
 	}
 	
 	/* prepare bloom map 1 */
@@ -54,7 +54,7 @@ void BloomPass::init() {
 	bloom_target = std::make_unique<Gpu::RenderTarget>();
 }
 
-void BloomPass::render() const {
+void BloomPass::render() {
 	/* fetch bright pass shader from shader lib */
 	auto* bright_pass_shader = ShaderLib::fetch("BrightPass");
 	

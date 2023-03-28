@@ -20,50 +20,32 @@
  * SOFTWARE.
  */
 
-#include "Euler.h"
+#include "GrainPass.h"
+
+#include "../math/Random.h"
+#include "../shaders/ShaderLib.h"
 
 namespace Ink {
 
-Euler::Euler(float x, float y, float z, EulerOrder o) :
-x(x), y(y), z(z), order(o) {}
+void GrainPass::init() {}
 
-Euler::Euler(Vec3 r, EulerOrder o) :
-x(r.x), y(r.y), z(r.z), order(o) {}
+void GrainPass::render() {
+	auto* grain_shader = ShaderLib::fetch("Grain");
+	Gpu::Rect viewport = RenderPass::get_viewport();
+	Vec2 screen_size = Vec2(viewport.width, viewport.height);
+	grain_shader->use_program();
+	grain_shader->set_uniform_f("intensity", intensity);
+	grain_shader->set_uniform_f("seed", Random::random_f() + 1);
+	grain_shader->set_uniform_i("map", map->activate(0));
+	RenderPass::render_to(grain_shader, target);
+}
 
-Mat3 Euler::to_rotation_matrix() const {
-	Mat3 rotation_x = {
-		1       , 0       , 0       ,
-		0       , cosf(x) , -sinf(x),
-		0       , sinf(x) , cosf(x) ,
-	};
-	Mat3 rotation_y = {
-		cosf(y) , 0       , sinf(y) ,
-		0       , 1       , 0       ,
-		-sinf(y), 0       , cosf(y) ,
-	};
-	Mat3 rotation_z = {
-		cosf(z) , -sinf(z), 0       ,
-		sinf(z) , cosf(z) , 0       ,
-		0       , 0       , 1       ,
-	};
-	if (order == EULER_XYZ) {
-		return rotation_x * rotation_y * rotation_z;
-	}
-	if (order == EULER_XZY) {
-		return rotation_x * rotation_z * rotation_y;
-	}
-	if (order == EULER_YXZ) {
-		return rotation_y * rotation_x * rotation_z;
-	}
-	if (order == EULER_YZX) {
-		return rotation_y * rotation_z * rotation_x;
-	}
-	if (order == EULER_ZXY) {
-		return rotation_z * rotation_x * rotation_y;
-	}
-	/*       ... EULER_ZYX */ {
-		return rotation_z * rotation_y * rotation_x;
-	}
+const Gpu::Texture* GrainPass::get_texture() const {
+	return map;
+}
+
+void GrainPass::set_texture(const Gpu::Texture* t) {
+	map = t;
 }
 
 }

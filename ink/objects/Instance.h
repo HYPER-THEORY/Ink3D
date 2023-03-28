@@ -55,14 +55,7 @@ public:
 	 *
 	 * \param n instance name
 	 */
-	static Instance* create(const std::string& n = "");
-	
-	/**
-	 * Destroys the specified Instance object.
-	 *
-	 * \param i instance
-	 */
-	static void destroy(const Instance* i);
+	explicit Instance(const std::string& n = "");
 	
 	/**
 	 * Adds the specified instance as the child of the instance. The index
@@ -186,8 +179,6 @@ protected:
 	Instance* parent = nullptr;
 	
 	std::vector<Instance*> children;
-	
-	explicit Instance(const std::string& n);
 };
 
 }

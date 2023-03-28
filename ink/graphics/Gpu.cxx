@@ -64,7 +64,7 @@ constexpr uint32_t GL_BLEND_OPERATIONS[] = {
 };
 
 constexpr uint32_t GL_BLEND_FACTORS[] = {
-	GL_ZERO,	                                              /**< FACTOR_ZERO */
+	GL_ZERO,                                                  /**< FACTOR_ZERO */
 	GL_ONE,                                                   /**< FACTOR_ONE */
 	GL_SRC_COLOR,                                             /**< FACTOR_SRC_COLOR */
 	GL_ONE_MINUS_SRC_COLOR,                                   /**< FACTOR_ONE_MINUS_SRC_COLOR */
@@ -74,6 +74,12 @@ constexpr uint32_t GL_BLEND_FACTORS[] = {
 	GL_ONE_MINUS_SRC_ALPHA,                                   /**< FACTOR_ONE_MINUS_SRC_ALPHA */
 	GL_DST_ALPHA,                                             /**< FACTOR_DST_ALPHA */
 	GL_ONE_MINUS_DST_ALPHA,                                   /**< FACTOR_ONE_MINUS_DST_ALPHA */
+};
+
+constexpr uint32_t GL_RENDER_SIDES[] = {
+	GL_FRONT,                                                 /**< FRONT_SIDE */
+	GL_BACK,                                                  /**< BACK_SIDE */
+	GL_FRONT_AND_BACK,                                        /**< DOUBLE_SIDE */
 };
 
 constexpr uint32_t GL_IMAGE_TYPES[] = {
@@ -225,14 +231,14 @@ constexpr uint32_t GL_COLOR_ATTACHMENTS[] = {
 	GL_COLOR_ATTACHMENT31,                                    /**< render number is 32 */
 };
 
-constexpr int TEXTURE_DEFAULT_FORMATS[][2] = {
+constexpr TextureFormat TEXTURE_DEFAULT_FORMATS[][2] = {
 	{TEXTURE_R8_UNORM      , TEXTURE_R16_SFLOAT         },
 	{TEXTURE_R8G8_UNORM    , TEXTURE_R16G16_SFLOAT      },
 	{TEXTURE_R8G8B8_UNORM  , TEXTURE_R16G16B16_SFLOAT   },
 	{TEXTURE_R8G8B8A8_UNORM, TEXTURE_R16G16B16A16_SFLOAT},
 };
 
-int get_comparison_functions(uint32_t v) {
+ComparisonFunc get_comparison_function(uint32_t v) {
 	if (v == GL_NEVER   ) return FUNC_NEVER;
 	if (v == GL_LESS    ) return FUNC_LESS;
 	if (v == GL_EQUAL   ) return FUNC_EQUAL;
@@ -243,7 +249,7 @@ int get_comparison_functions(uint32_t v) {
 	/*   ... GL_ALWAYS */ return FUNC_ALWAYS;
 }
 
-int get_stencil_operations(uint32_t v) {
+StencilOperation get_stencil_operation(uint32_t v) {
 	if (v == GL_ZERO     ) return STENCIL_ZERO;
 	if (v == GL_KEEP     ) return STENCIL_KEEP;
 	if (v == GL_REPLACE  ) return STENCIL_REPLACE;
@@ -254,7 +260,7 @@ int get_stencil_operations(uint32_t v) {
 	/*   ... GL_ZERO    */ return STENCIL_INVERT;
 }
 
-int get_blend_equations(uint32_t v) {
+BlendOperation get_blend_operation(uint32_t v) {
 	if (v == GL_FUNC_ADD             ) return BLEND_ADD;
 	if (v == GL_FUNC_SUBTRACT        ) return BLEND_SUBTRACT;
 	if (v == GL_FUNC_REVERSE_SUBTRACT) return BLEND_REVERSE_SUBTRACT;
@@ -262,7 +268,7 @@ int get_blend_equations(uint32_t v) {
 	/*   ... GL_MAX                 */ return BLEND_MAX;
 }
 
-int get_blend_functions(uint32_t v) {
+BlendFactor get_blend_factor(uint32_t v) {
 	if (v == GL_ZERO               ) return FACTOR_ZERO;
 	if (v == GL_ONE                ) return FACTOR_ONE;
 	if (v == GL_SRC_COLOR          ) return FACTOR_SRC_COLOR;
@@ -273,6 +279,12 @@ int get_blend_functions(uint32_t v) {
 	if (v == GL_ONE_MINUS_SRC_ALPHA) return FACTOR_ONE_MINUS_SRC_ALPHA;
 	if (v == GL_DST_ALPHA          ) return FACTOR_DST_ALPHA;
 	/* ... GL_ONE_MINUS_DST_ALPHA */ return FACTOR_ONE_MINUS_DST_ALPHA;
+}
+
+RenderSide get_render_side(uint32_t v) {
+	if (v == GL_FRONT         ) return FRONT_SIDE;
+	if (v == GL_BACK          ) return BACK_SIDE;
+	/* ... GL_FRONT_AND_BACK */ return DOUBLE_SIDE;
 }
 
 Rect::Rect(int w, int h) : width(w), height(h) {}
@@ -306,9 +318,8 @@ void State::flush() {
 std::string State::get_error() {
 	std::string info;
 	uint32_t error = glGetError();
-	if (error == GL_NO_ERROR) return "";
 	while (error != GL_NO_ERROR) {
-		info += "OpenGL: " + std::to_string(error) + ": ";
+		info += "OpenGL Error: " + std::to_string(error) + ": ";
 		if (error == GL_INVALID_ENUM) {
 			info += "An unacceptable value is specified for an enumerated argument.\n";
 		} else if (error == GL_INVALID_VALUE) {
@@ -386,13 +397,13 @@ void State::set_depth_writemask(bool m) {
 	glDepthMask(m);
 }
 
-int State::get_depth_func() {
+ComparisonFunc State::get_depth_func() {
 	int depth_func = 0;
 	glGetIntegerv(GL_DEPTH_FUNC, &depth_func);
-	return get_comparison_functions(depth_func);
+	return get_comparison_function(depth_func);
 }
 
-void State::set_depth_func(int f) {
+void State::set_depth_func(ComparisonFunc f) {
 	glDepthFunc(GL_COMPARISON_FUNCTIONS[f]);
 }
 
@@ -424,10 +435,10 @@ void State::set_stencil_writemask(unsigned int m) {
 	glStencilMask(m);
 }
 
-int State::get_stencil_func() {
+ComparisonFunc State::get_stencil_func() {
 	int stencil_func = 0;
 	glGetIntegerv(GL_STENCIL_FUNC, &stencil_func);
-	return get_comparison_functions(stencil_func);
+	return get_comparison_function(stencil_func);
 }
 
 int State::get_stencil_ref() {
@@ -442,29 +453,31 @@ int State::get_stencil_mask() {
 	return stencil_mask;
 }
 
-void State::set_stencil_func(int f, int r, int m) {
+void State::set_stencil_func(ComparisonFunc f, int r, int m) {
 	glStencilFunc(GL_COMPARISON_FUNCTIONS[f], r, m);
 }
 
-int State::get_stencil_fail() {
+StencilOperation State::get_stencil_fail() {
 	int stencil_fail = 0;
 	glGetIntegerv(GL_STENCIL_FAIL, &stencil_fail);
-	return get_stencil_operations(stencil_fail);
+	return get_stencil_operation(stencil_fail);
 }
 
-int State::get_stencil_zfail() {
+StencilOperation State::get_stencil_zfail() {
 	int stencil_zfail = 0;
 	glGetIntegerv(GL_STENCIL_PASS_DEPTH_FAIL, &stencil_zfail);
-	return get_stencil_operations(stencil_zfail);
+	return get_stencil_operation(stencil_zfail);
 }
 
-int State::get_stencil_zpass() {
+StencilOperation State::get_stencil_zpass() {
 	int stencil_zpass = 0;
 	glGetIntegerv(GL_STENCIL_PASS_DEPTH_PASS, &stencil_zpass);
-	return get_stencil_operations(stencil_zpass);
+	return get_stencil_operation(stencil_zpass);
 }
 
-void State::set_stencil_op(int f, int zf, int zp) {
+void State::set_stencil_op(StencilOperation f,
+						   StencilOperation zf,
+						   StencilOperation zp) {
 	glStencilOp(GL_STENCIL_OPERATIONS[f],
 				GL_STENCIL_OPERATIONS[zf],
 				GL_STENCIL_OPERATIONS[zp]);
@@ -478,57 +491,57 @@ void State::disable_blending() {
 	glDisable(GL_BLEND);
 }
 
-int State::get_blend_op_rgb() {
+BlendOperation State::get_blend_op_rgb() {
 	int blend_op_rgb = 0;
 	glGetIntegerv(GL_BLEND_EQUATION_RGB, &blend_op_rgb);
-	return get_blend_equations(blend_op_rgb);
+	return get_blend_operation(blend_op_rgb);
 }
 
-int State::get_blend_op_alpha() {
+BlendOperation State::get_blend_op_alpha() {
 	int blend_op_alpha = 0;
 	glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &blend_op_alpha);
-	return get_blend_equations(blend_op_alpha);
+	return get_blend_operation(blend_op_alpha);
 }
 
-void State::set_blend_op(int o) {
+void State::set_blend_op(BlendOperation o) {
 	glBlendEquation(GL_BLEND_OPERATIONS[o]);
 }
 
-void State::set_blend_op(int rgb, int a) {
-	glBlendEquationSeparate(GL_BLEND_OPERATIONS[rgb],
-							GL_BLEND_OPERATIONS[a]);
+void State::set_blend_op(BlendOperation rgb, BlendOperation a) {
+	glBlendEquationSeparate(GL_BLEND_OPERATIONS[rgb], GL_BLEND_OPERATIONS[a]);
 }
 
-int State::get_blend_src_rgb() {
+BlendFactor State::get_blend_src_rgb() {
 	int blend_src_rgb = 0;
 	glGetIntegerv(GL_BLEND_SRC_RGB, &blend_src_rgb);
-	return get_blend_functions(blend_src_rgb);
+	return get_blend_factor(blend_src_rgb);
 }
 
-int State::get_blend_src_alpha() {
+BlendFactor State::get_blend_src_alpha() {
 	int blend_src_alpha = 0;
 	glGetIntegerv(GL_BLEND_SRC_ALPHA, &blend_src_alpha);
-	return get_blend_functions(blend_src_alpha);
+	return get_blend_factor(blend_src_alpha);
 }
 
-int State::get_blend_dst_rgb() {
+BlendFactor State::get_blend_dst_rgb() {
 	int blend_dst_rgb = 0;
 	glGetIntegerv(GL_BLEND_DST_RGB, &blend_dst_rgb);
-	return get_blend_functions(blend_dst_rgb);
+	return get_blend_factor(blend_dst_rgb);
 }
 
-int State::get_blend_dst_alpha() {
+BlendFactor State::get_blend_dst_alpha() {
 	int blend_dst_alpha = 0;
 	glGetIntegerv(GL_BLEND_DST_ALPHA, &blend_dst_alpha);
-	return get_blend_functions(blend_dst_alpha);
+	return get_blend_factor(blend_dst_alpha);
 }
 
-void State::set_blend_factor(int s, int d) {
+void State::set_blend_factor(BlendFactor s, BlendFactor d) {
 	glBlendFunc(GL_BLEND_FACTORS[s], GL_BLEND_FACTORS[d]);
 }
 
-void State::set_blend_factor(int srgb, int drgb, int sa, int da) {
-	glBlendFuncSeparate(GL_BLEND_FACTORS[srgb], GL_BLEND_FACTORS[drgb],
+void State::set_blend_factor(BlendFactor sr, BlendFactor dr,
+							 BlendFactor sa, BlendFactor da) {
+	glBlendFuncSeparate(GL_BLEND_FACTORS[sr], GL_BLEND_FACTORS[dr],
 						GL_BLEND_FACTORS[sa], GL_BLEND_FACTORS[da]);
 }
 
@@ -576,22 +589,14 @@ void State::disable_culling() {
 	glDisable(GL_CULL_FACE);
 }
 
-int State::get_cull_side() {
+RenderSide State::get_cull_side() {
 	int cull_side = 0;
 	glGetIntegerv(GL_CULL_FACE, &cull_side);
-	if (cull_side == GL_FRONT) return FRONT_SIDE;
-	if (cull_side == GL_BACK ) return BACK_SIDE;
-	return DOUBLE_SIDE;
+	return get_render_side(cull_side);
 }
 
-void State::set_cull_side(int s) {
-	if (s == FRONT_SIDE) {
-		glCullFace(GL_FRONT);
-	} else if (s == BACK_SIDE) {
-		glCullFace(GL_BACK);
-	} else if (s == DOUBLE_SIDE) {
-		glCullFace(GL_FRONT_AND_BACK);
-	}
+void State::set_cull_side(RenderSide s) {
+	glCullFace(GL_RENDER_SIDES[s]);
 }
 
 void State::enable_polygon_offset() {
@@ -665,16 +670,10 @@ void MaterialState::set_stencil(const Material& m) {
 }
 
 void MaterialState::set_blending(const Material& m) {
-	if (!m.transparent) {
-		if (!m.blending) return State::disable_blending();
-		State::enable_blending();
-		State::set_blend_op(m.blend_op, m.blend_op_alpha);
-		State::set_blend_factor(m.blend_src, m.blend_dst, m.blend_src_alpha, m.blend_dst_alpha);
-	} else {
-		State::enable_blending();
-		State::set_blend_op(BLEND_ADD);
-		State::set_blend_factor(FACTOR_SRC_ALPHA, FACTOR_ONE_MINUS_SRC_ALPHA);
-	}
+	if (!m.blending) return State::disable_blending();
+	State::enable_blending();
+	State::set_blend_op(m.blend_op_rgb, m.blend_op_alpha);
+	State::set_blend_factor(m.blend_src_rgb, m.blend_dst_rgb, m.blend_src_alpha, m.blend_dst_alpha);
 }
 
 void MaterialState::set_wireframe(const Material& m) {
@@ -827,7 +826,7 @@ void Shader::set_uniforms(const Uniforms& u) const {
 		} else if (type == 8 /* Mat4 */ ) {
 			glUniformMatrix4fv(gl_location, 1, GL_TRUE, data_f + location);
 		} else {
-			Error::set("Shader: Unknown uniform variable type");
+			Error::set("Shader", "Unknown uniform variable type");
 		}
 	}
 }
@@ -846,7 +845,7 @@ uint32_t Shader::compile_shader(const std::string& s, int32_t t) const {
 	glCompileShader(shader_id);
 	std::string info = get_compile_info(shader_id, t);
 	if (!info.empty()) {
-		Error::set(get_error_info(info, shader_string));
+		Error::set("Shader", get_error_info(info, shader_string));
 	}
 	glAttachShader(program, shader_id);
 	return shader_id;
@@ -859,7 +858,7 @@ void Shader::compile_shaders() const {
 	if (use_vert_shader) {
 		vert_id = compile_shader(vert_shader, GL_VERTEX_SHADER);
 	} else {
-		return Error::set("Shader: Vertex shader is missing");
+		return Error::set("Shader", "Vertex shader is missing");
 	}
 	
 	/* compile geometry shader */
@@ -875,7 +874,7 @@ void Shader::compile_shaders() const {
 	if (use_frag_shader) {
 		frag_id = compile_shader(frag_shader, GL_FRAGMENT_SHADER);
 	} else {
-		return Error::set("Shader: Fragment shader is missing");
+		return Error::set("Shader", "Fragment shader is missing");
 	}
 	
 	/* link shaders to program */
@@ -1103,43 +1102,47 @@ Texture::~Texture() {
 	glDeleteTextures(1, &id);
 }
 
-void Texture::init_1d(int w, int f, int t) {
+void Texture::init_1d(int w, TextureFormat f, ImageType t) {
 	int32_t internal = GL_TEXTURE_FORMATS[f].first;
 	uint32_t external = GL_TEXTURE_FORMATS[f].second;
 	uint32_t data = GL_IMAGE_TYPES[t];
 	glBindTexture(GL_TEXTURE_1D, id);
 	glTexImage1D(GL_TEXTURE_1D, 0, internal, w, 0, external, data, nullptr);
-	set_parameters(TEXTURE_1D, f, w, 0, 0);
+	set_dimensions(w, 0, 0);
+	set_parameters(TEXTURE_1D, f);
 }
 
-void Texture::init_2d(int w, int h, int f, int t) {
+void Texture::init_2d(int w, int h, TextureFormat f, ImageType t) {
 	int32_t internal = GL_TEXTURE_FORMATS[f].first;
 	uint32_t external = GL_TEXTURE_FORMATS[f].second;
 	uint32_t data = GL_IMAGE_TYPES[t];
 	glBindTexture(GL_TEXTURE_2D, id);
 	glTexImage2D(GL_TEXTURE_2D, 0, internal, w, h, 0, external, data, nullptr);
-	set_parameters(TEXTURE_2D, f, w, h, 0);
+	set_dimensions(w, h, 0);
+	set_parameters(TEXTURE_2D, f);
 }
 
-void Texture::init_2d(const Image& i, int f) {
+void Texture::init_2d(const Image& i, TextureFormat f) {
 	int32_t internal = GL_TEXTURE_FORMATS[f].first;
 	uint32_t external = GL_IMAGE_FORMATS[i.channel - 1];
 	uint32_t data = GL_IMAGE_TYPES[i.bytes == 1 ? IMAGE_UBYTE : IMAGE_FLOAT];
 	glBindTexture(GL_TEXTURE_2D, id);
 	glTexImage2D(GL_TEXTURE_2D, 0, internal, i.width, i.height, 0, external, data, i.data.data());
-	set_parameters(TEXTURE_2D, f, i.width, i.height, 0);
+	set_dimensions(i.width, i.height, 0);
+	set_parameters(TEXTURE_2D, f);
 }
 
-void Texture::init_3d(int w, int h, int d, int f, int t) {
+void Texture::init_3d(int w, int h, int d, TextureFormat f, ImageType t) {
 	int32_t internal = GL_TEXTURE_FORMATS[f].first;
 	uint32_t external = GL_TEXTURE_FORMATS[f].second;
 	uint32_t data = GL_IMAGE_TYPES[t];
 	glBindTexture(GL_TEXTURE_3D, id);
 	glTexImage3D(GL_TEXTURE_3D, 0, internal, w, h, d, 0, external, data, nullptr);
-	set_parameters(TEXTURE_3D, f, w, h, d);
+	set_dimensions(w, h, d);
+	set_parameters(TEXTURE_3D, f);
 }
 
-void Texture::init_cube(int w, int h, int f, int t) {
+void Texture::init_cube(int w, int h, TextureFormat f, ImageType t) {
 	int32_t internal = GL_TEXTURE_FORMATS[f].first;
 	uint32_t external = GL_TEXTURE_FORMATS[f].second;
 	uint32_t data = GL_IMAGE_TYPES[t];
@@ -1148,11 +1151,12 @@ void Texture::init_cube(int w, int h, int f, int t) {
 		uint32_t target = GL_TEXTURE_CUBE_MAP_POSITIVE_X + i;
 		glTexImage2D(target, 0, internal, w, h, 0, external, data, nullptr);
 	}
-	set_parameters(TEXTURE_CUBE, f, w, h, 0);
+	set_dimensions(w, h, 0);
+	set_parameters(TEXTURE_CUBE, f);
 }
 
 void Texture::init_cube(const Image& px, const Image& nx, const Image& py,
-						const Image& ny, const Image& pz, const Image& nz, int f) {
+						const Image& ny, const Image& pz, const Image& nz, TextureFormat f) {
 	int32_t internal = GL_TEXTURE_FORMATS[f].first;
 	uint32_t external = GL_IMAGE_FORMATS[px.channel - 1];
 	uint32_t data = GL_IMAGE_TYPES[px.bytes == 1 ? IMAGE_UBYTE : IMAGE_FLOAT];
@@ -1169,28 +1173,31 @@ void Texture::init_cube(const Image& px, const Image& nx, const Image& py,
 	glTexImage2D(target, 0, internal, pz.width, pz.height, 0, external, data, pz.data.data());
 	target = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
 	glTexImage2D(target, 0, internal, nz.width, nz.height, 0, external, data, nz.data.data());
-	set_parameters(TEXTURE_CUBE, f, px.width, px.height, 0);
+	set_dimensions(px.width, px.height, 0);
+	set_parameters(TEXTURE_CUBE, f);
 }
 
-void Texture::init_1d_array(int w, int l, int f, int t) {
+void Texture::init_1d_array(int w, int l, TextureFormat f, ImageType t) {
 	int32_t internal = GL_TEXTURE_FORMATS[f].first;
 	uint32_t external = GL_TEXTURE_FORMATS[f].second;
 	uint32_t data = GL_IMAGE_TYPES[t];
 	glBindTexture(GL_TEXTURE_1D_ARRAY, id);
 	glTexImage2D(GL_TEXTURE_1D_ARRAY, 0, internal, w, l, 0, external, data, nullptr);
-	set_parameters(TEXTURE_1D_ARRAY, f, w, l, 0);
+	set_dimensions(w, l, 0);
+	set_parameters(TEXTURE_1D_ARRAY, f);
 }
 
-void Texture::init_2d_array(int w, int h, int l, int f, int t) {
+void Texture::init_2d_array(int w, int h, int l, TextureFormat f, ImageType t) {
 	int32_t internal = GL_TEXTURE_FORMATS[f].first;
 	uint32_t external = GL_TEXTURE_FORMATS[f].second;
 	uint32_t data = GL_IMAGE_TYPES[t];
 	glBindTexture(GL_TEXTURE_2D_ARRAY, id);
 	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internal, w, h, l, 0, external, data, nullptr);
-	set_parameters(TEXTURE_2D_ARRAY, f, w, h, l);
+	set_dimensions(w, h, l);
+	set_parameters(TEXTURE_2D_ARRAY, f);
 }
 
-void Texture::init_cube_array(int w, int h, int l, int f, int t) {
+void Texture::init_cube_array(int w, int h, int l, TextureFormat f, ImageType t) {
 	int32_t internal = GL_TEXTURE_FORMATS[f].first;
 	uint32_t external = GL_TEXTURE_FORMATS[f].second;
 	uint32_t data = GL_IMAGE_TYPES[t];
@@ -1198,15 +1205,8 @@ void Texture::init_cube_array(int w, int h, int l, int f, int t) {
 	for (int i = 0; i < l * 6; ++i) {
 		glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, internal, w, h, i, 0, external, data, nullptr);
 	}
-	set_parameters(TEXTURE_CUBE_ARRAY, f, w, h, l);
-}
-
-int Texture::get_type() const {
-	return type;
-}
-
-int Texture::get_format() const {
-	return format;
+	set_dimensions(w, h, l);
+	set_parameters(TEXTURE_CUBE_ARRAY, f);
 }
 
 int Texture::get_width() const {
@@ -1222,23 +1222,30 @@ int Texture::get_depth() const {
 }
 
 int Texture::get_layer() const {
-	/* layer of texture 1D (width) */
+	/* texture 1D: width x layer */
 	if (type == TEXTURE_1D_ARRAY) return height;
 	
-	/* layer of texture 2D (width x height) */
+	/* texture 2D: width x height x layer */
 	if (type == TEXTURE_2D_ARRAY) return depth;
 	
-	/* layer of texture cube (width x height) */
+	/* texture cube: width x height x layer */
 	if (type == TEXTURE_CUBE_ARRAY) return depth;
 	
-	/* illegal texture */
-	return 0;
+	return 0; /* illegal texture */
+}
+
+TextureType Texture::get_type() const {
+	return type;
+}
+
+TextureFormat Texture::get_format() const {
+	return format;
 }
 
 void Texture::copy_to_image(Image& i) const {
 	/* check whether the texture is 2D */
 	if (type != TEXTURE_2D) {
-		return Error::set("Texture: Cannot get image from non-2D texture");
+		return Error::set("Texture", "Cannot get image from non-2D texture");
 	}
 	
 	/* get the external format of texture */
@@ -1255,25 +1262,25 @@ void Texture::generate_mipmap() const {
 	glGenerateMipmap(gl_type);
 }
 
-void Texture::set_wrap_s(int m) const {
+void Texture::set_wrap_s(TextureWrappingMode m) const {
 	uint32_t gl_type = GL_TEXTURE_TYPES[type];
 	glBindTexture(gl_type, id);
 	glTexParameteri(gl_type, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAPPINGS[m]);
 }
 
-void Texture::set_wrap_t(int m) const {
+void Texture::set_wrap_t(TextureWrappingMode m) const {
 	uint32_t gl_type = GL_TEXTURE_TYPES[type];
 	glBindTexture(gl_type, id);
 	glTexParameteri(gl_type, GL_TEXTURE_WRAP_T, GL_TEXTURE_WRAPPINGS[m]);
 }
 
-void Texture::set_wrap_r(int m) const {
+void Texture::set_wrap_r(TextureWrappingMode m) const {
 	uint32_t gl_type = GL_TEXTURE_TYPES[type];
 	glBindTexture(gl_type, id);
 	glTexParameteri(gl_type, GL_TEXTURE_WRAP_R, GL_TEXTURE_WRAPPINGS[m]);
 }
 
-void Texture::set_wrap_all(int m) const {
+void Texture::set_wrap_all(TextureWrappingMode m) const {
 	uint32_t gl_type = GL_TEXTURE_TYPES[type];
 	glBindTexture(gl_type, id);
 	glTexParameteri(gl_type, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAPPINGS[m]);
@@ -1281,7 +1288,7 @@ void Texture::set_wrap_all(int m) const {
 	glTexParameteri(gl_type, GL_TEXTURE_WRAP_R, GL_TEXTURE_WRAPPINGS[m]);
 }
 
-void Texture::set_filters(int mag, int min) const {
+void Texture::set_filters(TextureFilter mag, TextureFilter min) const {
 	uint32_t gl_type = GL_TEXTURE_TYPES[type];
 	glBindTexture(gl_type, id);
 	glTexParameteri(gl_type, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_FILTERS[mag]);
@@ -1314,19 +1321,22 @@ int Texture::activate(int l) const {
 	return l;
 }
 
-void Texture::set_parameters(int t, int f, int w, int h, int d) {
-	type = t;
-	format = f;
+void Texture::set_dimensions(int w, int h, int d) {
 	width = w;
 	height = h;
 	depth = d;
 }
 
-int Texture::default_format(const Image& i) {
+void Texture::set_parameters(TextureType t, TextureFormat f) {
+	type = t;
+	format = f;
+}
+
+TextureFormat Texture::default_format(const Image& i) {
 	return TEXTURE_DEFAULT_FORMATS[i.channel - 1][i.bytes == 4];
 }
 
-int Texture::default_format(int c, int b) {
+TextureFormat Texture::default_format(int c, int b) {
 	return TEXTURE_DEFAULT_FORMATS[c - 1][b == 4];
 }
 
@@ -1338,7 +1348,7 @@ RenderBuffer::~RenderBuffer() {
 	glDeleteRenderbuffers(1, &id);
 }
 
-void RenderBuffer::init(int w, int h, int f) const {
+void RenderBuffer::init(int w, int h, TextureFormat f) const {
 	int32_t internal = GL_TEXTURE_FORMATS[f].second;
 	glBindRenderbuffer(GL_RENDERBUFFER, id);
 	glRenderbufferStorage(GL_RENDERBUFFER, internal, w, h);
@@ -1389,7 +1399,7 @@ void RenderTarget::set_target_number(int n) const {
 void RenderTarget::activate() const {
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		Error::set("RenderTarget: Render target is not complete");
+		Error::set("RenderTarget", "Render target is not complete");
 	}
 }
 
@@ -1397,7 +1407,7 @@ void RenderTarget::activate(const RenderTarget* f) {
 	uint32_t id = f == nullptr ? 0 : f->id;
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		Error::set("RenderTarget: Render target is not complete");
+		Error::set("RenderTarget", "Render target is not complete");
 	}
 }
 
@@ -1414,7 +1424,7 @@ void RenderTarget::set_framebuffer(const Texture& t, uint32_t a, int l, int p) c
 	} else if (t.type == TEXTURE_CUBE_ARRAY) {
 		glFramebufferTextureLayer(GL_FRAMEBUFFER, a, t.id, l, p);
 	} else {
-		Error::set("RenderTarget: Texture type is not supported");
+		Error::set("RenderTarget", "Texture type is not supported");
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

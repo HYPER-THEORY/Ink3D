@@ -87,10 +87,10 @@ layout(location = 0) out vec4 out_color;
 #endif
 
 #ifdef DEFERRED_RENDERING
-layout(location = 0) out vec4 out_buffer_c;    /* G-Buffer diffuse color */
-layout(location = 1) out vec4 out_buffer_n;    /* G-Buffer world normal */
-layout(location = 2) out vec4 out_buffer_m;    /* G-Buffer material */
-layout(location = 3) out vec4 out_buffer_a;    /* G-Buffer additional light */
+layout(location = 0) out vec4 g_color;       /* G-Buffer base color */
+layout(location = 1) out vec4 g_normal;      /* G-Buffer world normal */
+layout(location = 2) out vec4 g_material;    /* G-Buffer material data */
+layout(location = 3) out vec4 g_light;       /* G-Buffer indirect light */
 #endif
 
 void main() {
@@ -102,29 +102,27 @@ void main() {
 	#ifdef USE_COLOR_MAP
 		t_color.xyz *= texture(color_map, v_uv).xyz;
 	#endif
-	#ifdef USE_COLOR_ALPHA_MAP
-		t_color *= texture(color_map, v_uv);
-	#endif
 	#ifdef USE_ALPHA_MAP
 		t_color.w *= texture(alpha_map, v_uv).x;
+	#endif
+	#ifdef USE_COLOR_ALPHA_MAP
+		t_color.xyzw *= texture(color_map, v_uv).xyzw;
 	#endif
 	
 	/* discard if failing alpha test */
 	if (t_color.w < alpha_test) discard;
 	
-	/* calculate world space normal */
-	float normal_dir = gl_FrontFacing ? 1. : -1.;
-	vec3 t_normal = normalize(v_normal) * normal_dir;
-	#ifdef IN_TANGENT_SPACE
-		vec3 tangent = normalize(v_tangent) * normal_dir;
-		vec3 bitangent = normalize(v_bitangent) * normal_dir;
-		mat3 tbn_mat = mat3(tangent, bitangent, t_normal);
-	#endif
+	/* calculate normal in world space */
+	float face_dir = gl_FrontFacing ? 1. : -1.;
+	vec3 t_normal = normalize(v_normal) * face_dir;
 	#ifdef USE_NORMAL_MAP
 		vec3 normal = texture(normal_map, v_uv).xyz;
 		normal = normalize(unpack_normal(normal));
 		normal.xy *= normal_scale;
 		#ifdef IN_TANGENT_SPACE
+			vec3 tangent = normalize(v_tangent) * face_dir;
+			vec3 bitangent = normalize(v_bitangent) * face_dir;
+			mat3 tbn_mat = mat3(tangent, bitangent, t_normal);
 			t_normal = normalize(tbn_mat * normal);
 		#endif
 		#ifdef IN_OBJECT_SPACE
@@ -144,7 +142,7 @@ void main() {
 		t_roughness *= texture(roughness_map, v_uv).x;
 	#endif
 	
-	/* calculate specular color */
+	/* calculate specular IOR */
 	float t_specular = specular;
 	#ifdef USE_SPECULAR_MAP
 		t_specular *= texture(specular_map, v_uv).x;
@@ -194,10 +192,10 @@ void main() {
 	
 	#ifdef DEFERRED_RENDERING
 		/* output G-Buffers in deferred rendering */
-		out_buffer_c = vec4(diffuse, t_occlusion);
-		out_buffer_n = vec4(pack_normal(t_normal), 0.);
-		out_buffer_m = vec4(specular_f0, t_roughness);
-		out_buffer_a = vec4(indirect_light, 0.);
+		g_color = vec4(diffuse, t_occlusion);
+		g_normal = vec4(pack_normal(t_normal), 0.);
+		g_material = vec4(specular_f0, t_roughness);
+		g_light = vec4(indirect_light, 0.);
 	#endif
 	
 	#ifdef FORWARD_RENDERING
@@ -213,7 +211,7 @@ void main() {
 		geometry.view_dir = view_dir;
 		geometry.normal = t_normal;
 		
-		/* calculate color with light pipeline */
+		/* output color in forward rendering */
 		out_color = vec4(light_process(material, geometry, indirect_light, t_occlusion), t_color.w);
 	#endif
 }

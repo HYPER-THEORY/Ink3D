@@ -28,7 +28,7 @@ namespace Ink {
 
 void ColorGradePass::init() {}
 
-void ColorGradePass::render() const {
+void ColorGradePass::render() {
 	auto* color_grade_shader = ShaderLib::fetch("ColorGrading");
 	color_grade_shader->use_program();
 	color_grade_shader->set_uniform_v3("saturation", saturation);

@@ -45,6 +45,15 @@ public:
 	static void set(const std::string& e);
 	
 	/**
+	 * Sets the string describing the error. calling this function will replace
+	 * the previous error message.
+	 *
+	 * \param l error location
+	 * \param e error message
+	 */
+	static void set(const std::string& l, const std::string& e);
+	
+	/**
 	 * Clears the current error message.
 	 */
 	static void clear();

@@ -59,7 +59,7 @@ public:
 	 * \param n material name
 	 * \param s specified mesh
 	 */
-	Material* get_material(const std::string& n, const Mesh* s) const;
+	Material* get_material(const std::string& n, const Mesh& s) const;
 	
 	/**
 	 * Returns the material matching the specified name and linking with the
@@ -68,7 +68,7 @@ public:
 	 * \param n material name
 	 * \param s specified instance
 	 */
-	Material* get_material(const std::string& n, const Instance* s) const;
+	Material* get_material(const std::string& n, const Instance& s) const;
 	
 	/**
 	 * Sets the specified material with name to the scene.
@@ -86,7 +86,7 @@ public:
 	 * \param s specified mesh
 	 * \param m material
 	 */
-	void set_material(const std::string& n, const Mesh* s, Material* m);
+	void set_material(const std::string& n, const Mesh& s, Material* m);
 	
 	/**
 	 * Sets the specified material with name to the scene. Links it with the
@@ -96,7 +96,7 @@ public:
 	 * \param s specified instance
 	 * \param m material
 	 */
-	void set_material(const std::string& n, const Instance* s, Material* m);
+	void set_material(const std::string& n, const Instance& s, Material* m);
 	
 	/**
 	 * Removes the specified material matching the specified name from the
@@ -113,7 +113,7 @@ public:
 	 * \param n material name
 	 * \param s specified mesh
 	 */
-	void remove_material(const std::string& n, const Mesh* s);
+	void remove_material(const std::string& n, const Mesh& s);
 	
 	/**
 	 * Removes the specified material matching the specified name and linking
@@ -122,7 +122,7 @@ public:
 	 * \param n material name
 	 * \param s specified instance
 	 */
-	void remove_material(const std::string& n, const Instance* s);
+	void remove_material(const std::string& n, const Instance& s);
 	
 	/**
 	 * Removes all the materials from the scene.

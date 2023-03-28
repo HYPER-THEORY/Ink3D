@@ -31,8 +31,8 @@ namespace Ink {
 std::string File::read(const std::string& p) {
 	std::string content;
 	std::ifstream stream(p, std::fstream::in);
-	if (!stream) {
-		Error::set("File: Error reading from file");
+	if (stream.fail()) {
+		Error::set("File", "Failed to read from file");
 	}
 	stream.ignore(std::numeric_limits<std::streamsize>::max());
 	std::streamsize length = stream.gcount();
@@ -46,8 +46,8 @@ std::string File::read(const std::string& p) {
 void File::write(const std::string& p, const std::string& c) {
 	std::ofstream stream(p, std::fstream::out);
 	stream.write(c.data(), c.size());
-	if (!stream) {
-		Error::set("File: Error writing to file");
+	if (stream.fail()) {
+		Error::set("File", "Failed to write to file");
 	}
 	stream.close();
 }
@@ -55,8 +55,8 @@ void File::write(const std::string& p, const std::string& c) {
 void File::write(const std::string& p, const char* c) {
 	std::ofstream stream(p, std::fstream::out);
 	stream.write(c, std::strlen(c));
-	if (!stream) {
-		Error::set("File: Error writing to file");
+	if (stream.fail()) {
+		Error::set("File", "Failed to write to file");
 	}
 	stream.close();
 }
@@ -64,8 +64,8 @@ void File::write(const std::string& p, const char* c) {
 void File::append(const std::string& p, const std::string& c) {
 	std::ofstream stream(p, std::fstream::out | std::fstream::app);
 	stream.write(c.data(), c.size());
-	if (!stream) {
-		Error::set("File: Error appending to file");
+	if (stream.fail()) {
+		Error::set("File", "Failed to append to file");
 	}
 	stream.close();
 }
@@ -73,8 +73,8 @@ void File::append(const std::string& p, const std::string& c) {
 void File::append(const std::string& p, const char* c) {
 	std::ofstream stream(p, std::fstream::out | std::fstream::app);
 	stream.write(c, std::strlen(c));
-	if (!stream) {
-		Error::set("File: Error appending to file");
+	if (stream.fail()) {
+		Error::set("File", "Failed to append to file");
 	}
 	stream.close();
 }

@@ -31,7 +31,7 @@ width(w), height(h), thickness(t), intensity(i) {}
 
 void SSRPass::init() {}
 
-void SSRPass::render() const {
+void SSRPass::render() {
 	/* fetch SSR shader from shader lib */
 	auto* ssr_shader = ShaderLib::fetch("SSR");
 	
@@ -53,13 +53,17 @@ void SSRPass::render() const {
 	ssr_shader->set_uniform_m4("proj", camera->projection);
 	ssr_shader->set_uniform_m4("inv_proj", inv_proj);
 	ssr_shader->set_uniform_i("map", map->activate(0));
-	ssr_shader->set_uniform_i("buffer_n", buffer_n->activate(1));
-	ssr_shader->set_uniform_i("buffer_m", buffer_m->activate(2));
-	ssr_shader->set_uniform_i("buffer_d", buffer_d->activate(3));
+	ssr_shader->set_uniform_i("g_normal", g_normal->activate(1));
+	ssr_shader->set_uniform_i("g_material", g_material->activate(2));
+	ssr_shader->set_uniform_i("z_map", z_map->activate(3));
 	RenderPass::render_to(ssr_shader, target);
 }
 
-void SSRPass::set(const Camera* c) {
+const Camera* SSRPass::get_camera() const {
+	return camera;
+}
+
+void SSRPass::set_camera(const Camera* c) {
 	camera = c;
 }
 
@@ -71,28 +75,28 @@ void SSRPass::set_texture(const Gpu::Texture* t) {
 	map = t;
 }
 
-const Gpu::Texture* SSRPass::get_buffer_n() const {
-	return buffer_n;
+const Gpu::Texture* SSRPass::get_texture_normal() const {
+	return g_normal;
 }
 
-void SSRPass::set_buffer_n(const Gpu::Texture* n) {
-	buffer_n = n;
+void SSRPass::set_texture_normal(const Gpu::Texture* n) {
+	g_normal = n;
 }
 
-const Gpu::Texture* SSRPass::get_buffer_m() const {
-	return buffer_m;
+const Gpu::Texture* SSRPass::get_texture_material() const {
+	return g_material;
 }
 
-void SSRPass::set_buffer_m(const Gpu::Texture* m) {
-	buffer_m = m;
+void SSRPass::set_texture_material(const Gpu::Texture* m) {
+	g_material = m;
 }
 
-const Gpu::Texture* SSRPass::get_buffer_d() const {
-	return buffer_d;
+const Gpu::Texture* SSRPass::get_texture_depth() const {
+	return z_map;
 }
 
-void SSRPass::set_buffer_d(const Gpu::Texture* d) {
-	buffer_d = d;
+void SSRPass::set_texture_depth(const Gpu::Texture* t) {
+	z_map = t;
 }
 
 }

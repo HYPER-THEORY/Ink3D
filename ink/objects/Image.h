@@ -87,7 +87,7 @@ public:
 	 *
 	 * \param c color conversion
 	 */
-	void convert(int c);
+	void convert(ColorConversion c);
 	
 	/**
 	 * Converts colors in the image from RGB color space to BGR color space.

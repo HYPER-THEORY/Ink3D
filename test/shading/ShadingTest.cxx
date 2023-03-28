@@ -93,11 +93,11 @@ void load() {
 	
 	scene.set_material("Material_MR", &materials["Material_MR"]);
 	
-	Ink::Instance* helmet = Ink::Instance::create();
+	Ink::Instance* helmet = new Ink::Instance();
 	helmet->mesh = &meshes["Helmet"];
 	scene.add(helmet);
 	
-	viewer = Ink::Viewer(Ink::PerspCamera(75 * Ink::DEG_TO_RAD, 1.77, 0.05, 1000));
+	viewer = Ink::Viewer(new Ink::PerspCamera(75 * Ink::DEG_TO_RAD, 1.77, 0.05, 1000));
 	viewer.set_position(Ink::Vec3(0, 0, 2));
 	viewer.set_direction(Ink::Vec3(0, 0, 1));
 	
@@ -157,11 +157,11 @@ void load() {
 	
 	light_pass = new Ink::LightPass();
 	light_pass->init();
-	light_pass->set_buffer_c(buffers + 0);
-	light_pass->set_buffer_n(buffers + 1);
-	light_pass->set_buffer_m(buffers + 2);
-	light_pass->set_buffer_a(buffers + 3);
-	light_pass->set_buffer_d(buffers + 4);
+	light_pass->set_texture_color(buffers + 0);
+	light_pass->set_texture_normal(buffers + 1);
+	light_pass->set_texture_material(buffers + 2);
+	light_pass->set_texture_light(buffers + 3);
+	light_pass->set_texture_depth(buffers + 4);
 	light_pass->set_target(post_target_0);
 	
 	bloom_pass = new Ink::BloomPass(VP_WIDTH, VP_HEIGHT);
@@ -188,16 +188,17 @@ void update(float dt) {
 	auto time_ms = Ink::Date::get_time();
 	
 	viewer.update(dt);
-	auto& camera = viewer.get_camera();
+	auto* camera = viewer.get_camera();
 	
 	Ink::Renderer::update_scene(scene);
 	
 	renderer.clear();
-	renderer.render_skybox(camera);
-	renderer.render(scene, camera);
+	renderer.render_skybox(*camera);
+	renderer.render(scene, *camera);
 	
 #if !USE_FORWARD_PATH
-	light_pass->set(&scene, &camera);
+	light_pass->set_scene(&scene);
+	light_pass->set_camera(camera);
 	light_pass->render();
 	bloom_pass->render();
 	tone_map_pass->render();

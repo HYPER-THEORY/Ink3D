@@ -43,7 +43,7 @@ vec3 brdf_ggx(vec3 light_dir, vec3 view_dir, vec3 normal, vec3 f0, float roughne
 /* Returns the approximation of the DFG LUT. */
 vec2 lut_dfg(vec3 normal, vec3 view_dir, float roughness) {
 	const vec4 c0 = vec4(-1., -0.0275, -0.572, 0.022);
-	const vec4 c1 = vec4(1., 0.0425, 1.04, -0.04);
+	const vec4 c1 = vec4(1. , 0.0425 , 1.04  , -0.04);
 	float nov = saturate(dot(normal, view_dir));
 	vec4 r = roughness * c0 + c1;
 	float a004 = min(r.x * r.x, exp2(-9.28 * nov)) * r.x + r.y;

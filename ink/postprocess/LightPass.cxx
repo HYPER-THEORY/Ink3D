@@ -29,7 +29,7 @@ namespace Ink {
 
 void LightPass::init() {}
 
-void LightPass::render() const {
+void LightPass::render() {
 	/* fetch light shader from shader lib */
 	Defines light_defines;
 	Renderer::set_tone_map_defines(tone_map_mode, light_defines);
@@ -40,11 +40,11 @@ void LightPass::render() const {
 	light_shader->use_program();
 	light_shader->set_uniform_v3("camera_pos", camera->position);
 	light_shader->set_uniform_f("exposure", tone_map_exposure);
-	light_shader->set_uniform_i("buffer_c", buffer_c->activate(0));
-	light_shader->set_uniform_i("buffer_n", buffer_n->activate(1));
-	light_shader->set_uniform_i("buffer_m", buffer_m->activate(2));
-	light_shader->set_uniform_i("buffer_a", buffer_a->activate(3));
-	light_shader->set_uniform_i("buffer_d", buffer_d->activate(4));
+	light_shader->set_uniform_i("g_color", g_color->activate(0));
+	light_shader->set_uniform_i("g_normal", g_normal->activate(1));
+	light_shader->set_uniform_i("g_material", g_material->activate(2));
+	light_shader->set_uniform_i("g_light", g_light->activate(3));
+	light_shader->set_uniform_i("z_map", z_map->activate(4));
 	
 	/* pass camera parameter to shader */
 	Mat4 inv_view_proj = inverse_4x4(camera->projection * camera->viewing);
@@ -57,8 +57,19 @@ void LightPass::render() const {
 	RenderPass::render_to(light_shader, target);
 }
 
-void LightPass::set(const Scene* s, const Camera* c) {
+const Scene* LightPass::get_scene() const {
+	return scene;
+}
+
+void LightPass::set_scene(const Scene* s) {
 	scene = s;
+}
+
+const Camera* LightPass::get_camera() const {
+	return camera;
+}
+
+void LightPass::set_camera(const Camera* c) {
 	camera = c;
 }
 
@@ -75,44 +86,44 @@ void LightPass::set_tone_map(int m, float e) {
 	tone_map_exposure = e;
 }
 
-const Gpu::Texture* LightPass::get_buffer_c() const {
-	return buffer_c;
+const Gpu::Texture* LightPass::get_texture_color() const {
+	return g_color;
 }
 
-void LightPass::set_buffer_c(const Gpu::Texture* t) {
-	buffer_c = t;
+void LightPass::set_texture_color(const Gpu::Texture* t) {
+	g_color = t;
 }
 
-const Gpu::Texture* LightPass::get_buffer_n() const {
-	return buffer_n;
+const Gpu::Texture* LightPass::get_texture_normal() const {
+	return g_normal;
 }
 
-void LightPass::set_buffer_n(const Gpu::Texture* t) {
-	buffer_n = t;
+void LightPass::set_texture_normal(const Gpu::Texture* t) {
+	g_normal = t;
 }
 
-const Gpu::Texture* LightPass::get_buffer_m() const {
-	return buffer_m;
+const Gpu::Texture* LightPass::get_texture_material() const {
+	return g_material;
 }
 
-void LightPass::set_buffer_m(const Gpu::Texture* t) {
-	buffer_m = t;
+void LightPass::set_texture_material(const Gpu::Texture* t) {
+	g_material = t;
 }
 
-const Gpu::Texture* LightPass::get_buffer_a() const {
-	return buffer_a;
+const Gpu::Texture* LightPass::get_texture_light() const {
+	return g_light;
 }
 
-void LightPass::set_buffer_a(const Gpu::Texture* t) {
-	buffer_a = t;
+void LightPass::set_texture_light(const Gpu::Texture* t) {
+	g_light = t;
 }
 
-const Gpu::Texture* LightPass::get_buffer_d() const {
-	return buffer_d;
+const Gpu::Texture* LightPass::get_texture_depth() const {
+	return z_map;
 }
 
-void LightPass::set_buffer_d(const Gpu::Texture* t) {
-	buffer_d = t;
+void LightPass::set_texture_depth(const Gpu::Texture* t) {
+	z_map = t;
 }
 
 }

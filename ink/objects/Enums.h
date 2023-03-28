@@ -39,7 +39,7 @@ enum ColorConversion {
 	COLOR_HCY_TO_RGB,
 };
 
-enum RenderingSide {
+enum RenderSide {
 	FRONT_SIDE,
 	BACK_SIDE,
 	DOUBLE_SIDE,
@@ -57,7 +57,7 @@ enum ImageType {
 	IMAGE_UINT_24_8,
 };
 
-enum ComparisonFunction {
+enum ComparisonFunc {
 	FUNC_NEVER,
 	FUNC_LESS,
 	FUNC_EQUAL,

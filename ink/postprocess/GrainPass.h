@@ -20,50 +20,45 @@
  * SOFTWARE.
  */
 
-#include "Euler.h"
+#pragma once
+
+#include "RenderPass.h"
 
 namespace Ink {
 
-Euler::Euler(float x, float y, float z, EulerOrder o) :
-x(x), y(y), z(z), order(o) {}
-
-Euler::Euler(Vec3 r, EulerOrder o) :
-x(r.x), y(r.y), z(r.z), order(o) {}
-
-Mat3 Euler::to_rotation_matrix() const {
-	Mat3 rotation_x = {
-		1       , 0       , 0       ,
-		0       , cosf(x) , -sinf(x),
-		0       , sinf(x) , cosf(x) ,
-	};
-	Mat3 rotation_y = {
-		cosf(y) , 0       , sinf(y) ,
-		0       , 1       , 0       ,
-		-sinf(y), 0       , cosf(y) ,
-	};
-	Mat3 rotation_z = {
-		cosf(z) , -sinf(z), 0       ,
-		sinf(z) , cosf(z) , 0       ,
-		0       , 0       , 1       ,
-	};
-	if (order == EULER_XYZ) {
-		return rotation_x * rotation_y * rotation_z;
-	}
-	if (order == EULER_XZY) {
-		return rotation_x * rotation_z * rotation_y;
-	}
-	if (order == EULER_YXZ) {
-		return rotation_y * rotation_x * rotation_z;
-	}
-	if (order == EULER_YZX) {
-		return rotation_y * rotation_z * rotation_x;
-	}
-	if (order == EULER_ZXY) {
-		return rotation_z * rotation_x * rotation_y;
-	}
-	/*       ... EULER_ZYX */ {
-		return rotation_z * rotation_y * rotation_x;
-	}
-}
+class GrainPass : public RenderPass {
+public:
+	float intensity = 0.5;    /**< the intensity of grain */
+	
+	/**
+	 * Creates a new GrainPass object.
+	 */
+	explicit GrainPass() = default;
+	
+	/**
+	 * Initializes the render pass and prepares the resources for rendering.
+	 */
+	void init() override;
+	
+	/**
+	 * Compiles the required shaders and renders to the render target.
+	 */
+	void render() override;
+	
+	/**
+	 * Returns the 2D texture represents the input of rendering pass.
+	 */
+	const Gpu::Texture* get_texture() const;
+	
+	/**
+	 * Sets the specified 2D texture as the input of rendering pass.
+	 *
+	 * \param t input texture
+	 */
+	void set_texture(const Gpu::Texture* t);
+	
+private:
+	const Gpu::Texture* map = nullptr;
+};
 
 }

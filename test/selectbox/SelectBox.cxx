@@ -83,17 +83,17 @@ void load() {
 		materials[name].uniforms = &uniforms;
 		materials[name].shader = shader;
 		
-		instances[name] = Ink::Instance::create(name);
+		instances[name] = new Ink::Instance(name);
 		instances[name]->position.x = Ink::Random::random_f() * 10 - 5;
 		instances[name]->position.y = Ink::Random::random_f() * 10 - 5;
 		instances[name]->position.z = Ink::Random::random_f() * 10 - 5;
 		instances[name]->mesh = &meshes["Box"];
 		
 		scene.add(instances[name]);
-		scene.set_material("default", instances[name], &materials["Box_Red"]);
+		scene.set_material("default", *instances[name], &materials["Box_Red"]);
 		
 		another_scene.add(instances[name]);
-		another_scene.set_material("default", instances[name], &materials[name]);
+		another_scene.set_material("default", *instances[name], &materials[name]);
 	}
 	
 	Ink::HemisphereLight* light = new Ink::HemisphereLight();

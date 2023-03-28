@@ -52,7 +52,7 @@ void SSAOPass::init() {
 	blur_target_2->set_texture(*blur_map_2, 0);
 }
 
-void SSAOPass::render() const {
+void SSAOPass::render() {
 	/* fetch SSAO shader from shader lib */
 	if (!ShaderCache::has_vert("LegacySSAO")) {
 		ShaderCache::load_vert("LegacySSAO", shader_vert);

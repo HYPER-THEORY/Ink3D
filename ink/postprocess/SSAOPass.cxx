@@ -33,7 +33,7 @@ width(w), height(h), radius(r), max_radius(m), intensity(i) {}
 void SSAOPass::init() {
 	/* check the width and height */
 	if (width == 0 || height == 0) {
-		return Error::set("SSAOPass: Width or height should be greater than 0");
+		return Error::set("SSAOPass", "Width and height should be greater than 0");
 	}
 	
 	/* prepare blur map 1 */
@@ -57,7 +57,7 @@ void SSAOPass::init() {
 	blur_target_2->set_texture(*blur_map_2, 0);
 }
 
-void SSAOPass::render() const {
+void SSAOPass::render() {
 	/* fetch SSAO shader from shader lib */
 	Defines ssao_defines;
 	ssao_defines.set("SAMPLES", std::to_string(samples));
@@ -89,14 +89,14 @@ void SSAOPass::render() const {
 	ssao_shader->set_uniform_f("intensity", intensity);
 	ssao_shader->set_uniform_f("radius", radius);
 	ssao_shader->set_uniform_f("max_radius", max_radius);
-	ssao_shader->set_uniform_f("max_depth", max_depth);
+	ssao_shader->set_uniform_f("max_z", max_z);
 	ssao_shader->set_uniform_f("near", camera->near);
 	ssao_shader->set_uniform_f("far", camera->far);
 	ssao_shader->set_uniform_m4("view", camera->viewing);
 	ssao_shader->set_uniform_m4("proj", camera->projection);
 	ssao_shader->set_uniform_m4("inv_proj", inv_proj);
-	ssao_shader->set_uniform_i("buffer_n", buffer_n->activate(0));
-	ssao_shader->set_uniform_i("buffer_d", buffer_d->activate(1));
+	ssao_shader->set_uniform_i("g_normal", g_normal->activate(0));
+	ssao_shader->set_uniform_i("z_map", z_map->activate(1));
 	RenderPass::render_to(ssao_shader, blur_target_1.get());
 	
 	/* 2. blur texture for two times */
@@ -133,7 +133,11 @@ void SSAOPass::render() const {
 	RenderPass::render_to(blend_shader, target);
 }
 
-void SSAOPass::set(const Camera* c) {
+const Camera* SSAOPass::get_camera() const {
+	return camera;
+}
+
+void SSAOPass::set_camera(const Camera* c) {
 	camera = c;
 }
 
@@ -145,20 +149,20 @@ void SSAOPass::set_texture(const Gpu::Texture* t) {
 	map = t;
 }
 
-const Gpu::Texture* SSAOPass::get_buffer_n() const {
-	return buffer_n;
+const Gpu::Texture* SSAOPass::get_texture_normal() const {
+	return g_normal;
 }
 
-void SSAOPass::set_buffer_n(const Gpu::Texture* n) {
-	buffer_n = n;
+void SSAOPass::set_texture_normal(const Gpu::Texture* t) {
+	g_normal = t;
 }
 
-const Gpu::Texture* SSAOPass::get_buffer_d() const {
-	return buffer_d;
+const Gpu::Texture* SSAOPass::get_texture_depth() const {
+	return z_map;
 }
 
-void SSAOPass::set_buffer_d(const Gpu::Texture* d) {
-	buffer_d = d;
+void SSAOPass::set_texture_depth(const Gpu::Texture* t) {
+	z_map = t;
 }
 
 }

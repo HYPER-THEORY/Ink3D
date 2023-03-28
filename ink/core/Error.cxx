@@ -30,8 +30,13 @@ std::string Error::get() {
 }
 
 void Error::set(const std::string& e) {
-	if (callback) std::invoke(callback, e);
 	message = e;
+	if (callback) std::invoke(callback, message);
+}
+
+void Error::set(const std::string& l, const std::string& e) {
+	message = l + " Error: " + e;
+	if (callback) std::invoke(callback, message);
 }
 
 void Error::clear() {

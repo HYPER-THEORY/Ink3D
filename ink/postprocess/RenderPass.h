@@ -44,7 +44,7 @@ public:
 	/**
 	 * Compiles the required shaders and renders to the render target.
 	 */
-	virtual void render() const = 0;
+	virtual void render() = 0;
 	
 	/**
 	 * Returns the current render target if there is, returns nullptr otherwise.
