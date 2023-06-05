@@ -22,7 +22,7 @@
 
 #include "Physics.h"
 
-namespace Ink {
+namespace Ink::Legacy {
 
 CollisionBox::CollisionBox(const Vec3& v1, const Vec3& v2) :
 v1(v1), v2(v2) {}

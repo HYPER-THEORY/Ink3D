@@ -27,7 +27,7 @@
 #include <vector>
 #include <unordered_set>
 
-namespace Ink {
+namespace Ink::Legacy {
 
 class CollisionBox {
 public:

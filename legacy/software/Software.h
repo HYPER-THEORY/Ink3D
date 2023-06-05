@@ -27,7 +27,7 @@
 #include "../objects/Instance.h"
 #include "../camera/Camera.h"
 
-namespace Ink::Soft {
+namespace Ink::Legacy::Soft {
 
 struct State {
 	int viewport_x = 0;         /**< the x-coordinate of the viewport */
