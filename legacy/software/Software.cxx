@@ -24,7 +24,7 @@
 
 #include <array>
 
-namespace Ink::Soft {
+namespace Ink::Legacy::Soft {
 
 void clear(Image& b, float d) {
 	float* buffer = reinterpret_cast<float*>(b.data.data());
