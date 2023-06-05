@@ -11,7 +11,6 @@ set(
         ink/core/File.cxx
         ink/core/Date.cxx
         ink/core/Error.cxx
-        ink/core/Format.cxx
         ink/camera/PerspCamera.cxx
         ink/camera/OrthoCamera.cxx
         ink/camera/Camera.cxx
@@ -25,6 +24,7 @@ set(
         ink/utils/ConvexHull.cxx
         ink/utils/ColorUtils.cxx
         ink/utils/Viewer.cxx
+        ink/math/Color.cxx
         ink/math/Euler.cxx
         ink/math/Matrix.cxx
         ink/math/Ray.cxx
@@ -53,10 +53,8 @@ set(
         ink/postprocess/SSRPass.cxx
         ink/postprocess/BloomPass.cxx
         ink/postprocess/GrainPass.cxx
-        ink/physics/Physics.cxx
         ink/scene/Scene.cxx
         ink/graphics/Gpu.cxx
-        ink/graphics/Software.cxx
         ink/lights/LinearFog.cxx
         ink/lights/Light.cxx
         ink/lights/HemisphereLight.cxx

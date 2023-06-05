@@ -25,7 +25,6 @@
 /* core part */
 #include "../core/Error.h"
 #include "../core/File.h"
-#include "../core/Format.h"
 #include "../core/Date.h"
 
 /* math part */
@@ -33,8 +32,9 @@
 #include "../math/Random.h"
 #include "../math/Vector.h"
 #include "../math/Matrix.h"
-#include "../math/Euler.h"
 #include "../math/Ray.h"
+#include "../math/Euler.h"
+#include "../math/Color.h"
 
 /* objects part */
 #include "../objects/Enums.h"
@@ -60,7 +60,6 @@
 #include "../meshes/SphereMesh.h"
 
 /* graphics part */
-#include "../graphics/Software.h"
 #include "../graphics/Gpu.h"
 
 /* shaders part */
@@ -106,9 +105,6 @@
 
 /* window part */
 #include "../window/Window.h"
-
-/* physics part */
-#include "../physics/Physics.h"
 
 /* utils part */
 #include "../utils/ConvexHull.h"

@@ -40,18 +40,18 @@ public:
 	 * Sets the string describing the error. calling this function will replace
 	 * the previous error message.
 	 *
-	 * \param e error message
+	 * \param m error message
 	 */
-	static void set(const std::string& e);
+	static void set(const std::string& m);
 	
 	/**
 	 * Sets the string describing the error. calling this function will replace
 	 * the previous error message.
 	 *
 	 * \param l error location
-	 * \param e error message
+	 * \param m error message
 	 */
-	static void set(const std::string& l, const std::string& e);
+	static void set(const std::string& l, const std::string& m);
 	
 	/**
 	 * Clears the current error message.

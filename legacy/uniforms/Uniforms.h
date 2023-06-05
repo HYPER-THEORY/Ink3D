@@ -79,7 +79,7 @@ public:
 	 *
 	 * \param s shader
 	 */
-	void set_shader_uniforms(const Gpu::Shader& s) const;
+	void set_uniforms_to_shader(const Gpu::Shader& s) const;
 	
 private:
 	std::unordered_map<std::string, const void*> vars;

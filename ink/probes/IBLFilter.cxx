@@ -22,10 +22,12 @@
 
 #include "IBLFilter.h"
 
-#include "../core/Format.h"
 #include "../math/Constants.h"
 #include "../math/Vector.h"
 #include "../shaders/ShaderLib.h"
+
+#define FMT_HEADER_ONLY
+#include "fmt/format.h"
 
 namespace Ink {
 
@@ -146,7 +148,7 @@ void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
 			blur_shader->set_uniform_v3("pole_axis", pole_axis);
 			blur_shader->set_uniform_i("map", m.activate(0));
 			for (int w = 0; w < 20; ++w) {
-				std::string weights_i = Format::format("weights[{}]", w);
+				std::string weights_i = fmt::format("weights[{}]", w);
 				blur_shader->set_uniform_f(weights_i, weights[w]);
 			}
 			fullscreen_plane->attach(*blur_shader);
@@ -174,7 +176,7 @@ void IBLFilter::load_texture(const Gpu::Texture& t, Gpu::Texture& m, int s) {
 			blur_shader->set_uniform_v3("pole_axis", pole_axis);
 			blur_shader->set_uniform_i("map", blur_map->activate(0));
 			for (int w = 0; w < 20; ++w) {
-				std::string weights_i = Format::format("weights[{}]", w);
+				std::string weights_i = fmt::format("weights[{}]", w);
 				blur_shader->set_uniform_f(weights_i, weights[w]);
 			}
 			fullscreen_plane->attach(*blur_shader);

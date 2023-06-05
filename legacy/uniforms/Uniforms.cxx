@@ -38,7 +38,7 @@ bool Uniforms::has(const std::string& n) const {
 	return vars.count(n) != 0;
 }
 
-void Uniforms::set_shader_uniforms(const Gpu::Shader& s) const {
+void Uniforms::set_uniforms_to_shader(const Gpu::Shader& s) const {
 	for (auto& [uniform_name, value] : vars) {
 		/* get the suffix of variable */
 		size_t length = uniform_name.size();

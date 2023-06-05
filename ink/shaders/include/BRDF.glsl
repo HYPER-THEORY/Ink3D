@@ -50,18 +50,12 @@ vec2 lut_dfg(vec3 normal, vec3 view_dir, float roughness) {
 	return vec2(-1.04, 1.04) * a004 + r.zw;
 }
 
-/* Returns the value of Environment BRDF (DFG LUT). */
-vec3 brdf_env(vec3 normal, vec3 view_dir, vec3 f0, float roughness) {
-	vec2 fab = lut_dfg(normal, view_dir, roughness);
-	return f0 * fab.x + fab.y;
-}
-
 /* Returns the value of multiple-scattering microfacet model. */
-void multiscatter(vec3 normal, vec3 view_dir, vec3 f0, float roughness,
-				  inout vec3 single_scatter, inout vec3 multi_scatter) {
-	vec2 fab = lut_dfg(normal, view_dir, roughness);
-	vec3 fss_ess = f0 * fab.x + fab.y;
-	float ess = fab.x + fab.y;
+void scattering(vec3 normal, vec3 view_dir, vec3 f0, float roughness,
+				inout vec3 single_scatter, inout vec3 multi_scatter) {
+	vec2 f_ab = lut_dfg(normal, view_dir, roughness);
+	vec3 fss_ess = f0 * f_ab.x + f_ab.y;
+	float ess = f_ab.x + f_ab.y;
 	float ems = 1. - ess;
 	vec3 favg = f0 + (1. - f0) * 0.047619;
 	vec3 fms = fss_ess * favg / (1. - ems * favg);

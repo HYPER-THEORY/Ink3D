@@ -60,11 +60,6 @@ public:
 	explicit Shadow() = default;
 	
 	/**
-	 * The copy constructor is deleted.
-	 */
-	Shadow(const Shadow&) = delete;
-	
-	/**
 	 * Returns the sample numbers when using PCF / PCSS shadow.
 	 */
 	static int get_samples();

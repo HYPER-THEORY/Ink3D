@@ -23,14 +23,11 @@
 #include "Image.h"
 
 #include "../core/Error.h"
+#include "../math/Color.h"
 
 #include <algorithm>
 
 namespace Ink {
-
-constexpr float ONE_BY_255 = 1.f / 255.f;
-
-const Vec3 W_HCY = {0.299, 0.587, 0.114};
 
 Image::Image(int w, int h, int c, int b) :
 width(w), height(h), channel(c), bytes(b) {
@@ -237,7 +234,7 @@ void Image::convert_rgb_to_bgr() {
 	Type* ptr_r = reinterpret_cast<Type*>(data.data());
 	Type* ptr_b = ptr_r + 2;
 	
-	/* swap the red channel and blur channel */
+	/* swap the red and blue channel */
 	int i = width * height;
 	while (i --> 0) {
 		std::swap(ptr_r[channel * i], ptr_b[channel * i]);
@@ -250,7 +247,7 @@ void Image::convert_bgr_to_rgb() {
 	Type* ptr_r = reinterpret_cast<Type*>(data.data());
 	Type* ptr_b = ptr_r + 2;
 	
-	/* swap the red channel and blur channel */
+	/* swap the red and blue channel */
 	int i = width * height;
 	while (i --> 0) {
 		std::swap(ptr_r[channel * i], ptr_b[channel * i]);
@@ -260,42 +257,52 @@ void Image::convert_bgr_to_rgb() {
 template <typename Type>
 void Image::convert_rgb_to_srgb() {
 	/* get pointer of the specified data type */
-	Type* ptr = reinterpret_cast<Type*>(data.data());
+	Type* ptr_r = reinterpret_cast<Type*>(data.data());
+	Type* ptr_g = ptr_r + 1;
+	Type* ptr_b = ptr_g + 1;
 	
 	/* convert colorspace */
-	int i = width * height * channel;
+	Vec3 color;
+	int i = width * height;
 	while (i --> 0) {
-		/* unpack color information from data */
-		float color = unpack<Type>(ptr[i]);
+		/* unpack RGB information from data */
+		color.x = unpack<Type>(ptr_r[channel * i]);
+		color.y = unpack<Type>(ptr_g[channel * i]);
+		color.z = unpack<Type>(ptr_b[channel * i]);
 		
 		/* convert to SRGB color space */
-		if (color <= 0.0031308f) {
-			color *= 12.92f;
-		} else {
-			color = powf(color, 1.f / 2.4f) * 1.055f - 0.055f;
-		}
-		ptr[i] = pack<Type>(color);
+		color = Color::rgb_to_srgb(color);
+		
+		/* pack SRGB color to data */
+		ptr_r[channel * i] = pack<Type>(color.x);
+		ptr_g[channel * i] = pack<Type>(color.y);
+		ptr_b[channel * i] = pack<Type>(color.z);
 	}
 }
 
 template <typename Type>
 void Image::convert_srgb_to_rgb() {
 	/* get pointer of the specified data type */
-	Type* ptr = reinterpret_cast<Type*>(data.data());
+	Type* ptr_r = reinterpret_cast<Type*>(data.data());
+	Type* ptr_g = ptr_r + 1;
+	Type* ptr_b = ptr_g + 1;
 	
 	/* convert colorspace */
-	int i = width * height * channel;
+	Vec3 color;
+	int i = width * height;
 	while (i --> 0) {
-		/* unpack color information from data */
-		float color = unpack<Type>(ptr[i]);
+		/* unpack SRGB information from data */
+		color.x = unpack<Type>(ptr_r[channel * i]);
+		color.y = unpack<Type>(ptr_g[channel * i]);
+		color.z = unpack<Type>(ptr_b[channel * i]);
 		
-		/* convert to SRGB color space */
-		if (color <= 0.04045f) {
-			color /= 12.92f;
-		} else {
-			color = powf((color + 0.055f) / 1.055f, 2.4f);
-		}
-		ptr[i] = pack<Type>(color);
+		/* convert to RGB color space */
+		color = Color::srgb_to_rgb(color);
+		
+		/* pack RGB color to data */
+		ptr_r[channel * i] = pack<Type>(color.x);
+		ptr_g[channel * i] = pack<Type>(color.y);
+		ptr_b[channel * i] = pack<Type>(color.z);
 	}
 }
 
@@ -307,17 +314,21 @@ void Image::convert_rgb_to_xyz() {
 	Type* ptr_b = ptr_g + 1;
 	
 	/* convert colorspace */
+	Vec3 color;
 	int i = width * height;
 	while (i --> 0) {
 		/* unpack RGB information from data */
-		float r = unpack<Type>(ptr_r[channel * i]);
-		float g = unpack<Type>(ptr_g[channel * i]);
-		float b = unpack<Type>(ptr_b[channel * i]);
+		color.x = unpack<Type>(ptr_r[channel * i]);
+		color.y = unpack<Type>(ptr_g[channel * i]);
+		color.z = unpack<Type>(ptr_b[channel * i]);
 		
 		/* convert to XYZ color space */
-		ptr_r[channel * i] = pack<Type>(r * 0.4124564f + g * 0.3575761f + b * 0.1804375f);
-		ptr_g[channel * i] = pack<Type>(r * 0.2126729f + g * 0.7151522f + b * 0.0721750f);
-		ptr_b[channel * i] = pack<Type>(r * 0.0193339f + g * 0.1191920f + b * 0.9503041f);
+		color = Color::rgb_to_xyz(color);
+		
+		/* pack XYZ color to data */
+		ptr_r[channel * i] = pack<Type>(color.x);
+		ptr_g[channel * i] = pack<Type>(color.y);
+		ptr_b[channel * i] = pack<Type>(color.z);
 	}
 }
 
@@ -329,17 +340,21 @@ void Image::convert_xyz_to_rgb() {
 	Type* ptr_b = ptr_g + 1;
 	
 	/* convert colorspace */
+	Vec3 color;
 	int i = width * height;
 	while (i --> 0) {
 		/* unpack XYZ information from data */
-		float x = unpack<Type>(ptr_r[channel * i]);
-		float y = unpack<Type>(ptr_g[channel * i]);
-		float z = unpack<Type>(ptr_b[channel * i]);
+		color.x = unpack<Type>(ptr_r[channel * i]);
+		color.y = unpack<Type>(ptr_g[channel * i]);
+		color.z = unpack<Type>(ptr_b[channel * i]);
 		
 		/* convert to RGB color space */
-		ptr_r[channel * i] = pack<Type>(x * 3.2404542f + y * -1.5371385f + z * -0.4985314f);
-		ptr_g[channel * i] = pack<Type>(x * -0.9692660f + y * 1.8760108f + z * 0.0415560f);
-		ptr_b[channel * i] = pack<Type>(x * 0.0556434f + y * -0.2040259f + z * 1.0572252f);
+		color = Color::xyz_to_rgb(color);
+		
+		/* pack RGB color to data */
+		ptr_r[channel * i] = pack<Type>(color.x);
+		ptr_g[channel * i] = pack<Type>(color.y);
+		ptr_b[channel * i] = pack<Type>(color.z);
 	}
 }
 
@@ -351,18 +366,21 @@ void Image::convert_rgb_to_hsv() {
 	Type* ptr_b = ptr_g + 1;
 	
 	/* convert colorspace */
+	Vec3 color;
 	int i = width * height;
 	while (i --> 0) {
 		/* unpack RGB information from data */
-		float r = unpack<Type>(ptr_r[channel * i]);
-		float g = unpack<Type>(ptr_g[channel * i]);
-		float b = unpack<Type>(ptr_b[channel * i]);
+		color.x = unpack<Type>(ptr_r[channel * i]);
+		color.y = unpack<Type>(ptr_g[channel * i]);
+		color.z = unpack<Type>(ptr_b[channel * i]);
 		
 		/* convert to HSV color space */
-		Vec3 hcv = rgb_to_hcv(r, g, b);
-		ptr_r[channel * i] = pack<Type>(hcv.x);
-		ptr_g[channel * i] = pack<Type>(hcv.y / hcv.z);
-		ptr_b[channel * i] = pack<Type>(hcv.z);
+		color = Color::rgb_to_hsv(color);
+		
+		/* pack HSV color to data */
+		ptr_r[channel * i] = pack<Type>(color.x);
+		ptr_g[channel * i] = pack<Type>(color.y);
+		ptr_b[channel * i] = pack<Type>(color.z);
 	}
 }
 
@@ -374,18 +392,21 @@ void Image::convert_hsv_to_rgb() {
 	Type* ptr_b = ptr_g + 1;
 	
 	/* convert colorspace */
+	Vec3 color;
 	int i = width * height;
 	while (i --> 0) {
 		/* unpack HSV information from data */
-		float x = unpack<Type>(ptr_r[channel * i]);
-		float y = unpack<Type>(ptr_g[channel * i]);
-		float z = unpack<Type>(ptr_b[channel * i]);
+		color.x = unpack<Type>(ptr_r[channel * i]);
+		color.y = unpack<Type>(ptr_g[channel * i]);
+		color.z = unpack<Type>(ptr_b[channel * i]);
 		
 		/* convert to RGB color space */
-		Vec3 rgb = ((hue_to_rgb(x) - 1.f) * y + 1.f) * z;
-		ptr_r[channel * i] = pack<Type>(rgb.x);
-		ptr_g[channel * i] = pack<Type>(rgb.y);
-		ptr_b[channel * i] = pack<Type>(rgb.z);
+		color = Color::hsv_to_rgb(color);
+		
+		/* pack RGB color to data */
+		ptr_r[channel * i] = pack<Type>(color.x);
+		ptr_g[channel * i] = pack<Type>(color.y);
+		ptr_b[channel * i] = pack<Type>(color.z);
 	}
 }
 
@@ -397,20 +418,21 @@ void Image::convert_rgb_to_hsl() {
 	Type* ptr_b = ptr_g + 1;
 	
 	/* convert colorspace */
+	Vec3 color;
 	int i = width * height;
 	while (i --> 0) {
 		/* unpack RGB information from data */
-		float r = unpack<Type>(ptr_r[channel * i]);
-		float g = unpack<Type>(ptr_g[channel * i]);
-		float b = unpack<Type>(ptr_b[channel * i]);
+		color.x = unpack<Type>(ptr_r[channel * i]);
+		color.y = unpack<Type>(ptr_g[channel * i]);
+		color.z = unpack<Type>(ptr_b[channel * i]);
 		
 		/* convert to HSL color space */
-		Vec3 hcv = rgb_to_hcv(r, g, b);
-		float l = hcv.z - hcv.y * 0.5f;
-		float s = hcv.y / (1.f - fabsf(l * 2.f - 1.f));
-		ptr_r[channel * i] = pack<Type>(hcv.x);
-		ptr_g[channel * i] = pack<Type>(s);
-		ptr_b[channel * i] = pack<Type>(l);
+		color = Color::rgb_to_hsl(color);
+		
+		/* pack HSL color to data */
+		ptr_r[channel * i] = pack<Type>(color.x);
+		ptr_g[channel * i] = pack<Type>(color.y);
+		ptr_b[channel * i] = pack<Type>(color.z);
 	}
 }
 
@@ -422,19 +444,21 @@ void Image::convert_hsl_to_rgb() {
 	Type* ptr_b = ptr_g + 1;
 	
 	/* convert colorspace */
+	Vec3 color;
 	int i = width * height;
 	while (i --> 0) {
 		/* unpack HSL information from data */
-		float x = unpack<Type>(ptr_r[channel * i]);
-		float y = unpack<Type>(ptr_g[channel * i]);
-		float z = unpack<Type>(ptr_b[channel * i]);
+		color.x = unpack<Type>(ptr_r[channel * i]);
+		color.y = unpack<Type>(ptr_g[channel * i]);
+		color.z = unpack<Type>(ptr_b[channel * i]);
 		
 		/* convert to RGB color space */
-		float c = (1.f - fabsf(2.f * z - 1.f)) * y;
-		Vec3 rgb = (hue_to_rgb(x) - 0.5f) * c + z;
-		ptr_r[channel * i] = pack<Type>(rgb.x);
-		ptr_g[channel * i] = pack<Type>(rgb.y);
-		ptr_b[channel * i] = pack<Type>(rgb.z);
+		color = Color::hsl_to_rgb(color);
+		
+		/* pack RGB color to data */
+		ptr_r[channel * i] = pack<Type>(color.x);
+		ptr_g[channel * i] = pack<Type>(color.y);
+		ptr_b[channel * i] = pack<Type>(color.z);
 	}
 }
 
@@ -446,21 +470,21 @@ void Image::convert_rgb_to_hcy() {
 	Type* ptr_b = ptr_g + 1;
 	
 	/* convert colorspace */
+	Vec3 color;
 	int i = width * height;
 	while (i --> 0) {
 		/* unpack RGB information from data */
-		float r = unpack<Type>(ptr_r[channel * i]);
-		float g = unpack<Type>(ptr_g[channel * i]);
-		float b = unpack<Type>(ptr_b[channel * i]);
+		color.x = unpack<Type>(ptr_r[channel * i]);
+		color.y = unpack<Type>(ptr_g[channel * i]);
+		color.z = unpack<Type>(ptr_b[channel * i]);
 		
 		/* convert to HCY color space */
-		Vec3 hcv = rgb_to_hcv(r, g, b);
-		float y = W_HCY.dot({r, g, b});
-		float z = W_HCY.dot(hue_to_rgb(hcv.x));
-		hcv.y *= y < z ? z / y : (1.f - z) / (1.f - y);
-		ptr_r[channel * i] = pack<Type>(hcv.x);
-		ptr_g[channel * i] = pack<Type>(hcv.y);
-		ptr_b[channel * i] = pack<Type>(y);
+		color = Color::rgb_to_hcy(color);
+		
+		/* pack HCY color to data */
+		ptr_r[channel * i] = pack<Type>(color.x);
+		ptr_g[channel * i] = pack<Type>(color.y);
+		ptr_b[channel * i] = pack<Type>(color.z);
 	}
 }
 
@@ -472,53 +496,34 @@ void Image::convert_hcy_to_rgb() {
 	Type* ptr_b = ptr_g + 1;
 	
 	/* convert colorspace */
+	Vec3 color;
 	int i = width * height;
 	while (i --> 0) {
-		/* unpack HSL information from data */
-		float x = unpack<Type>(ptr_r[channel * i]);
-		float y = unpack<Type>(ptr_g[channel * i]);
-		float z = unpack<Type>(ptr_b[channel * i]);
+		/* unpack HCY information from data */
+		color.x = unpack<Type>(ptr_r[channel * i]);
+		color.y = unpack<Type>(ptr_g[channel * i]);
+		color.z = unpack<Type>(ptr_b[channel * i]);
 		
 		/* convert to RGB color space */
-		Vec3 rgb = hue_to_rgb(x);
-		float d = W_HCY.dot(rgb);
-		y *= z < d ? z / d : d < 1.f ? (1.f - z) / (1.f - d) : 1.f;
-		rgb = (rgb - d) * y + z;
-		ptr_r[channel * i] = pack<Type>(rgb.x);
-		ptr_g[channel * i] = pack<Type>(rgb.y);
-		ptr_b[channel * i] = pack<Type>(rgb.z);
+		color = Color::hcy_to_rgb(color);
+		
+		/* pack RGB color to data */
+		ptr_r[channel * i] = pack<Type>(color.x);
+		ptr_g[channel * i] = pack<Type>(color.y);
+		ptr_b[channel * i] = pack<Type>(color.z);
 	}
 }
 
 template <typename Type>
 float Image::unpack(Type v) {
-	if (typeid(Type) == typeid(float)) return v;
-	return v * ONE_BY_255;
+	if constexpr (std::is_same_v<Type, float>) return v;
+	return v / 255.f;
 }
 
 template <typename Type>
 Type Image::pack(float v) {
-	if (typeid(Type) == typeid(float)) return v;
-	return roundf(saturate(v) * 255.f);
-}
-
-float Image::saturate(float v) {
-	return v < 0 ? 0 : v > 1 ? 1 : v;
-}
-
-Vec3 Image::rgb_to_hcv(float r, float g, float b) {
-	Vec4 p = g < b ? Vec4(b, g, -1.f, 2.f / 3.f) : Vec4(g, b, 0.f, -1.f / 3.f);
-	Vec4 q = r < p.x ? Vec4(p.x, p.y, p.w, r) : Vec4(r, p.y, p.z, p.x);
-	float c = q.x - fminf(q.w, q.y);
-	float h = fabsf((q.w - q.y) / (6.f * c) + q.z);
-	return {h, c, q.x};
-}
-
-Vec3 Image::hue_to_rgb(float h) {
-	float r = fabsf(h * 6.f - 3.f) - 1.f;
-	float g = 2.f - fabsf(h * 6.f - 2.f);
-	float b = 2.f - fabsf(h * 6.f - 4.f);
-	return {saturate(r), saturate(g), saturate(b)};
+	if constexpr (std::is_same_v<Type, float>) return v;
+	return v < 0 ? 0 : v > 1 ? 255 : roundf(v * 255.f);
 }
 
 }

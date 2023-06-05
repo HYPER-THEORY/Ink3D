@@ -20,35 +20,41 @@
  * SOFTWARE.
  */
 
-#include "Error.h"
+#include "Format.h"
 
-namespace Ink {
+namespace Ink::Legacy {
 
-std::string Error::get() {
-	if (message.empty()) return message;
-	return message + '\n';
+std::string Format::str_format(const char* s, ...) {
+	va_list args;
+	va_start(args, s);
+	std::string formatted;
+	bool sign = false;
+	for (int i = 0; s[i] != '\0'; ++i) {
+		char c = s[i];
+		if (!sign) {
+			if (c != '%') formatted.append(1, c);
+			sign = c == '%';
+			continue;
+		}
+		if (c == '%') {
+			formatted.append(1, '%');
+		} else if (c == 'c') {
+			char arg = va_arg(args, int);
+			formatted.append(1, arg);
+		} else if (c == 's') {
+			const char* arg = va_arg(args, char*);
+			formatted.append(arg);
+		} else if (c == 'd') {
+			int arg = va_arg(args, int);
+			formatted.append(std::to_string(arg));
+		} else if (c == 'f') {
+			double arg = va_arg(args, double);
+			formatted.append(std::to_string(arg));
+		}
+		sign = false;
+	}
+	va_end(args);
+	return formatted;
 }
-
-void Error::set(const std::string& m) {
-	message = m;
-	if (callback) std::invoke(callback, message);
-}
-
-void Error::set(const std::string& l, const std::string& m) {
-	message = l + " Error: " + m;
-	if (callback) std::invoke(callback, message);
-}
-
-void Error::clear() {
-	message.clear();
-}
-
-void Error::set_callback(const ErrorCallback& f) {
-	callback = f;
-}
-
-std::string Error::message;
-
-Error::ErrorCallback Error::callback;
 
 }

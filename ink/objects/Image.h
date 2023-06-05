@@ -169,10 +169,6 @@ private:
 	static inline Type pack(float v);
 	
 	static inline float saturate(float v);
-	
-	static inline Vec3 rgb_to_hcv(float r, float g, float b);
-	
-	static inline Vec3 hue_to_rgb(float h);
 };
 
 }

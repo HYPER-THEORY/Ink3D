@@ -24,7 +24,7 @@
 
 #include "../core/Error.h"
 
-#include "../../libs/opengl/glad.h"
+#include "opengl/glad.h"
 
 #include <algorithm>
 

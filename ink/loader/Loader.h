@@ -28,6 +28,16 @@
 
 namespace Ink {
 
+struct LoadObject {
+	std::vector<Mesh> meshes;
+	std::vector<Material> materials;
+};
+
+struct ObjOptions {
+	bool vertex_color = false;
+	std::string group = "g";
+};
+
 class Loader {
 public:
 	/**
@@ -45,19 +55,20 @@ public:
 	static Image load_image_hdr(const std::string& p);
 	
 	/**
-	 * Loads the mesh data from the specified OBJ file into mesh vector.
-	 *
-	 * \param p the path to the file
-	 * \param g grouping keyword, default is "g"
-	 */
-	static std::vector<Mesh> load_obj(const std::string& p, const std::string& g = "g");
-	
-	/**
 	 * Loads the material data from the specified MTL file into material vector.
 	 *
 	 * \param p the path to the file
 	 */
-	static std::vector<Material> load_mtl(const std::string& p);
+	static LoadObject load_mtl(const std::string& p);
+	
+	/**
+	 * Loads the mesh data from the specified OBJ file into mesh vector. The
+	 * meshes are divided by the custom grouping keyword.
+	 *
+	 * \param p the path to the file
+	 * \param o options when loading OBJ file
+	 */
+	static LoadObject load_obj(const std::string& p, const ObjOptions& o = {});
 };
 
 }
