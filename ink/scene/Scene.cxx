@@ -22,7 +22,8 @@
 
 #include "Scene.h"
 
-#include "../core/Format.h"
+#define FMT_HEADER_ONLY
+#include "fmt/format.h"
 
 namespace Ink {
 
@@ -36,7 +37,7 @@ Material* Scene::get_material(const std::string& n) const {
 }
 
 Material* Scene::get_material(const std::string& n, const Mesh& s) const {
-	auto name = Format::format("M{}#{}", reinterpret_cast<size_t>(&s), n);
+	auto name = fmt::format("M{}#{}", reinterpret_cast<size_t>(&s), n);
 	if (material_library.count(name) == 0) {
 		return nullptr;
 	}
@@ -44,7 +45,7 @@ Material* Scene::get_material(const std::string& n, const Mesh& s) const {
 }
 
 Material* Scene::get_material(const std::string& n, const Instance& s) const {
-	auto name = Format::format("I{}#{}", reinterpret_cast<size_t>(&s), n);
+	auto name = fmt::format("I{}#{}", reinterpret_cast<size_t>(&s), n);
 	if (material_library.count(name) == 0) {
 		return nullptr;
 	}
@@ -56,12 +57,12 @@ void Scene::set_material(const std::string& n, Material* m) {
 }
 
 void Scene::set_material(const std::string& n, const Mesh& s, Material* m) {
-	auto name = Format::format("M{}#{}", reinterpret_cast<size_t>(&s), n);
+	auto name = fmt::format("M{}#{}", reinterpret_cast<size_t>(&s), n);
 	material_library.insert_or_assign(name, m);
 }
 
 void Scene::set_material(const std::string& n, const Instance& s, Material* m) {
-	auto name = Format::format("I{}#{}", reinterpret_cast<size_t>(&s), n);
+	auto name = fmt::format("I{}#{}", reinterpret_cast<size_t>(&s), n);
 	material_library.insert_or_assign(name, m);
 }
 
@@ -70,12 +71,12 @@ void Scene::remove_material(const std::string& n) {
 }
 
 void Scene::remove_material(const std::string& n, const Mesh& s) {
-	auto name = Format::format("M{}#{}", reinterpret_cast<size_t>(&s), n);
+	auto name = fmt::format("M{}#{}", reinterpret_cast<size_t>(&s), n);
 	material_library.erase(name);
 }
 
 void Scene::remove_material(const std::string& n, const Instance& s) {
-	auto name = Format::format("I{}#{}", reinterpret_cast<size_t>(&s), n);
+	auto name = fmt::format("I{}#{}", reinterpret_cast<size_t>(&s), n);
 	material_library.erase(name);
 }
 

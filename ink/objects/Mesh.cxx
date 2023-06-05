@@ -173,7 +173,6 @@ void Mesh::create_normals() {
 		Vec3 v1 = vertex[i + 1] - vertex[i];
 		Vec3 v2 = vertex[i + 2] - vertex[i];
 		Vec3 face_normal = v1.cross(v2);
-		if (face_normal.magnitude() < 1E-4) continue;
 		for (int j = i; j < i + 3; ++j) {
 			std::string hash = (vertex[j] + Vec3(0.005)).to_string(2);
 			if (normals.count(hash) == 0) normals.insert({hash, {}});

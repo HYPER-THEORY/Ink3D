@@ -28,10 +28,6 @@ void ConvexHull::add_vertex(const Vec3& v) {
 	vertices.emplace_back(v);
 }
 
-void ConvexHull::add_vertices(const std::initializer_list<Vec3>& v) {
-	vertices.insert(vertices.end(), v);
-}
-
 size_t ConvexHull::get_vertex_count() const {
 	return vertices.size();
 }
@@ -83,7 +79,7 @@ void ConvexHull::compute() {
 }
 
 void ConvexHull::insert_face(int a, int b, int c) {
-	faces.emplace_back(std::array<int, 3>({a, b, c}));
+	faces.emplace_back(std::array<int, 3>{a, b, c});
 	normals.emplace_back((vertices[b] - vertices[a]).cross(vertices[c] - vertices[a]));
 }
 

@@ -23,9 +23,11 @@
 #include "Renderer.h"
 
 #include "../core/Error.h"
-#include "../core/Format.h"
 #include "../meshes/BoxMesh.h"
 #include "../shaders/ShaderLib.h"
+
+#define FMT_HEADER_ONLY
+#include "fmt/format.h"
 
 namespace Ink {
 
@@ -201,10 +203,6 @@ void Renderer::load_scene(const Scene& s) {
 	
 	/* load the images linked with instance */
 	for (auto& material : s.get_materials()) {
-		for (int i = 0; i < 16; ++i) {
-			auto* image = material->custom_maps[i];
-			if (image != nullptr) load_image(*image);
-		}
 		if (material->normal_map != nullptr) {
 			load_image(*material->normal_map);
 		}
@@ -232,6 +230,10 @@ void Renderer::load_scene(const Scene& s) {
 		if (material->specular_map != nullptr) {
 			load_image(*material->specular_map);
 		}
+		for (int i = 0; i < 16; ++i) {
+			auto* image = material->custom_maps[i];
+			if (image != nullptr) load_image(*image);
+		}
 	}
 }
 
@@ -244,10 +246,6 @@ void Renderer::unload_scene(const Scene& s) {
 	
 	/* unload the images linked with instance */
 	for (auto& material : s.get_materials()) {
-		for (int i = 0; i < 16; ++i) {
-			auto* image = material->custom_maps[i];
-			if (image != nullptr) unload_image(*image);
-		}
 		if (material->normal_map != nullptr) {
 			unload_image(*material->normal_map);
 		}
@@ -274,6 +272,10 @@ void Renderer::unload_scene(const Scene& s) {
 		}
 		if (material->specular_map != nullptr) {
 			unload_image(*material->specular_map);
+		}
+		for (int i = 0; i < 16; ++i) {
+			auto* image = material->custom_maps[i];
+			if (image != nullptr) unload_image(*image);
 		}
 	}
 }
@@ -432,25 +434,25 @@ void Renderer::update_scene(Scene& s) {
 
 void Renderer::set_material_defines(const Material& m, Defines& d) {
 	/* check whether to use vertex color */
-	d.set_if("USE_VERTEX_COLOR", m.vertex_color);
+	d.set_if("USE_VERTEX_COLOR", m.use_vertex_color);
 	
 	/* check whether to use normal map */
 	d.set_if("USE_NORMAL_MAP", m.normal_map != nullptr);
 	
 	/* check whether to use normal map in tangent space */
-	d.set_if("IN_TANGENT_SPACE", m.normal_map != nullptr && m.tangent_space);
+	d.set_if("USE_TANGENT_SPACE", m.normal_map != nullptr && m.use_tangent_space);
 	
 	/* check whether to use normal map in object space */
-	d.set_if("IN_OBJECT_SPACE", m.normal_map != nullptr && !m.tangent_space);
+	d.set_if("USE_OBJECT_SPACE", m.normal_map != nullptr && !m.use_tangent_space);
 	
 	/* check whether to use displacement map */
 	d.set_if("USE_DISPLACEMENT_MAP", m.displacement_map != nullptr);
 	
 	/* check whether to use color map */
-	d.set_if("USE_COLOR_MAP", m.color_map != nullptr && !m.map_with_alpha);
+	d.set_if("USE_COLOR_MAP", m.color_map != nullptr && !m.use_map_with_alpha);
 	
 	/* check whether to use color map with alpha channel */
-	d.set_if("USE_COLOR_ALPHA_MAP", m.color_map != nullptr && m.map_with_alpha);
+	d.set_if("USE_COLOR_ALPHA_MAP", m.color_map != nullptr && m.use_map_with_alpha);
 	
 	/* check whether to use alpha map */
 	d.set_if("USE_ALPHA_MAP", m.alpha_map != nullptr);
@@ -533,7 +535,7 @@ void Renderer::set_light_uniforms(const Scene& s, const Gpu::Shader& shader) {
 		
 		/* pass the light information to shader */
 		auto& light = *s.get_point_light(i);
-		auto lights_i = Format::format("point_lights[{}]", i);
+		auto lights_i = fmt::format("point_lights[{}]", i);
 		Vec3 light_color = light.color * light.intensity * PI;
 		shader.set_uniform_i(lights_i + ".visible", light.visible);
 		shader.set_uniform_v3(lights_i + ".position", light.position);
@@ -548,7 +550,7 @@ void Renderer::set_light_uniforms(const Scene& s, const Gpu::Shader& shader) {
 		
 		/* pass the light information to shader */
 		auto& light = *s.get_spot_light(i);
-		std::string lights_i = Format::format("spot_lights[{}]", i);
+		std::string lights_i = fmt::format("spot_lights[{}]", i);
 		Vec3 light_direction = -light.direction.normalize();
 		Vec3 light_color = light.color * light.intensity * PI;
 		float light_angle = cosf(light.angle);
@@ -569,7 +571,7 @@ void Renderer::set_light_uniforms(const Scene& s, const Gpu::Shader& shader) {
 		
 		/* pass the shadow information to shader */
 		auto& shadow = light.shadow;
-		std::string shadows_i = Format::format("spot_lights[{}].shadow", i);
+		std::string shadows_i = fmt::format("spot_lights[{}].shadow", i);
 		Mat4 view_proj = shadow.camera.projection * shadow.camera.viewing;
 		shader.set_uniform_i(shadows_i + ".type", shadow.type);
 		shader.set_uniform_i(shadows_i + ".map_id", shadow.map_id);
@@ -585,7 +587,7 @@ void Renderer::set_light_uniforms(const Scene& s, const Gpu::Shader& shader) {
 		
 		/* pass the light information to shader */
 		auto& light = *s.get_directional_light(i);
-		std::string lights_i = Format::format("directional_lights[{}]", i);
+		std::string lights_i = fmt::format("directional_lights[{}]", i);
 		Vec3 light_direction = -light.direction.normalize();
 		Vec3 light_color = light.color * light.intensity * PI;
 		shader.set_uniform_i(lights_i + ".visible", light.visible);
@@ -599,7 +601,7 @@ void Renderer::set_light_uniforms(const Scene& s, const Gpu::Shader& shader) {
 		
 		/* pass the shadow information to shader */
 		auto& shadow = light.shadow;
-		std::string shadows_i = Format::format("directional_lights[{}].shadow", i);
+		std::string shadows_i = fmt::format("directional_lights[{}].shadow", i);
 		Mat4 view_proj = shadow.camera.projection * shadow.camera.viewing;
 		shader.set_uniform_i(shadows_i + ".type", shadow.type);
 		shader.set_uniform_i(shadows_i + ".map_id", shadow.map_id);
@@ -615,7 +617,7 @@ void Renderer::set_light_uniforms(const Scene& s, const Gpu::Shader& shader) {
 		
 		/* pass the light information to shader */
 		auto& light = *s.get_hemisphere_light(i);
-		std::string lights_i = Format::format("hemisphere_lights[{}]", i);
+		std::string lights_i = fmt::format("hemisphere_lights[{}]", i);
 		Vec3 light_sky_color = light.color * light.intensity * PI;
 		Vec3 light_ground_color = light.ground_color * light.intensity * PI;
 		shader.set_uniform_i(lights_i + ".visible", light.visible);
@@ -959,7 +961,7 @@ void Renderer::render_to_shadow(const Scene& s, const Camera& c) const {
 			}
 			
 			/* whether to use color map and alpha map */
-			bool use_color_map = material->color_map != nullptr && material->map_with_alpha;
+			bool use_color_map = material->color_map != nullptr && material->use_map_with_alpha;
 			bool use_alpha_map = material->alpha_map != nullptr;
 			
 			/* fetch the shadow shader from shader lib */

@@ -25,7 +25,7 @@
 #include "../core/Error.h"
 #include "../core/File.h"
 
-#include "../../libs/opengl/glad.h"
+#include "opengl/glad.h"
 
 #include <array>
 #include <iostream>
@@ -94,11 +94,26 @@ constexpr uint32_t GL_IMAGE_TYPES[] = {
 	GL_UNSIGNED_INT_24_8,                                     /**< IMAGE_UINT_24_8 */
 };
 
+constexpr uint32_t GL_IMAGE_COLORS[] = {
+	GL_RED,                                                   /**< channel is 1 */
+	GL_RG,                                                    /**< channel is 2 */
+	GL_RGB,                                                   /**< channel is 3 */
+	GL_RGBA,                                                  /**< channel is 4 */
+};
+
+constexpr uint32_t GL_IMAGE_COLOR_INTEGERS[] = {
+	GL_RED_INTEGER,                                           /**< channel is 1 */
+	GL_RG_INTEGER,                                            /**< channel is 2 */
+	GL_RGB_INTEGER,                                           /**< channel is 3 */
+	GL_RGBA_INTEGER,                                          /**< channel is 4 */
+};
+
 constexpr uint32_t GL_IMAGE_FORMATS[] = {
-	GL_RED,                                                   /**< Image::channel is 1 */
-	GL_RG,                                                    /**< Image::channel is 2 */
-	GL_RGB,                                                   /**< Image::channel is 3 */
-	GL_RGBA,                                                  /**< Image::channel is 4 */
+	GL_RGBA,                                                  /**< IMAGE_COLOR */
+	GL_RGBA_INTEGER,                                          /**< IMAGE_COLOR_INTEGER */
+	GL_DEPTH_COMPONENT,                                       /**< IMAGE_DEPTH */
+	GL_STENCIL_INDEX,                                         /**< IMAGE_STENCIL */
+	GL_DEPTH_STENCIL,                                         /**< IMAGE_DEPTH_STENCIL */
 };
 
 constexpr uint32_t GL_TEXTURE_TYPES[] = {
@@ -197,45 +212,38 @@ constexpr int32_t GL_TEXTURE_FILTERS[] = {
 };
 
 constexpr uint32_t GL_COLOR_ATTACHMENTS[] = {
-	GL_COLOR_ATTACHMENT0,                                     /**< render number is 1 */
-	GL_COLOR_ATTACHMENT1,                                     /**< render number is 2 */
-	GL_COLOR_ATTACHMENT2,                                     /**< render number is 3 */
-	GL_COLOR_ATTACHMENT3,                                     /**< render number is 4 */
-	GL_COLOR_ATTACHMENT4,                                     /**< render number is 5 */
-	GL_COLOR_ATTACHMENT5,                                     /**< render number is 6 */
-	GL_COLOR_ATTACHMENT6,                                     /**< render number is 7 */
-	GL_COLOR_ATTACHMENT7,                                     /**< render number is 8 */
-	GL_COLOR_ATTACHMENT8,                                     /**< render number is 9 */
-	GL_COLOR_ATTACHMENT9,                                     /**< render number is 10 */
-	GL_COLOR_ATTACHMENT10,                                    /**< render number is 11 */
-	GL_COLOR_ATTACHMENT11,                                    /**< render number is 12 */
-	GL_COLOR_ATTACHMENT12,                                    /**< render number is 13 */
-	GL_COLOR_ATTACHMENT13,                                    /**< render number is 14 */
-	GL_COLOR_ATTACHMENT14,                                    /**< render number is 15 */
-	GL_COLOR_ATTACHMENT15,                                    /**< render number is 16 */
-	GL_COLOR_ATTACHMENT16,                                    /**< render number is 17 */
-	GL_COLOR_ATTACHMENT17,                                    /**< render number is 18 */
-	GL_COLOR_ATTACHMENT18,                                    /**< render number is 19 */
-	GL_COLOR_ATTACHMENT19,                                    /**< render number is 20 */
-	GL_COLOR_ATTACHMENT20,                                    /**< render number is 21 */
-	GL_COLOR_ATTACHMENT21,                                    /**< render number is 22 */
-	GL_COLOR_ATTACHMENT22,                                    /**< render number is 23 */
-	GL_COLOR_ATTACHMENT23,                                    /**< render number is 24 */
-	GL_COLOR_ATTACHMENT24,                                    /**< render number is 25 */
-	GL_COLOR_ATTACHMENT25,                                    /**< render number is 26 */
-	GL_COLOR_ATTACHMENT26,                                    /**< render number is 27 */
-	GL_COLOR_ATTACHMENT27,                                    /**< render number is 28 */
-	GL_COLOR_ATTACHMENT28,                                    /**< render number is 29 */
-	GL_COLOR_ATTACHMENT29,                                    /**< render number is 30 */
-	GL_COLOR_ATTACHMENT30,                                    /**< render number is 31 */
-	GL_COLOR_ATTACHMENT31,                                    /**< render number is 32 */
-};
-
-constexpr TextureFormat TEXTURE_DEFAULT_FORMATS[][2] = {
-	{TEXTURE_R8_UNORM      , TEXTURE_R16_SFLOAT         },
-	{TEXTURE_R8G8_UNORM    , TEXTURE_R16G16_SFLOAT      },
-	{TEXTURE_R8G8B8_UNORM  , TEXTURE_R16G16B16_SFLOAT   },
-	{TEXTURE_R8G8B8A8_UNORM, TEXTURE_R16G16B16A16_SFLOAT},
+	GL_COLOR_ATTACHMENT0,                                     /**< target number is 1 */
+	GL_COLOR_ATTACHMENT1,                                     /**< target number is 2 */
+	GL_COLOR_ATTACHMENT2,                                     /**< target number is 3 */
+	GL_COLOR_ATTACHMENT3,                                     /**< target number is 4 */
+	GL_COLOR_ATTACHMENT4,                                     /**< target number is 5 */
+	GL_COLOR_ATTACHMENT5,                                     /**< target number is 6 */
+	GL_COLOR_ATTACHMENT6,                                     /**< target number is 7 */
+	GL_COLOR_ATTACHMENT7,                                     /**< target number is 8 */
+	GL_COLOR_ATTACHMENT8,                                     /**< target number is 9 */
+	GL_COLOR_ATTACHMENT9,                                     /**< target number is 10 */
+	GL_COLOR_ATTACHMENT10,                                    /**< target number is 11 */
+	GL_COLOR_ATTACHMENT11,                                    /**< target number is 12 */
+	GL_COLOR_ATTACHMENT12,                                    /**< target number is 13 */
+	GL_COLOR_ATTACHMENT13,                                    /**< target number is 14 */
+	GL_COLOR_ATTACHMENT14,                                    /**< target number is 15 */
+	GL_COLOR_ATTACHMENT15,                                    /**< target number is 16 */
+	GL_COLOR_ATTACHMENT16,                                    /**< target number is 17 */
+	GL_COLOR_ATTACHMENT17,                                    /**< target number is 18 */
+	GL_COLOR_ATTACHMENT18,                                    /**< target number is 19 */
+	GL_COLOR_ATTACHMENT19,                                    /**< target number is 20 */
+	GL_COLOR_ATTACHMENT20,                                    /**< target number is 21 */
+	GL_COLOR_ATTACHMENT21,                                    /**< target number is 22 */
+	GL_COLOR_ATTACHMENT22,                                    /**< target number is 23 */
+	GL_COLOR_ATTACHMENT23,                                    /**< target number is 24 */
+	GL_COLOR_ATTACHMENT24,                                    /**< target number is 25 */
+	GL_COLOR_ATTACHMENT25,                                    /**< target number is 26 */
+	GL_COLOR_ATTACHMENT26,                                    /**< target number is 27 */
+	GL_COLOR_ATTACHMENT27,                                    /**< target number is 28 */
+	GL_COLOR_ATTACHMENT28,                                    /**< target number is 29 */
+	GL_COLOR_ATTACHMENT29,                                    /**< target number is 30 */
+	GL_COLOR_ATTACHMENT30,                                    /**< target number is 31 */
+	GL_COLOR_ATTACHMENT31,                                    /**< target number is 32 */
 };
 
 ComparisonFunc get_comparison_function(uint32_t v) {
@@ -801,7 +809,7 @@ void Shader::set_uniforms(const Uniforms& u) const {
 	auto* data_f = u.get_data();
 	auto* data_i = reinterpret_cast<const int*>(data_f);
 	auto* data_u = reinterpret_cast<const unsigned int*>(data_f);
-	size_t uniform_count = u.count();
+	size_t uniform_count = u.get_count();
 	for (int i = 0; i < uniform_count; ++i) {
 		std::string name = u.get_name(i);
 		int32_t gl_location = glGetUniformLocation(program, name.c_str());
@@ -999,7 +1007,7 @@ void VertexObject::load(const Mesh& m, const MeshGroup& g) {
 	
 	/* calculate length and stride */
 	length = g.length;
-	int group_end = g.position + length;
+	int group_end = g.position + g.length;
 	int stride = 3;
 	if (has_normal) stride += 3;
 	if (has_uv) stride += 2;
@@ -1122,10 +1130,12 @@ void Texture::init_2d(int w, int h, TextureFormat f, ImageType t) {
 	set_parameters(TEXTURE_2D, f);
 }
 
-void Texture::init_2d(const Image& i, TextureFormat f) {
+void Texture::init_2d(const Image& i, TextureFormat f, ImageFormat t) {
 	int32_t internal = GL_TEXTURE_FORMATS[f].first;
-	uint32_t external = GL_IMAGE_FORMATS[i.channel - 1];
+	uint32_t external = GL_IMAGE_FORMATS[t];
 	uint32_t data = GL_IMAGE_TYPES[i.bytes == 1 ? IMAGE_UBYTE : IMAGE_FLOAT];
+	if (external == GL_RGBA) external = GL_IMAGE_COLORS[i.channel - 1];
+	if (external == GL_RGBA_INTEGER) external = GL_IMAGE_COLOR_INTEGERS[i.channel - 1];
 	glBindTexture(GL_TEXTURE_2D, id);
 	glTexImage2D(GL_TEXTURE_2D, 0, internal, i.width, i.height, 0, external, data, i.data.data());
 	set_dimensions(i.width, i.height, 0);
@@ -1155,11 +1165,13 @@ void Texture::init_cube(int w, int h, TextureFormat f, ImageType t) {
 	set_parameters(TEXTURE_CUBE, f);
 }
 
-void Texture::init_cube(const Image& px, const Image& nx, const Image& py,
-						const Image& ny, const Image& pz, const Image& nz, TextureFormat f) {
+void Texture::init_cube(const Image& px, const Image& nx, const Image& py, const Image& ny,
+						const Image& pz, const Image& nz, TextureFormat f, ImageFormat t) {
 	int32_t internal = GL_TEXTURE_FORMATS[f].first;
-	uint32_t external = GL_IMAGE_FORMATS[px.channel - 1];
+	uint32_t external = GL_IMAGE_FORMATS[t];
 	uint32_t data = GL_IMAGE_TYPES[px.bytes == 1 ? IMAGE_UBYTE : IMAGE_FLOAT];
+	if (external == GL_RGBA) external = GL_IMAGE_COLORS[px.channel - 1];
+	if (external == GL_RGBA_INTEGER) external = GL_IMAGE_COLOR_INTEGERS[px.channel - 1];
 	glBindTexture(GL_TEXTURE_CUBE_MAP, id);
 	uint32_t target = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
 	glTexImage2D(target, 0, internal, px.width, px.height, 0, external, data, px.data.data());
@@ -1332,12 +1344,19 @@ void Texture::set_parameters(TextureType t, TextureFormat f) {
 	format = f;
 }
 
-TextureFormat Texture::default_format(const Image& i) {
-	return TEXTURE_DEFAULT_FORMATS[i.channel - 1][i.bytes == 4];
+TextureFormat Texture::default_format(int c, int b) {
+	if (c == 1 && b == 1) return TEXTURE_R8_UNORM;
+	if (c == 1 && b == 4) return TEXTURE_R16_SFLOAT;
+	if (c == 2 && b == 1) return TEXTURE_R8G8_UNORM;
+	if (c == 2 && b == 4) return TEXTURE_R16G16_SFLOAT;
+	if (c == 3 && b == 1) return TEXTURE_R8G8B8_UNORM;
+	if (c == 3 && b == 4) return TEXTURE_R16G16B16A16_SFLOAT;
+	if (c == 4 && b == 1) return TEXTURE_R8G8B8A8_UNORM;
+	/* c == 4 && b == 4 */ return TEXTURE_R16G16B16A16_SFLOAT;
 }
 
-TextureFormat Texture::default_format(int c, int b) {
-	return TEXTURE_DEFAULT_FORMATS[c - 1][b == 4];
+TextureFormat Texture::default_format(const Image& i) {
+	return default_format(i.channel, i.bytes);
 }
 
 RenderBuffer::RenderBuffer() {

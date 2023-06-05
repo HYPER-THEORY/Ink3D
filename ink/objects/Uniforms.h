@@ -40,7 +40,7 @@ public:
 	/**
 	 * Returns the number of uniform variables.
 	 */
-	size_t count() const;
+	size_t get_count() const;
 	
 	/**
 	 * Returns the name of unifrom variable at the specified index.
@@ -153,6 +153,11 @@ public:
 	 * \param v value
 	 */
 	void set_m4(const std::string& n, const Mat4& v);
+	
+	/**
+	 * Clears all the data from the uniforms object.
+	 */
+	void clear();
 	
 private:
 	std::vector<float> data;

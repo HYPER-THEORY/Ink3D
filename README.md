@@ -57,43 +57,43 @@ Viewer viewer;
 Renderer renderer;
 
 void conf(Settings& t) {
-	t.title = "Ink3D Example";
-	t.show_cursor = false;
-	t.lock_cursor = true;
-	t.background_color = Vec3(1.0, 0.93, 0.8);
+    t.title = "Ink3D Example";
+    t.show_cursor = false;
+    t.lock_cursor = true;
+    t.background_color = Vec3(1.0, 0.93, 0.8);
 }
 
 void load() {
-	Instance* instance = new Instance();
-	instance->mesh = new Mesh(BoxMesh::create());
-	scene.add(instance);
-	
-	Image* image = new Image(12, 12, 3);
-	std::copy_n(BLOCK, 12 * 12 * 3, &image->data[0]);
-	
-	Material* material = new Material();
-	material->color_map = image;
-	scene.set_material("default", material);
-	
-	HemisphereLight* light = new HemisphereLight(Vec3(1), Vec3(0.5));
-	light->direction = Vec3(0, 0, -1);
-	scene.add_light(light);
-	
-	renderer.set_rendering_mode(FORWARD_RENDERING);
-	renderer.set_texture_callback([](Gpu::Texture& t) -> void {
-		t.set_filters(TEXTURE_NEAREST, TEXTURE_NEAREST);
-	});
-	renderer.load_scene(scene);
-	renderer.set_viewport(Gpu::Rect(960, 540));
-	
-	viewer = Viewer(new PerspCamera(75 * DEG_TO_RAD, 1.77, 0.05, 500));
-	viewer.set_position(Vec3(0, 0, -2));
+    Instance* instance = new Instance();
+    instance->mesh = new Mesh(BoxMesh::create());
+    scene.add(instance);
+    
+    Image* image = new Image(12, 12, 3);
+    std::copy_n(BLOCK, 12 * 12 * 3, &image->data[0]);
+    
+    Material* material = new Material();
+    material->color_map = image;
+    scene.set_material("default", material);
+    
+    HemisphereLight* light = new HemisphereLight(Vec3(1), Vec3(0.5));
+    light->direction = Vec3(0, 0, -1);
+    scene.add_light(light);
+    
+    renderer.set_rendering_mode(FORWARD_RENDERING);
+    renderer.set_texture_callback([](Gpu::Texture& t) -> void {
+        t.set_filters(TEXTURE_NEAREST, TEXTURE_NEAREST);
+    });
+    renderer.load_scene(scene);
+    renderer.set_viewport(Gpu::Rect(960, 540));
+    
+    viewer = Viewer(new PerspCamera(75 * DEG_TO_RAD, 1.77, 0.05, 500));
+    viewer.set_position(Vec3(0, 0, -2));
 }
 
 void update(float dt) {
-	Renderer::update_scene(scene);
-	viewer.update(dt);
-	renderer.render(scene, *viewer.get_camera());
+    Renderer::update_scene(scene);
+    viewer.update(dt);
+    renderer.render(scene, *viewer.get_camera());
 }
 
 void quit() {}
@@ -103,7 +103,9 @@ void quit() {}
 
 - [SDL2](https://libsdl.org) Simple Directmedia Layer
 
-- [Stb_image](https://github.com/nothings/stb) Image loading/decoding from file/memory
+- [stb_image](https://github.com/nothings/stb) Image loading/decoding from file/memory
+
+- [fmt](https://github.com/fmtlib/fmt) A modern formatting library
 
 ### Requirements ###
 

@@ -24,7 +24,7 @@
 
 namespace Ink {
 
-size_t Uniforms::count() const {
+size_t Uniforms::get_count() const {
 	return unifroms.size();
 }
 
@@ -109,6 +109,11 @@ void Uniforms::set_m4(const std::string& n, const Mat4& v) {
 	unifroms.emplace_back(std::make_tuple(n, 8, size));
 	data.resize(size + 16);
 	std::copy_n(&v[0][0], 16, data.data() + size);
+}
+
+void Uniforms::clear() {
+	unifroms.clear();
+	data.clear();
 }
 
 }

@@ -56,4 +56,8 @@ void Defines::set_if(const std::string& n, bool f) {
 	if (f) defines += "#define " + n + "\n";
 }
 
+void Defines::clear() {
+	defines.clear();
+}
+
 }

@@ -45,13 +45,6 @@ public:
 	void add_vertex(const Vec3& v);
 	
 	/**
-	 * Adds the specified vertex list to convex hull.
-	 *
-	 * \param v vertex list
-	 */
-	void add_vertices(const std::initializer_list<Vec3>& v);
-	
-	/**
 	 * Returns the number of vertices in convex hull.
 	 */
 	size_t get_vertex_count() const;

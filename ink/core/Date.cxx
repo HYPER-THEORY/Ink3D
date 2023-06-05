@@ -22,6 +22,9 @@
 
 #include "Date.h"
 
+#define FMT_HEADER_ONLY
+#include "fmt/format.h"
+
 #include <chrono>
 
 namespace Ink {
@@ -30,17 +33,8 @@ Date::Date(int year, int month, int day, int h, int m, int s, int ms) :
 year(year), month(month), day(day), hours(h), minutes(m), seconds(s), milliseconds(ms) {}
 
 std::string Date::format() const {
-	int date[6] = {
-		year, month + 1, day, hours, minutes, seconds
-	};
-	const char* delimiter = " -- ::";
-	std::string formatted = std::to_string(date[0]);
-	for (int i = 1; i < 6; ++i) {
-		formatted.append(1, delimiter[i]);
-		if (date[i] < 10) formatted.append(1, '0');
-		formatted.append(std::to_string(date[i]));
-	}
-	return formatted;
+	return fmt::format("{}-{:0>2}-{:0>2} {:0>2}:{:0>2}:{:0>2}",
+					   year, month + 1, day, hours, minutes, seconds);
 }
 
 long long Date::get_time() {
@@ -48,20 +42,22 @@ long long Date::get_time() {
 	return std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
 }
 
-Date Date::get_local() {
-	long long time_ms = get_time();
-	time_t time_s = time_ms / 1000;
+Date Date::get_local(long long t) {
+	if (t == -1) t = get_time();
+	int tm_ms = t % 1000;
+	time_t time_s = t / 1000;
 	std::tm local = *std::localtime(&time_s);
 	return Date(local.tm_year + 1900, local.tm_mon, local.tm_mday,
-				local.tm_hour, local.tm_min, local.tm_sec, time_ms % 1000);
+				local.tm_hour, local.tm_min, local.tm_sec, tm_ms);
 }
 
-Date Date::get_utc() {
-	long long time_ms = get_time();
-	time_t time_s = time_ms / 1000;
+Date Date::get_utc(long long t) {
+	if (t == -1) t = get_time();
+	int tm_ms = t % 1000;
+	time_t time_s = t / 1000;
 	std::tm local = *std::gmtime(&time_s);
 	return Date(local.tm_year + 1900, local.tm_mon, local.tm_mday,
-				local.tm_hour, local.tm_min, local.tm_sec, time_ms % 1000);
+				local.tm_hour, local.tm_min, local.tm_sec, tm_ms);
 }
 
 }

@@ -25,7 +25,7 @@
 #include "../core/Error.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "../../libs/stb/stb_image.h"
+#include "stb/stb_image.h"
 
 #include <fstream>
 #include <sstream>
@@ -72,26 +72,95 @@ Image Loader::load_image_hdr(const std::string& p) {
 	return image;
 }
 
-std::vector<Mesh> Loader::load_obj(const std::string& p, const std::string& g) {
+LoadObject Loader::load_mtl(const std::string& p) {
+	/* prepare the file stream */
+	std::ifstream stream;
+	stream.open(p, std::ifstream::in);
+	if (stream.fail()) {
+		Error::set("Loader", "Failed to read from mtl file");
+		return LoadObject();
+	}
+	size_t streamsize_max = std::numeric_limits<std::streamsize>::max();
+	
+	/* initialize load object */
+	LoadObject object;
+	Material* current_material = nullptr;
+	
+	/* read data by line */
+	while (!stream.eof()) {
+		std::string keyword;
+		stream >> keyword;
+		
+		/* create a new material */
+		if (keyword == "newmtl") {
+			std::string name;
+			stream >> name;
+			current_material = &object.materials.emplace_back(Material(name));
+		}
+		
+		/* material is not declared */
+		else if (current_material == nullptr) {}
+		
+		/* Kd: diffuse color */
+		else if (keyword == "Kd") {
+			Vec3 kd;
+			stream >> kd.x >> kd.y >> kd.z;
+			current_material->color = kd;
+		}
+		
+		/* Ke: emissive color */
+		else if (keyword == "Ke") {
+			Vec3 ke;
+			stream >> ke.x >> ke.y >> ke.z;
+			current_material->emissive = ke;
+		}
+		
+		/* d: dissolve factor */
+		else if (keyword == "d") {
+			float d;
+			stream >> d;
+			current_material->alpha = d;
+		}
+		
+		/* tr: transparency factor */
+		else if (keyword == "tr") {
+			float tr;
+			stream >> tr;
+			current_material->alpha = 1 - tr;
+		}
+		
+		/* ignore unknown keyword */
+		else {
+			stream.ignore(streamsize_max, '\n');
+		}
+	}
+	
+	/* close file stream */
+	stream.close();
+	
+	/* return the load object */
+	return object;
+}
+
+LoadObject Loader::load_obj(const std::string& p, const ObjOptions& o) {
 	/* prepare the file stream */
 	std::ifstream stream;
 	stream.open(p, std::ifstream::in);
 	if (stream.fail()) {
 		Error::set("Loader", "Failed to read from obj file");
-		return std::vector<Mesh>();
+		return LoadObject();
 	}
-	size_t stream_max = std::numeric_limits<std::streamsize>::max();
+	size_t streamsize_max = std::numeric_limits<std::streamsize>::max();
 	
 	/* temporary data */
 	std::vector<Vec3> vertex;
-	std::vector<Vec3> color;
 	std::vector<Vec3> normal;
 	std::vector<Vec2> uv;
+	std::vector<Vec3> color;
 	
-	/* initialize mesh vector */
-	std::vector<Mesh> meshes;
-	meshes.emplace_back(Mesh("default"));
-	Mesh* current_mesh = &meshes.back();
+	/* initialize load object */
+	LoadObject object;
+	Mesh* current_mesh = &object.meshes.emplace_back(Mesh("default"));
 	
 	/* initialize mesh group pointer */
 	current_mesh->groups.emplace_back<MeshGroup>({"default", 0, 0});
@@ -110,6 +179,10 @@ std::vector<Mesh> Loader::load_obj(const std::string& p, const std::string& g) {
 			Vec3 v;
 			stream >> v.x >> v.y >> v.z;
 			vertex.emplace_back(v);
+			if (o.vertex_color) {
+				stream >> v.x >> v.y >> v.z;
+				color.emplace_back(v);
+			}
 		}
 		
 		/* add normal to temporary array */
@@ -132,14 +205,20 @@ std::vector<Mesh> Loader::load_obj(const std::string& p, const std::string& g) {
 			for (int i = 0; i < 3; ++i) {
 				stream >> index;
 				current_mesh->vertex.emplace_back(vertex[index - 1]);
-				stream.get();
+				if (o.vertex_color) {
+					current_mesh->color.emplace_back(color[index - 1]);
+				}
 				
 				/* check whether uv is omitted */
+				if (stream.peek() != '/') continue;
+				stream.get();
 				if (std::isdigit(stream.peek())) {
 					stream >> index;
 					current_mesh->uv.emplace_back(uv[index - 1]);
 				}
 				
+				/* check whether normal is omitted */
+				if (stream.peek() != '/') continue;
 				stream.get();
 				stream >> index;
 				current_mesh->normal.emplace_back(normal[index - 1]);
@@ -151,7 +230,7 @@ std::vector<Mesh> Loader::load_obj(const std::string& p, const std::string& g) {
 		}
 		
 		/* create new mesh object and initialize everything */
-		else if (keyword == g) {
+		else if (keyword == o.group) {
 			std::string name;
 			stream >> name;
 			
@@ -165,15 +244,13 @@ std::vector<Mesh> Loader::load_obj(const std::string& p, const std::string& g) {
 			total_length = 0;
 			
 			/* create new mesh object */
-			meshes.emplace_back(Mesh(name));
-			current_mesh = &meshes.back();
+			current_mesh = &object.meshes.emplace_back(Mesh(name));
 			
 			/* create new mesh group */
-			current_mesh->groups.emplace_back<MeshGroup>({name, total_length, 0});
-			current_group = &current_mesh->groups.back();
+			current_group = &current_mesh->groups.emplace_back(MeshGroup{name, total_length, 0});
 		}
 		
-		/* use material */
+		/* create new mesh group */
 		else if (keyword == "usemtl") {
 			std::string name;
 			stream >> name;
@@ -185,112 +262,20 @@ std::vector<Mesh> Loader::load_obj(const std::string& p, const std::string& g) {
 			}
 			
 			/* create new mesh group */
-			current_mesh->groups.emplace_back<MeshGroup>({name, total_length, 0});
-			current_group = &current_mesh->groups.back();
+			current_group = &current_mesh->groups.emplace_back(MeshGroup{name, total_length, 0});
 		}
 		
-		/* ignore */
+		/* ignore unknown keyword */
 		else {
-			stream.ignore(stream_max, '\n');
+			stream.ignore(streamsize_max, '\n');
 		}
 	}
 	
 	/* close file stream */
 	stream.close();
 	
-	/* return the number of meshes */
-	return meshes;
-}
-
-std::vector<Material> Loader::load_mtl(const std::string& p) {
-	/* prepare the file stream */
-	std::ifstream stream;
-	stream.open(p, std::ifstream::in);
-	if (stream.fail()) {
-		Error::set("Loader", "Failed to read from mtl file");
-		return std::vector<Material>();
-	}
-	size_t stream_max = std::numeric_limits<std::streamsize>::max();
-	
-	/* initialize material pointer */
-	std::vector<Material> materials;
-	Material* current_material = nullptr;
-	
-	/* read data by line */
-	while (!stream.eof()) {
-		std::string keyword;
-		stream >> keyword;
-		
-		/* create a new material */
-		if (keyword == "newmtl") {
-			std::string name;
-			stream >> name;
-			materials.emplace_back(Material(name));
-			current_material = &materials.back();
-		}
-		
-		/* material is not declared */
-		else if (current_material == nullptr) {}
-		
-		/* diffuse color */
-		else if (keyword == "Kd") {
-			Vec3 kd;
-			stream >> kd.x >> kd.y >> kd.z;
-			current_material->color = kd;
-		}
-		
-		/* emissive color */
-		else if (keyword == "Ke") {
-			Vec3 ke;
-			stream >> ke.x >> ke.y >> ke.z;
-			current_material->emissive = ke;
-		}
-		
-		/* dissolve factor */
-		else if (keyword == "d") {
-			float d;
-			stream >> d;
-			current_material->alpha = d;
-		}
-		
-		/* transparency factor */
-		else if (keyword == "tr") {
-			float tr;
-			stream >> tr;
-			current_material->alpha = 1 - tr;
-		}
-		
-		/* not used in PBR material */
-		
-		/* ambient color */
-		/* else if (keyword == "Ka") {} */
-		
-		/* specular color */
-		/* else if (keyword == "Ks") {} */
-		
-		/* transmission color */
-		/* else if (keyword == "Tf") {} */
-		
-		/* specular exponent */
-		/* else if (keyword == "Ns") {} */
-		
-		/* optical density */
-		/* else if (keyword == "Ni") {} */
-		
-		/* sharpness value */
-		/* else if (keyword == "sharpness") {} */
-		
-		/* ignore */
-		else {
-			stream.ignore(stream_max, '\n');
-		}
-	}
-	
-	/* close file stream */
-	stream.close();
-	
-	/* return the number of materials */
-	return materials;
+	/* return the load object */
+	return object;
 }
 
 }

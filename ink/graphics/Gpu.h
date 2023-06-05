@@ -151,6 +151,8 @@ public:
 	
 	/**
 	 * Sets the specified clear value for depth buffer. Default is 1.
+	 *
+	 * \param d clear depth
 	 */
 	static void set_clear_depth(double d);
 	
@@ -199,6 +201,8 @@ public:
 	
 	/**
 	 * Sets the specified clear value for stencil buffer. Default is 0.
+	 *
+	 * \param s clear stencil
 	 */
 	static void set_clear_stencil(int s);
 	
@@ -889,8 +893,9 @@ public:
 	 *
 	 * \param i image
 	 * \param f texture format
+	 * \param t image data format
 	 */
-	void init_2d(const Image& i, TextureFormat f);
+	void init_2d(const Image& i, TextureFormat f, ImageFormat t = IMAGE_COLOR);
 	
 	/**
 	 * Initializes the texture as 3d texture with empty data.
@@ -924,9 +929,10 @@ public:
 	 * \param pz front (+Z) side of cube image
 	 * \param nz back  (-Z) side of cube image
 	 * \param f texture format
+	 * \param t image data format
 	 */
-	void init_cube(const Image& px, const Image& nx, const Image& py,
-				   const Image& ny, const Image& pz, const Image& nz, TextureFormat f);
+	void init_cube(const Image& px, const Image& nx, const Image& py, const Image& ny,
+				   const Image& pz, const Image& nz, TextureFormat f, ImageFormat t = IMAGE_COLOR);
 	
 	/**
 	 * Initializes the texture as 1D array texture with empty data.
@@ -1073,19 +1079,19 @@ public:
 	int activate(int l) const;
 	
 	/**
-	 * Returns the default texture format for the specified image.
-	 *
-	 * \param i image
-	 */
-	static TextureFormat default_format(const Image& i);
-	
-	/**
 	 * Returns the default texture format for the specified channel and byte.
 	 *
 	 * \param c channel
 	 * \param b byte
 	 */
 	static TextureFormat default_format(int c, int b);
+	
+	/**
+	 * Returns the default texture format for the specified image.
+	 *
+	 * \param i image
+	 */
+	static TextureFormat default_format(const Image& i);
 	
 private:
 	uint32_t id = 0;

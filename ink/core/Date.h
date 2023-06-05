@@ -67,15 +67,19 @@ public:
 	static long long get_time();
 	
 	/**
-	 * Returns the date that is initialized according to local time.
+	 * Returns the date which is initialized according to local time.
+	 *
+	 * \param t the custom time in milliseconds
 	 */
-	static Date get_local();
+	static Date get_local(long long t = -1);
 	
 	/**
-	 * Returns the date that is initialized according to coordinated universal
+	 * Returns the date which is initialized according to coordinated universal
 	 * time (UTC) time.
+	 *
+	 * \param t the custom time in milliseconds
 	 */
-	static Date get_utc();
+	static Date get_utc(long long t = -1);
 };
 
 }

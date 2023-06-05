@@ -57,6 +57,14 @@ enum ImageType {
 	IMAGE_UINT_24_8,
 };
 
+enum ImageFormat {
+	IMAGE_COLOR,
+	IMAGE_COLOR_INTEGER,
+	IMAGE_DEPTH,
+	IMAGE_STENCIL,
+	IMAGE_DEPTH_STENCIL,
+};
+
 enum ComparisonFunc {
 	FUNC_NEVER,
 	FUNC_LESS,

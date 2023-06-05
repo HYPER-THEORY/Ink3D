@@ -73,7 +73,7 @@ in vec3 v_normal;
 in vec2 v_uv;
 in vec3 v_world_pos;
 
-#ifdef IN_TANGENT_SPACE
+#ifdef USE_TANGENT_SPACE
 in vec3 v_tangent;
 in vec3 v_bitangent;
 #endif
@@ -119,13 +119,13 @@ void main() {
 		vec3 normal = texture(normal_map, v_uv).xyz;
 		normal = normalize(unpack_normal(normal));
 		normal.xy *= normal_scale;
-		#ifdef IN_TANGENT_SPACE
+		#ifdef USE_TANGENT_SPACE
 			vec3 tangent = normalize(v_tangent) * face_dir;
 			vec3 bitangent = normalize(v_bitangent) * face_dir;
 			mat3 tbn_mat = mat3(tangent, bitangent, t_normal);
 			t_normal = normalize(tbn_mat * normal);
 		#endif
-		#ifdef IN_OBJECT_SPACE
+		#ifdef USE_OBJECT_SPACE
 			t_normal = normalize(normal_mat * normal);
 		#endif
 	#endif
@@ -176,7 +176,7 @@ void main() {
 		/* calculate single-scatter and multi-scatter */
 		vec3 single_scatter = vec3(0.);
 		vec3 multi_scatter = vec3(0.);
-		multiscatter(t_normal, view_dir, specular_f0, t_roughness, single_scatter, multi_scatter);
+		scattering(t_normal, view_dir, specular_f0, t_roughness, single_scatter, multi_scatter);
 		
 		/* calculate irradiance and radiance from reflection map */
 		vec3 irradiance = ibl_diffuse(ref_map, ref_lod, t_normal) * INV_PI * ref_intensity;

@@ -21,7 +21,7 @@ out vec3 v_normal;
 out vec2 v_uv;
 out vec3 v_world_pos;
 
-#ifdef IN_TANGENT_SPACE
+#ifdef USE_TANGENT_SPACE
 in vec4 tangent;
 out vec3 v_tangent;
 out vec3 v_bitangent;
@@ -36,7 +36,7 @@ void main() {
 	vec3 t_vertex = vertex;
 	vec3 t_normal = normal;
 	vec2 t_uv = uv;
-	#ifdef IN_TANGENT_SPACE
+	#ifdef USE_TANGENT_SPACE
 		vec3 t_tangent = tangent.xyz;
 		vec3 t_bitangent;
 	#endif
@@ -52,7 +52,7 @@ void main() {
 	/* transform normal from object space to world space */
 	t_normal = normalize(normal_mat * t_normal);
 	
-	#ifdef IN_TANGENT_SPACE
+	#ifdef USE_TANGENT_SPACE
 		/* transform tangent from object space to world space */
 		t_tangent = normalize((model * vec4(t_tangent, 0.)).xyz);
 		
@@ -64,12 +64,12 @@ void main() {
 	v_normal = t_normal;
 	v_uv = t_uv;
 	v_world_pos = (model * vec4(t_vertex, 1.)).xyz;
-	#ifdef IN_TANGENT_SPACE
+	#ifdef USE_TANGENT_SPACE
 		v_tangent = t_tangent;
 		v_bitangent = t_bitangent;
 	#endif
 	#ifdef USE_VERTEX_COLOR
-		v_color = color;
+		v_color = t_color;
 	#endif
 	gl_Position = model_view_proj * vec4(t_vertex, 1.);
 }

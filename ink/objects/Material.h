@@ -82,11 +82,11 @@ public:
 	
 	float alpha_test = 0;                 /**< threshold of alpha test, pixels with lower alpha will be discarded */
 	
-	bool map_with_alpha = true;           /**< whether to use alpha channel from color map */
+	bool use_map_with_alpha = true;       /**< whether to use alpha channel from color map */
 	
-	bool vertex_color = false;            /**< whether to use vertex colors from mesh */
+	bool use_vertex_color = false;        /**< whether to use vertex colors from mesh */
 	
-	bool tangent_space = true;            /**< whether the normal map defines in tangent space */
+	bool use_tangent_space = true;        /**< whether the normal map defines in tangent space */
 	
 	float normal_scale = 1;               /**< how much the normal map affects the material */
 	

@@ -99,6 +99,11 @@ public:
 	 */
 	void set_if(const std::string& n, bool f);
 	
+	/**
+	 * Clears all the data from the defines object.
+	 */
+	void clear();
+	
 private:
 	std::string defines;
 };

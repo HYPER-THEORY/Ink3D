@@ -22,7 +22,6 @@
 
 #include "LightPass.h"
 
-#include "../core/Format.h"
 #include "../shaders/ShaderLib.h"
 
 namespace Ink {
