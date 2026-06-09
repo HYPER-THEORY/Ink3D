@@ -1,81 +1,52 @@
-cmake_minimum_required(VERSION 3.4)
-project(Ink3D)
+cmake_minimum_required(VERSION 3.20)
+project(Ink3D LANGUAGES C CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(
-        SOURCES
-        ink/renderer/Renderer.cxx
-        ink/probes/IBLFilter.cxx
-        ink/probes/ReflectionProbe.cxx
-        ink/core/File.cxx
-        ink/core/Date.cxx
-        ink/core/Error.cxx
-        ink/camera/PerspCamera.cxx
-        ink/camera/OrthoCamera.cxx
-        ink/camera/Camera.cxx
-        ink/objects/Material.cxx
-        ink/objects/Defines.cxx
-        ink/objects/Instance.cxx
-        ink/objects/Uniforms.cxx
-        ink/objects/Image.cxx
-        ink/objects/Mesh.cxx
-        ink/utils/ImageUtils.cxx
-        ink/utils/ConvexHull.cxx
-        ink/utils/ColorUtils.cxx
-        ink/utils/Viewer.cxx
-        ink/math/Color.cxx
-        ink/math/Euler.cxx
-        ink/math/Matrix.cxx
-        ink/math/Ray.cxx
-        ink/math/Random.cxx
-        ink/math/Vector2.cxx
-        ink/math/Vector3.cxx
-        ink/math/Vector4.cxx
-        ink/meshes/SphereMesh.cxx
-        ink/meshes/BoxMesh.cxx
-        ink/meshes/CylinderMesh.cxx
-        ink/meshes/PlaneMesh.cxx
-        ink/audio/Audio.cxx
-        ink/loader/Loader.cxx
-        ink/window/Window.cxx
-        ink/shaders/ShaderLib.cxx
-        ink/shaders/ShaderCache.cxx
-        ink/postprocess/FXAAPass.cxx
-        ink/postprocess/ToneMapPass.cxx
-        ink/postprocess/BlurPass.cxx
-        ink/postprocess/LightPass.cxx
-        ink/postprocess/SSAOPass.cxx
-        ink/postprocess/CopyPass.cxx
-        ink/postprocess/RenderPass.cxx
-        ink/postprocess/BlendPass.cxx
-        ink/postprocess/ColorGradePass.cxx
-        ink/postprocess/SSRPass.cxx
-        ink/postprocess/BloomPass.cxx
-        ink/postprocess/GrainPass.cxx
-        ink/scene/Scene.cxx
-        ink/graphics/Gpu.cxx
-        ink/lights/LinearFog.cxx
-        ink/lights/Light.cxx
-        ink/lights/HemisphereLight.cxx
-        ink/lights/SpotLight.cxx
-        ink/lights/PointLight.cxx
-        ink/lights/Exp2Fog.cxx
-        ink/lights/Shadow.cxx
-        ink/lights/DirectionalLight.cxx
-        libs/opengl/glad.c
+file(GLOB_RECURSE INK_HEADERS  CONFIGURE_DEPENDS "ink/*.h")
+file(GLOB_RECURSE INK_SOURCES  CONFIGURE_DEPENDS "ink/*.cpp")
+
+file(GLOB_RECURSE ADDON_HEADERS CONFIGURE_DEPENDS "addons/*.h")
+file(GLOB_RECURSE ADDON_SOURCES CONFIGURE_DEPENDS "addons/*.cpp")
+
+set(GLAD_SOURCE "${CMAKE_SOURCE_DIR}/libs/opengl/glad.c")
+
+set(MAIN_SOURCE "${CMAKE_SOURCE_DIR}/GetStart.cpp")
+
+add_executable(Ink3D_Example
+    ${MAIN_SOURCE}
+    ${INK_HEADERS}
+    ${INK_SOURCES}
+    ${ADDON_HEADERS}
+    ${ADDON_SOURCES}
+    ${GLAD_SOURCE}
 )
 
-if(NOT SKIP_FIND_SDL2_LIBRARY)
-    find_library(SDL2_LIBRARY SDL2)
-    message(STATUS "SDL2_LIBRARY is ${SDL2_LIBRARY}")
-endif()
-
-set(
-        DEPENDENCIES
-        ${SDL2_LIBRARY}
+target_include_directories(Ink3D_Example PRIVATE
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/ink
+    ${CMAKE_SOURCE_DIR}/addons
+    ${CMAKE_SOURCE_DIR}/libs
+    ${CMAKE_SOURCE_DIR}/libs/sdl
 )
 
-add_executable(Ink3D ${SOURCES})
+target_link_directories(Ink3D_Example PRIVATE
+    "${CMAKE_SOURCE_DIR}/libs/sdl/lib/x64"
+)
 
-target_link_libraries(Ink3D ${DEPENDENCIES})
+target_link_libraries(Ink3D_Example PRIVATE
+    SDL2main
+    SDL2
+    opengl32
+)
+
+add_custom_command(TARGET Ink3D_Example POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/libs/sdl/lib/x64/SDL2.dll"
+        "$<TARGET_FILE_DIR:Ink3D_Example>/SDL2.dll"
+)
+
+set_target_properties(Ink3D_Example PROPERTIES
+    VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+)
