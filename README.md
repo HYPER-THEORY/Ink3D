@@ -38,23 +38,24 @@ Ink 3D is a lightweight and easy to use framework for 3D rendering.
 - A few lines of code to render a question block.
 
 ```CPP
-#include "ink/utils/Mainloop.h"
+#include "addons/Mainloop.h"
+#include "addons/window/Viewer.h"
 
 #define A "\0\0\0"
 #define B "\xEE\xBB\x66"
 #define C "\xFF\xDD\xBB"
 
-using namespace Ink;
+using namespace ink;
 
-const char* BLOCK =
+const char* TEXTURE =
 A B B B B B B B B B B A B B B B B A A A B B B B B B B B C C C A B B B B
 B B B B C C C B B B B B B B B B B A A A B B B B B B B B C C C A A A B B
 B B B B C C C C C A A B B B A A A B B C C C A B B C C C A A A C C C A B
 B C C C C C C C C C B B B B C C C C C C C B B B A B B B B B B B B B B A;
 
 Scene scene;
-Viewer viewer;
 Renderer renderer;
+Viewer viewer;
 
 void conf(Settings& t) {
     t.title = "Ink3D Example";
@@ -69,7 +70,7 @@ void load() {
     scene.add(instance);
     
     Image* image = new Image(12, 12, 3);
-    std::copy_n(BLOCK, 12 * 12 * 3, &image->data[0]);
+    std::copy_n(TEXTURE, 12 * 12 * 3, &image->data[0]);
     
     Material* material = new Material();
     material->color_map = image;
@@ -80,11 +81,11 @@ void load() {
     scene.add_light(light);
     
     renderer.set_rendering_mode(FORWARD_RENDERING);
-    renderer.set_texture_callback([](Gpu::Texture& t) -> void {
+    renderer.set_texture_callback([](gpu::Texture& t) -> void {
         t.set_filters(TEXTURE_NEAREST, TEXTURE_NEAREST);
     });
     renderer.load_scene(scene);
-    renderer.set_viewport(Gpu::Rect(960, 540));
+    renderer.set_viewport(gpu::Rect(960, 540));
     
     viewer = Viewer(new PerspCamera(75 * DEG_TO_RAD, 1.77, 0.05, 500));
     viewer.set_position(Vec3(0, 0, -2));
@@ -104,8 +105,6 @@ void quit() {}
 - [SDL2](https://libsdl.org) Simple Directmedia Layer
 
 - [stb_image](https://github.com/nothings/stb) Image loading/decoding from file/memory
-
-- [fmt](https://github.com/fmtlib/fmt) A modern formatting library
 
 ### Requirements ###
 
