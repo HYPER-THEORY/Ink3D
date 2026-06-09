@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,13 +24,13 @@
 
 #include "../objects/Mesh.h"
 
-namespace Ink {
+namespace ink {
 
 class PlaneMesh {
 public:
 	/**
-	 * Returns a plane shaped mesh with 1 unit width and 1 unit height. The
-	 * plane is centred on the origin.
+	 * Returns a plane shaped mesh of width 1 and height 1.
+	 * The plane is centred on the origin.
 	 */
 	static Mesh create();
 	

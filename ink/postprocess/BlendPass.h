@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,14 +24,14 @@
 
 #include "RenderPass.h"
 
-namespace Ink {
+namespace ink {
 
 class BlendPass : public RenderPass {
 public:
 	/**
 	 * Creates a new BlendPass object.
 	 */
-	explicit BlendPass() = default;
+	BlendPass() = default;
 	
 	/**
 	 * Initializes the render pass and prepares the resources for rendering.
@@ -44,28 +44,28 @@ public:
 	void render() override;
 	
 	/**
-	 * Returns the 2D texture A represents the input of rendering pass.
+	 * Returns the 2D texture A that represents the input of the render pass.
 	 */
-	const Gpu::Texture* get_texture_a() const;
+	const gpu::Texture* get_texture_a() const;
 	
 	/**
-	 * Sets the specified 2D texture A as the input of rendering pass.
+	 * Sets the specified 2D texture A as the input of the render pass.
 	 *
 	 * \param t texture A
 	 */
-	void set_texture_a(const Gpu::Texture* t);
+	void set_texture_a(const gpu::Texture* t);
 	
 	/**
-	 * Returns the 2D texture B represents the input of rendering pass.
+	 * Returns the 2D texture B that represents the input of the render pass.
 	 */
-	const Gpu::Texture* get_texture_b() const;
+	const gpu::Texture* get_texture_b() const;
 	
 	/**
-	 * Sets the specified 2D texture B as the input of rendering pass.
+	 * Sets the specified 2D texture B as the input of the render pass.
 	 *
 	 * \param t texture B
 	 */
-	void set_texture_b(const Gpu::Texture* t);
+	void set_texture_b(const gpu::Texture* t);
 	
 	/**
 	 * Returns the operations when applying blending.
@@ -73,35 +73,35 @@ public:
 	std::string get_operation() const;
 	
 	/**
-	 * Sets the operations when applying blending. Default is "a * b".
+	 * Sets the operations when applying blending. The default is "a * b".
 	 *
 	 * \param o operation
 	 */
 	void set_operation(const std::string& o);
 	
 	/**
-	 * Returns the swizzle of texture A as the multiplication factor in
-	 * blending.
+	 * Returns the swizzle of the texture A that represents the multiplication
+	 * factor in blending.
 	 */
 	std::string get_swizzle_a() const;
 	
 	/**
-	 * Sets the swizzle of texture A as the multiplication factor in blending.
-	 * Default is ".xyzw".
+	 * Sets the swizzle of the texture A as the multiplication factor in
+	 * blending. The default is ".xyzw".
 	 *
 	 * \param s swizzle A
 	 */
 	void set_swizzle_a(const std::string& s);
 	
 	/**
-	 * Returns the swizzle of texture B as the multiplication factor in
-	 * blending.
+	 * Returns the swizzle of the texture B that represents the multiplication
+	 * factor in blending.
 	 */
 	std::string get_swizzle_b() const;
 	
 	/**
-	 * Sets the swizzle of texture B as the multiplication factor in blending.
-	 * Default is ".xyzw".
+	 * Sets the swizzle of the texture B as the multiplication factor in
+	 * blending. The default is ".xyzw".
 	 *
 	 * \param s swizzle B
 	 */
@@ -112,8 +112,8 @@ private:
 	std::string swizzle_a = ".xyzw";
 	std::string swizzle_b = ".xyzw";
 	
-	const Gpu::Texture* map_a = nullptr;
-	const Gpu::Texture* map_b = nullptr;
+	const gpu::Texture* map_a = nullptr;
+	const gpu::Texture* map_b = nullptr;
 };
 
 }

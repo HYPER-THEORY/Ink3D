@@ -5,7 +5,7 @@
 uniform sampler2D map;
 uniform sampler2D g_normal;
 uniform sampler2D g_material;
-uniform sampler2D z_map;
+uniform sampler2D z_buffer;
 
 uniform int max_steps;
 uniform float intensity;
@@ -31,7 +31,7 @@ void main() {
 	vec3 color = textureLod(map, v_uv, 0).xyz;
 	
 	/* sample depth from Z-Buffer */
-	float depth = textureLod(z_map, v_uv, 0).x;
+	float depth = textureLod(z_buffer, v_uv, 0).x;
 	
 	/* ignore the pixels on skybox */
 	out_color = vec4(color, 1.);
@@ -88,14 +88,13 @@ void main() {
 		
 		/* get the Z of the current ray and cell */
 		float ray_depth = depth + direction_depth * ray_length;
-		float cell_depth = textureLod(z_map, ray_uv, 0).x;
+		float cell_depth = textureLod(z_buffer, ray_uv, 0).x;
 		
 		/* if ray has intersected with cell */
 		if (ray_depth > cell_depth) {
 			
 			/* linearize the depth of the current ray and cell */
 			if (ray_depth > 1.) return;
-			ray_depth = depth + direction_depth * ray_length;
 			float ray_z = depth_to_z_persp(ray_depth, near, far);
 			float cell_z = depth_to_z_persp(cell_depth, near, far);
 			
@@ -115,7 +114,7 @@ void main() {
 			attenuation *= screen_edge_fade;
 			
 			/* calculate reflected color with Fresnel */
-			float cos_theta = max(dot(normal, view_dir), 0.);
+			float cos_theta = max(dot(normal, -view_dir), 0.);
 			vec3 f0 = textureLod(g_material, v_uv, 0).xyz;
 			vec3 fresnel = f0 + (1. - f0) * pow(1. - cos_theta, 5.);
 			vec3 reflect_color = textureLod(map, ray_uv, 0).xyz * fresnel;

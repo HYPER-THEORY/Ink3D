@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,7 @@
 
 #pragma once
 
-namespace Ink {
+namespace ink {
 
 enum ColorConversion {
 	COLOR_RGB_TO_BGR,
@@ -35,8 +35,6 @@ enum ColorConversion {
 	COLOR_HSV_TO_RGB,
 	COLOR_RGB_TO_HSL,
 	COLOR_HSL_TO_RGB,
-	COLOR_RGB_TO_HCY,
-	COLOR_HCY_TO_RGB,
 };
 
 enum RenderSide {

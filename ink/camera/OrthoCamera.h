@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,45 +24,45 @@
 
 #include "Camera.h"
 
-namespace Ink {
+namespace ink {
 
 class OrthoCamera : public Camera {
 public:
-	float left = 0;     /**< the left vertical clipping plane */
-	float right = 0;    /**< the right vertical clipping plane */
-	float lower = 0;    /**< the lower horizontal clipping plane */
-	float upper = 0;    /**< the upper horizontal clipping plane */
+	float left = 0;     /**< the left clipping plane */
+	float right = 0;    /**< the right clipping plane */
+	float lower = 0;    /**< the lower clipping plane */
+	float upper = 0;    /**< the upper clipping plane */
 	
 	/**
 	 * Creates a new OrthoCamera object.
 	 */
-	explicit OrthoCamera() = default;
+	OrthoCamera() = default;
 	
 	/**
 	 * Creates a new OrthoCamera and initializes it with left, right, lower,
-	 * upper, near, far.
+	 * upper, near, far clipping planes.
 	 *
-	 * \param lv the left vertical clipping plane
-	 * \param rv the right vertical clipping plane
-	 * \param lh the lower horizontal clipping plane
-	 * \param uh the upper horizontal clipping plane
-	 * \param n distance to the nearer clipping plane
-	 * \param f distance to the farther clipping plane
+	 * \param le the left clipping plane
+	 * \param ri the right clipping plane
+	 * \param lo the lower clipping plane
+	 * \param up the upper clipping plane
+	 * \param n the nearer clipping plane
+	 * \param f the farther clipping plane
 	 */
-	explicit OrthoCamera(float lv, float rv, float lh, float uh, float n, float f);
+	OrthoCamera(float le, float ri, float lo, float up, float n, float f);
 	
 	/**
-	 * Sets the left, right, lower, upper, near, far. Updates the projection
-	 * matrix of camera.
+	 * Sets the left, right, lower, upper, near, far clipping planes. Updates
+	 * the projection matrix of the camera.
 	 *
-	 * \param lv the left vertical clipping plane
-	 * \param rv the right vertical clipping plane
-	 * \param lh the lower horizontal clipping plane
-	 * \param uh the upper horizontal clipping plane
-	 * \param n distance to the nearer clipping plane
-	 * \param f distance to the farther clipping plane
+	 * \param le the left clipping plane
+	 * \param ri the right clipping plane
+	 * \param lo the lower clipping plane
+	 * \param up the upper clipping plane
+	 * \param n the nearer clipping plane
+	 * \param f the farther clipping plane
 	 */
-	void set(float lv, float rv, float lh, float uh, float n, float f);
+	void set(float le, float ri, float lo, float up, float n, float f);
 };
 
 }

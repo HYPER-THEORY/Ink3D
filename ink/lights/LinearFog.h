@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,23 +24,24 @@
 
 #include "../math/Vector.h"
 
-namespace Ink {
+namespace ink {
 
 class LinearFog {
 public:
 	bool visible = true;       /**< whether the fog is visible */
-	Vec3 color = {1, 1, 1};    /**< the color of fog */
-	float near = 1;            /**< the nearest distance of fog */
-	float far = 1000;          /**< the farthest distance of fog */
+	Vec3 color = {1, 1, 1};    /**< the color of the fog */
+	float near = 1;            /**< the nearest distance of the fog */
+	float far = 1000;          /**< the farthest distance of the fog */
 	
 	/**
-	 * Creates a new Fog object and initializes it with color and distances.
+	 * Creates a new LinearFog object and initializes it with color and
+	 * distances.
 	 *
-	 * \param c the color of fog
-	 * \param n the nearest distance of fog
-	 * \param f the farthest distance of fog
+	 * \param c the color of the fog
+	 * \param n the nearest distance of the fog
+	 * \param f the farthest distance of the fog
 	 */
-	explicit LinearFog(const Vec3& c = {1, 1, 1}, float n = 1, float f = 1000);
+	LinearFog(const Vec3& c = {1, 1, 1}, float n = 1, float f = 1000);
 };
 
 }

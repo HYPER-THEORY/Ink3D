@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,30 +25,30 @@
 #include "Light.h"
 #include "Shadow.h"
 
-#include "../math/Constants.h"
 #include "../camera/PerspCamera.h"
+#include "../math/Constants.h"
 
-namespace Ink {
+namespace ink {
 
 class SpotLight : public Light {
 public:
-	Vec3 position;               /**< the position where the light casts from */
-	Vec3 direction;              /**< the direction where the light casts through */
-	float angle = PI / 3;        /**< the maximum angle of light */
-	float decay = 1;             /**< the decay speed of light */
-	float distance = 0;          /**< the maximum distance affected by the light */
-	float penumbra = 0;          /**< the attenuation of spot light cone */
-	bool cast_shadow = false;    /**< whether the light will cast shadow */
-	Shadow shadow;               /**< the shadow of light */
+	Vec3 position = {0, 0, 0};      /**< the position where the light casts from */
+	Vec3 direction = {0, -1, 0};    /**< the direction where the light casts through */
+	float angle = PI / 3;           /**< the maximum angle of the light */
+	float decay = 1;                /**< the decay rate of the light */
+	float distance = 0;             /**< the maximum distance affected by the light */
+	float penumbra = 0;             /**< the attenuation of the spot light cone */
+	bool cast_shadow = false;       /**< whether the light will cast shadow */
+	Shadow shadow;                  /**< the shadow of the light */
 	
 	/**
 	 * Creates a new SpotLight object and initializes it with color and
 	 * intensity.
 	 *
-	 * \param c the color of light
-	 * \param i the intensity of light
+	 * \param c the color of the light
+	 * \param i the intensity of the light
 	 */
-	explicit SpotLight(const Vec3& c = {1, 1, 1}, float i = 1);
+	SpotLight(const Vec3& c = {1, 1, 1}, float i = 1);
 };
 
 }

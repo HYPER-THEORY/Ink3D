@@ -17,14 +17,14 @@ vec4 texture_env(samplerCube map, float max_lod, vec3 dir, float roughness) {
 	return textureLod(map, dir, mip);
 }
 
-/* Calcualte specular light from the environment map. */
+/* Calculate specular light from the environment map. */
 vec3 ibl_specular(samplerCube map, float max_lod, vec3 view_dir, vec3 normal, float roughness) {
 	vec3 reflect_vec = reflect(-view_dir, normal);
 	reflect_vec = normalize(mix(reflect_vec, normal, roughness * roughness));
 	return texture_env(map, max_lod, reflect_vec, roughness).xyz;
 }
 
-/* Calcualte diffuse light from the environment map. */
+/* Calculate diffuse light from the environment map. */
 vec3 ibl_diffuse(samplerCube map, float max_lod, vec3 normal) {
 	return PI * texture_env(map, max_lod, normal, 1.).xyz;
 }

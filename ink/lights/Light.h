@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,21 +24,21 @@
 
 #include "../math/Vector.h"
 
-namespace Ink {
+namespace ink {
 
 class Light {
 public:
 	bool visible = true;       /**< whether the light is visible */
-	float intensity = 1;       /**< the intensity of light */
-	Vec3 color = {1, 1, 1};    /**< the color of light */
+	float intensity = 1;       /**< the intensity of the light */
+	Vec3 color = {1, 1, 1};    /**< the color of the light */
 	
 	/**
 	 * Creates a new Light object and initializes it with color and intensity.
 	 *
-	 * \param c the color of light
-	 * \param i the intensity of light
+	 * \param c the color of the light
+	 * \param i the intensity of the light
 	 */
-	explicit Light(const Vec3& c = {1, 1, 1}, float i = 1);
+	Light(const Vec3& c = {1, 1, 1}, float i = 1);
 };
 
 }

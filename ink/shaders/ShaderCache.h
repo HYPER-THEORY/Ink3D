@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,13 +25,14 @@
 #include "../graphics/Gpu.h"
 
 #include <memory>
+#include <unordered_set>
 
-namespace Ink {
+namespace ink {
 
 class ShaderCache {
 public:
 	/**
-	 * Loads the specified string of vertex shader content to the shader.
+	 * Loads the contents of the specified vertex shader to the shader.
 	 *
 	 * \param n shader name
 	 * \param s vertex shader
@@ -39,7 +40,7 @@ public:
 	static void load_vert(const std::string& n, const char* s);
 	
 	/**
-	 * Loads the specified string of vertex shader content to the shader.
+	 * Loads the contents of the specified vertex shader to the shader.
 	 *
 	 * \param n shader name
 	 * \param s vertex shader
@@ -47,7 +48,7 @@ public:
 	static void load_vert(const std::string& n, const std::string& s);
 	
 	/**
-	 * Loads the specified string of geometry shader content to the shader.
+	 * Loads the contents of the specified geometry shader to the shader.
 	 *
 	 * \param n shader name
 	 * \param s geometry shader
@@ -55,7 +56,7 @@ public:
 	static void load_geom(const std::string& n, const char* s);
 	
 	/**
-	 * Loads the specified string of geometry shader content to the shader.
+	 * Loads the contents of the specified geometry shader to the shader.
 	 *
 	 * \param n shader name
 	 * \param s geometry shader
@@ -63,7 +64,7 @@ public:
 	static void load_geom(const std::string& n, const std::string& s);
 	
 	/**
-	 * Loads the specified string of fragment shader content to the shader.
+	 * Loads the contents of the specified fragment shader to the shader.
 	 *
 	 * \param n shader name
 	 * \param s fragment shader
@@ -71,12 +72,28 @@ public:
 	static void load_frag(const std::string& n, const char* s);
 	
 	/**
-	 * Loads the specified string of fragment shader content to the shader.
+	 * Loads the contents of the specified fragment shader to the shader.
 	 *
 	 * \param n shader name
 	 * \param s fragment shader
 	 */
 	static void load_frag(const std::string& n, const std::string& s);
+	
+	/**
+	 * Loads the contents of the specified included shader to the shader.
+	 *
+	 * \param n shader name
+	 * \param s included shader
+	 */
+	static void load_include(const std::string& n, const char* s);
+	
+	/**
+	 * Loads the contents of the specified included shader to the shader.
+	 *
+	 * \param n shader name
+	 * \param s included shader
+	 */
+	static void load_include(const std::string& n, const std::string& s);
 	
 	/**
 	 * Loads the vertex shader from the specified GLSL file to the shader.
@@ -103,32 +120,47 @@ public:
 	static void load_frag_file(const std::string& n, const std::string& p);
 	
 	/**
-	 * Returns true if the vertex shader is loaded to the specified shader.
+	 * Loads the included shader from the specified GLSL file to the shader.
+	 *
+	 * \param n shader name
+	 * \param p the path to included shader file
+	 */
+	static void load_include_file(const std::string& n, const std::string& p);
+	
+	/**
+	 * Returns true if the specified vertex shader is loaded.
 	 *
 	 * \param n shader name
 	 */
 	static bool has_vert(const std::string& n);
 	
 	/**
-	 * Returns true if the geometry shader is loaded to the specified shader.
+	 * Returns true if the specified geometry shader is loaded.
 	 *
 	 * \param n shader name
 	 */
 	static bool has_geom(const std::string& n);
 	
 	/**
-	 * Returns true if the fragment shader is loaded to the specified shader.
+	 * Returns true if the specified fragment shader is loaded.
 	 *
 	 * \param n shader name
 	 */
 	static bool has_frag(const std::string& n);
 	
 	/**
+	 * Returns true if the specified included shader is loaded.
+	 *
+	 * \param n shader name
+	 */
+	static bool has_include(const std::string& n);
+	
+	/**
 	 * Returns the shader with the specified name from shader cache.
 	 *
 	 * \param n shader name
 	 */
-	static const Gpu::Shader* fetch(const std::string& n);
+	static const gpu::Shader* fetch(const std::string& n);
 	
 	/**
 	 * Returns the shader with the specified name and defines from shader cache.
@@ -136,7 +168,7 @@ public:
 	 * \param n shader name
 	 * \param d defines
 	 */
-	static const Gpu::Shader* fetch(const std::string& n, const Defines& d);
+	static const gpu::Shader* fetch(const std::string& n, const Defines& d);
 	
 	/**
 	 * Clears the shader cache with the specified name.
@@ -154,7 +186,7 @@ public:
 	static void clear_cache(const std::string& n, const Defines& d);
 	
 	/**
-	 * Clears all the shader values from the shader cache.
+	 * Clears the shader cache.
 	 */
 	static void clear_caches();
 	
@@ -164,14 +196,16 @@ public:
 	static std::string get_include_path();
 	
 	/**
-	 * Sets the path to find the included shaders. Default is "ink/shaders/
-	 * include/".
+	 * Sets the path to find the included shaders. The default is "ink/shaders/
+	 * include".
 	 *
 	 * \param p include path
 	 */
 	static void set_include_path(const std::string& p);
 	
 private:
+	static std::string to_lower(const std::string& s);
+	
 	static void resolve_includes(std::string& s);
 	
 	static std::string include_path;
@@ -179,8 +213,11 @@ private:
 	static std::unordered_map<std::string, std::string> vert_shaders;
 	static std::unordered_map<std::string, std::string> geom_shaders;
 	static std::unordered_map<std::string, std::string> frag_shaders;
+	static std::unordered_map<std::string, std::string> include_shaders;
 	
-	static std::unordered_map<std::string, std::unique_ptr<Gpu::Shader> > cache;
+	static std::unordered_set<std::string> include_set;
+	
+	static std::unordered_map<std::string, std::unique_ptr<gpu::Shader>> cache;
 };
 
 }

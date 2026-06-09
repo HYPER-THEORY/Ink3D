@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@
 
 #include <memory>
 
-namespace Ink {
+namespace ink {
 
 class ShaderLib {
 public:
@@ -36,7 +36,7 @@ public:
 	 *
 	 * \param n shader name
 	 */
-	static const Gpu::Shader* fetch(const std::string& n);
+	static const gpu::Shader* fetch(const std::string& n);
 	
 	/**
 	 * Returns the shader with the specified name and defines from shader cache.
@@ -45,7 +45,7 @@ public:
 	 * \param n shader name
 	 * \param d defines
 	 */
-	static const Gpu::Shader* fetch(const std::string& n, const Defines& d);
+	static const gpu::Shader* fetch(const std::string& n, const Defines& d);
 	
 	/**
 	 * Returns the path to find the shaders.
@@ -53,7 +53,7 @@ public:
 	static std::string get_library_path();
 	
 	/**
-	 * Sets the path to find the shaders. Default is "ink/shaders/library/".
+	 * Sets the path to find the shaders. The default is "ink/shaders/library".
 	 *
 	 * \param p library path
 	 */

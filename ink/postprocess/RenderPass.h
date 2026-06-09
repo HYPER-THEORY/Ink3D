@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,20 +24,19 @@
 
 #include "../graphics/Gpu.h"
 
-#include <functional>
 #include <memory>
 
-namespace Ink {
+namespace ink {
 
 class RenderPass {
 public:
 	/**
 	 * Creates a new RenderPass object.
 	 */
-	explicit RenderPass() = default;
+	RenderPass() = default;
 	
 	/**
-	 * Initializes the render pass and prepare the resources for rendering.
+	 * Initializes the render pass and prepares the resources for rendering.
 	 */
 	virtual void init() = 0;
 	
@@ -47,22 +46,23 @@ public:
 	virtual void render() = 0;
 	
 	/**
-	 * Returns the current render target if there is, returns nullptr otherwise.
+	 * Returns the current render target if there is one, returns nullptr
+	 * otherwise.
 	 */
-	const Gpu::RenderTarget* get_target() const;
+	const gpu::RenderTarget* get_target() const;
 	
 	/**
-	 * Sets the render target. When nullptr is given, the default render target
-	 * is set as the render target.
+	 * Sets the render target. If the render target is nullptr, falls back to
+	 * the default render target.
 	 *
 	 * \param t render target
 	 */
-	void set_target(const Gpu::RenderTarget* t);
+	void set_target(const gpu::RenderTarget* t);
 	
 	/**
 	 * Returns the viewport region.
 	 */
-	static Gpu::Rect get_viewport();
+	static gpu::Rect get_viewport();
 	
 	/**
 	 * Sets the viewport region to render from (x, y) to (x + width, y +
@@ -70,25 +70,25 @@ public:
 	 *
 	 * \param v viewport region
 	 */
-	static void set_viewport(const Gpu::Rect& v);
+	static void set_viewport(const gpu::Rect& v);
 	
 	/**
-	 * Renders the full screen triangle with shader. The result will be rendered
-	 * to the specified render target.
+	 * Renders the full screen triangle. The result will be rendered to the
+	 * specified render target.
 	 *
 	 * \param s shader
 	 * \param t render target
 	 */
-	static void render_to(const Gpu::Shader* s, const Gpu::RenderTarget* t);
+	static void render_to(const gpu::Shader* s, const gpu::RenderTarget* t);
 	
 protected:
-	const Gpu::RenderTarget* target = nullptr;
+	const gpu::RenderTarget* target = nullptr;
 	
-	static Gpu::Rect viewport;
+	static gpu::Rect viewport;
 	
-	static std::unique_ptr<Gpu::VertexObject> fullscreen_plane;
+	static std::unique_ptr<gpu::VertexObject> fullscreen_plane;
 	
-	static bool init_fullscreen_plane();
+	static void init_fullscreen_plane();
 };
 
 }

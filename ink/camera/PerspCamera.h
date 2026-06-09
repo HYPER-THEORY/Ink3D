@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,37 +24,37 @@
 
 #include "Camera.h"
 
-namespace Ink {
+namespace ink {
 
 class PerspCamera : public Camera {
 public:
-	float fov_y = 0;     /**< the field of view in y-axis */
-	float aspect = 0;    /**< the aspect ratio of field of view */
+	float fov_y = 0;     /**< the field of view on the Y-axis */
+	float aspect = 0;    /**< the aspect ratio of FOV */
 	
 	/**
 	 * Creates a new PerspCamera object.
 	 */
-	explicit PerspCamera() = default;
+	PerspCamera() = default;
 	
 	/**
 	 * Creates a new PerspCamera and initializes it with FOV, aspect, near and
 	 * far.
 	 *
-	 * \param fov the field of view in y-axis
-	 * \param a the aspect ratio of field of view
-	 * \param n distance to the nearer clipping plane
-	 * \param f distance to the farther clipping plane
+	 * \param fov the field of view on the Y-axis
+	 * \param a the aspect ratio of FOV
+	 * \param n the nearer clipping plane
+	 * \param f the farther clipping plane
 	 */
-	explicit PerspCamera(float fov, float a, float n, float f);
+	PerspCamera(float fov, float a, float n, float f);
 	
 	/**
-	 * Sets the FOV, aspect, near and far. Updates the projection matrix of
+	 * Sets the FOV, aspect, near and far. Updates the projection matrix of the
 	 * camera.
 	 *
-	 * \param fov the field of view in y-axis
-	 * \param a the aspect ratio of field of view
-	 * \param n distance to the nearer clipping plane
-	 * \param f distance to the farther clipping plane
+	 * \param fov the field of view on the Y-axis
+	 * \param a the aspect ratio of FOV
+	 * \param n the nearer clipping plane
+	 * \param f the farther clipping plane
 	 */
 	void set(float fov, float a, float n, float f);
 };

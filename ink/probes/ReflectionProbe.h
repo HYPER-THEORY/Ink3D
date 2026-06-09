@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,33 +24,33 @@
 
 #include "IBLFilter.h"
 
-namespace Ink {
+namespace ink {
 
 class ReflectionProbe {
 public:
-	int resolution = 256;    /**< the resolution of reflection probe */
-	float intensity = 1;     /**< the intensity of reflection probe */
-	Vec3 position;           /**< the position of reflection probe */
+	int resolution = 256;    /**< the resolution of the reflection probe */
+	float intensity = 1;     /**< the intensity of the reflection probe */
+	Vec3 position;           /**< the position of the reflection probe */
 	
 	/**
 	 * Creates a new ReflectionProbe object and initializes it with intensity,
-	 * resolution and position.
+	 * resolution, and position.
 	 *
-	 * \param i the intensity of reflection probe
-	 * \param r the resolution of reflection probe
-	 * \param p the position of reflection probe
+	 * \param i the intensity of the reflection probe
+	 * \param r the resolution of the reflection probe
+	 * \param p the position of the reflection probe
 	 */
-	explicit ReflectionProbe(float i = 1, int r = 256, const Vec3& p = {0, 0, 0});
+	ReflectionProbe(float i = 1, int r = 256, const Vec3& p = {0, 0, 0});
 	
 	/**
-	 * Loads a set of specified cube images to the reflection probe.
+	 * Loads the specified cube image set to the reflection probe.
 	 *
-	 * \param px right (+X) side of cube image
-	 * \param nx left  (-X) side of cube image
-	 * \param py upper (+Y) side of cube image
-	 * \param ny lower (-Y) side of cube image
-	 * \param pz front (+Z) side of cube image
-	 * \param nz back  (-Z) side of cube image
+	 * \param px right (+X) side of the cube image
+	 * \param nx left  (-X) side of the cube image
+	 * \param py upper (+Y) side of the cube image
+	 * \param ny lower (-Y) side of the cube image
+	 * \param pz front (+Z) side of the cube image
+	 * \param nz back  (-Z) side of the cube image
 	 */
 	void load_cubemap(const Image& px, const Image& nx,
 					  const Image& py, const Image& ny,
@@ -68,17 +68,17 @@ public:
 	 *
 	 * \param t cube texture
 	 */
-	void load_texture(const Gpu::Texture& t);
+	void load_texture(const gpu::Texture& t);
 	
 	/**
 	 * Activates the texture at the specified location of reflection probe.
 	 *
-	 * \param l the location of texture
+	 * \param l the location of the texture
 	 */
 	int activate(int l) const;
 	
 private:
-	std::unique_ptr<Gpu::Texture> reflection_map;
+	std::unique_ptr<gpu::Texture> reflection_map;
 };
 
 }

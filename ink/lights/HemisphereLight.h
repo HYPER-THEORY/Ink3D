@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,12 +24,12 @@
 
 #include "Light.h"
 
-namespace Ink {
+namespace ink {
 
 class HemisphereLight : public Light {
 public:
 	Vec3 ground_color = {1, 1, 1};    /**< the ground color */
-	Vec3 direction = {0, 1, 0};       /**< the direction from ground to sky */
+	Vec3 direction = {0, 1, 0};       /**< the direction from the ground to the sky */
 	
 	/**
 	 * Creates a new HemisphereLight object and initializes it with colors and
@@ -37,10 +37,10 @@ public:
 	 *
 	 * \param s the sky color
 	 * \param g the ground color
-	 * \param i the intensity of light
+	 * \param i the intensity of the light
 	 */
-	explicit HemisphereLight(const Vec3& s = {1, 1, 1},
-							 const Vec3& g = {1, 1, 1}, float i = 1);
+	HemisphereLight(const Vec3& s = {1, 1, 1},
+					const Vec3& g = {1, 1, 1}, float i = 1);
 };
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
 
 #include "Matrix.h"
 
-namespace Ink {
+namespace ink {
 
 enum EulerOrder {
 	EULER_XYZ,
@@ -37,25 +37,25 @@ enum EulerOrder {
 
 class Euler {
 public:
-	float x = 0;                     /**< the rotation angle of X axis */
-	float y = 0;                     /**< the rotation angle of Y axis */
-	float z = 0;                     /**< the rotation angle of Z axis */
+	float x = 0;                     /**< the rotation angle of the X axis */
+	float y = 0;                     /**< the rotation angle of the Y axis */
+	float z = 0;                     /**< the rotation angle of the Z axis */
 	EulerOrder order = EULER_XYZ;    /**< the order of rotations */
 	
 	/**
 	 * Creates a new Euler object.
 	 */
-	explicit Euler() = default;
+	Euler() = default;
 	
 	/**
 	 * Creates a new Euler object and initializes it with rotations and order.
 	 *
-	 * \param x the rotation angle of X axis
-	 * \param y the rotation angle of Y axis
-	 * \param z the rotation angle of Z axis
+	 * \param x the rotation angle of the X axis
+	 * \param y the rotation angle of the Y axis
+	 * \param z the rotation angle of the Z axis
 	 * \param o the order of rotations
 	 */
-	explicit Euler(float x, float y, float z, EulerOrder o = EULER_XYZ);
+	Euler(float x, float y, float z, EulerOrder o = EULER_XYZ);
 	
 	/**
 	 * Creates a new Euler object and initializes it with rotations and order.
@@ -63,7 +63,7 @@ public:
 	 * \param r the rotation vector
 	 * \param o the order of rotations
 	 */
-	explicit Euler(Vec3 r, EulerOrder o = EULER_XYZ);
+	Euler(const Vec3& r, EulerOrder o = EULER_XYZ);
 	
 	/**
 	 * Transforms the Euler angles to rotation matrix.

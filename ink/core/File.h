@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,48 +22,48 @@
 
 #pragma once
 
-#include "Error.h"
+#include <string>
 
-namespace Ink {
+namespace ink {
 
 class File {
 public:
 	/**
-	 * Reads the content from the specified file into a string.
+	 * Reads the contents from the specified file into a string.
 	 *
 	 * \param p the path to the file
 	 */
 	static std::string read(const std::string& p);
 	
 	/**
-	 * Writes the content of string into the specified file.
+	 * Writes the contents of the string into the specified file.
 	 *
 	 * \param p the path to the file
-	 * \param c content string
+	 * \param c the contents
 	 */
 	static void write(const std::string& p, const std::string& c);
 	
 	/**
-	 * Writes the content of string into the specified file.
+	 * Writes the contents of the string into the specified file.
 	 *
 	 * \param p the path to the file
-	 * \param c content string
+	 * \param c the contents
 	 */
 	static void write(const std::string& p, const char* c);
 	
 	/**
-	 * Appends the content of string into the specified file.
+	 * Appends the contents of the string into the specified file.
 	 *
 	 * \param p the path to the file
-	 * \param c content string
+	 * \param c the contents
 	 */
 	static void append(const std::string& p, const std::string& c);
 	
 	/**
-	 * Appends the content of string into the specified file.
+	 * Appends the contents of the string into the specified file.
 	 *
 	 * \param p the path to the file
-	 * \param c content string
+	 * \param c the contents
 	 */
 	static void append(const std::string& p, const char* c);
 };

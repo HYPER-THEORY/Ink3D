@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,9 +22,9 @@
 
 #pragma once
 
-#include "../../ink/objects/Image.h"
+#include "ink/objects/Image.h"
 
-namespace Ink::Legacy {
+namespace ink::legacy {
 
 class ImageLoader {
 public:
@@ -34,7 +34,7 @@ public:
 	static void init();
 	
 	/**
-	 * Load an image file into image.
+	 * Load an image file into the image.
 	 *
 	 * \param f the URL to the file
 	 * \param i target image

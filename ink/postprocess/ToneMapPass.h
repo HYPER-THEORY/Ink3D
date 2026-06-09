@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,19 +24,24 @@
 
 #include "RenderPass.h"
 
-#include "../renderer/Renderer.h"
+namespace ink {
 
-namespace Ink {
+enum ToneMapMode {
+	LINEAR_TONE_MAP,
+	REINHARD_TONE_MAP,
+	OPTIMIZED_TONE_MAP,
+	ACES_FILMIC_TONE_MAP,
+};
 
 class ToneMapPass : public RenderPass {
 public:
-	int mode = LINEAR_TONE_MAP;    /**< tone mapping mode */
-	float exposure = 1;            /**< tone mapping exposure */
+	ToneMapMode mode = LINEAR_TONE_MAP;    /**< tone mapping mode */
+	float exposure = 1;                    /**< tone mapping exposure */
 	
 	/**
-	 * Creates a new ToneMappingPass object.
+	 * Creates a new ToneMapPass object.
 	 */
-	explicit ToneMapPass() = default;
+	ToneMapPass() = default;
 	
 	/**
 	 * Initializes the render pass and prepares the resources for rendering.
@@ -49,19 +54,19 @@ public:
 	void render() override;
 	
 	/**
-	 * Returns the 2D texture represents the input of rendering pass.
+	 * Returns the 2D texture that represents the input of the render pass.
 	 */
-	const Gpu::Texture* get_texture() const;
+	const gpu::Texture* get_texture() const;
 	
 	/**
-	 * Sets the specified 2D texture as the input of rendering pass.
+	 * Sets the specified 2D texture as the input of the render pass.
 	 *
 	 * \param t input texture
 	 */
-	void set_texture(const Gpu::Texture* t);
+	void set_texture(const gpu::Texture* t);
 	
 private:
-	const Gpu::Texture* map = nullptr;
+	const gpu::Texture* map = nullptr;
 };
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,13 +22,13 @@
 
 #pragma once
 
-#include "../math/Vector.h"
 #include "../math/Euler.h"
+#include "../math/Vector.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
-namespace Ink {
+namespace ink {
 
 struct MeshGroup {
 	std::string name;
@@ -49,11 +49,11 @@ public:
 	std::vector<Vec3> color;          /**< the color for each vertex */
 	
 	/**
-	 * Creates a new Mesh object and initializes it with a name.
+	 * Creates a new Mesh object and initializes it with name.
 	 *
 	 * \param n mesh name
 	 */
-	explicit Mesh(const std::string& n = "");
+	Mesh(const std::string& n = "");
 	
 	/**
 	 * Translates the mesh. This operation will modify the mesh data.
@@ -96,10 +96,10 @@ public:
 	void rotate_z(float a);
 	
 	/**
-	 * Rotates the mesh with Euler angle. This operation will modify the mesh
+	 * Rotates the mesh with Euler angles. This operation will modify the mesh
 	 * data.
 	 *
-	 * \param e Euler angle
+	 * \param e Euler angles
 	 */
 	void rotate(const Euler& e);
 	
@@ -120,19 +120,18 @@ public:
 	void scale(const Vec3& s);
 	
 	/**
-	 * Normalizes all the normal vectors in the mesh.
+	 * Normalizes all the normal vectors of the mesh.
 	 */
 	void normalize();
 	
 	/**
-	 * Calculates normals and adds them to the mesh. Normals are calculated by
-	 * the vertex infomation.
+	 * Calculates normals from the vertices, adds these normals to the mesh.
 	 */
 	void create_normals();
 	
 	/**
-	 * Calculates tangents and adds them to the mesh. Tangents are calculated by
-	 * the vertex, normal and UV infomation.
+	 * Calculates tangents from the vertices, normals, and UVs information, adds
+	 * these tangents to the mesh.
 	 */
 	void create_tangents();
 };

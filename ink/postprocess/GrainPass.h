@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,16 +24,16 @@
 
 #include "RenderPass.h"
 
-namespace Ink {
+namespace ink {
 
 class GrainPass : public RenderPass {
 public:
-	float intensity = 0.5;    /**< the intensity of grain */
+	float intensity = 0.5;    /**< the intensity of the grain */
 	
 	/**
 	 * Creates a new GrainPass object.
 	 */
-	explicit GrainPass() = default;
+	GrainPass() = default;
 	
 	/**
 	 * Initializes the render pass and prepares the resources for rendering.
@@ -46,19 +46,19 @@ public:
 	void render() override;
 	
 	/**
-	 * Returns the 2D texture represents the input of rendering pass.
+	 * Returns the 2D texture that represents the input of the render pass.
 	 */
-	const Gpu::Texture* get_texture() const;
+	const gpu::Texture* get_texture() const;
 	
 	/**
-	 * Sets the specified 2D texture as the input of rendering pass.
+	 * Sets the specified 2D texture as the input of the render pass.
 	 *
 	 * \param t input texture
 	 */
-	void set_texture(const Gpu::Texture* t);
+	void set_texture(const gpu::Texture* t);
 	
 private:
-	const Gpu::Texture* map = nullptr;
+	const gpu::Texture* map = nullptr;
 };
 
 }

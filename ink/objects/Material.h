@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,17 +22,17 @@
 
 #pragma once
 
-#include "Enums.h"
 #include "Defines.h"
-#include "Uniforms.h"
+#include "Enums.h"
 #include "Image.h"
+#include "Uniforms.h"
 
 #include "../math/Vector.h"
 
 #include <string>
 #include <unordered_map>
 
-namespace Ink {
+namespace ink {
 
 class Material {
 public:
@@ -60,11 +60,11 @@ public:
 	
 	ComparisonFunc stencil_func;          /**< which stencil comparison function to use */
 	
-	StencilOperation stencil_fail;        /**< the operation when the stencil test fails */
+	StencilOperation stencil_fail;        /**< the operation when stencil test fails */
 	
-	StencilOperation stencil_zfail;       /**< the operation when the stencil test passes but depth test fails */
+	StencilOperation stencil_zfail;       /**< the operation when stencil test passes but depth test fails */
 	
-	StencilOperation stencil_zpass;       /**< the operation when both the stencil test and depth test pass */
+	StencilOperation stencil_zpass;       /**< the operation when both stencil test and depth test pass */
 	
 	bool blending = false;                /**< whether to enable blending in rendering */
 	
@@ -86,15 +86,15 @@ public:
 	
 	bool use_vertex_color = false;        /**< whether to use vertex colors from mesh */
 	
-	bool use_tangent_space = true;        /**< whether the normal map defines in tangent space */
+	bool use_tangent_space = true;        /**< whether the normal map is defined in tangent space */
 	
 	float normal_scale = 1;               /**< how much the normal map affects the material */
 	
 	float displacement_scale = 1;         /**< how much the displacement map affects the mesh */
 	
-	Vec3 color = {1, 1, 1};               /**< the base color of material, default is white */
+	Vec3 color = {1, 1, 1};               /**< the base color of the material, default is white */
 	
-	float alpha = 1;                      /**< the opacity of material, range is 0 to 1 */
+	float alpha = 1;                      /**< the opacity of the material, range is 0 to 1 */
 	
 	float specular = 0.5;                 /**< how specular the material appears, range is 0 to 1 */
 	
@@ -102,19 +102,19 @@ public:
 	
 	float roughness = 1;                  /**< how rough the material appears, range is 0 to 1 */
 	
-	Vec3 emissive = {0, 0, 0};            /**< the emissive color of material, default is black */
+	Vec3 emissive = {0, 0, 0};            /**< the emissive color of the material, default is black */
 	
-	float emissive_intensity = 1;         /**< the emissive intensity of material, range is 0 to 1 */
+	float emissive_intensity = 1;         /**< the emissive intensity of the material, range is 0 to 1 */
 	
-	float ao_intensity = 1;               /**< the occlusion intensity of material, range is 0 to 1 */
+	float ao_intensity = 1;               /**< the occlusion intensity of the material, range is 0 to 1 */
 	
-	Image* normal_map = nullptr;          /**< the map determines the normals of mesh */
+	Image* normal_map = nullptr;          /**< the map determines the normals of the mesh */
 	
-	Image* displacement_map = nullptr;    /**< the map determines the offsets of mesh's vertices */
+	Image* displacement_map = nullptr;    /**< the map determines the offsets of the vertices */
 	
-	Image* color_map = nullptr;           /**< the map affects the base color of material */
+	Image* color_map = nullptr;           /**< the map affects the base color of the material */
 	
-	Image* alpha_map = nullptr;           /**< the map affects the alpha of material */
+	Image* alpha_map = nullptr;           /**< the map affects the alpha of the material */
 	
 	Image* roughness_map = nullptr;       /**< the map affects how rough the material appears */
 	
@@ -122,24 +122,24 @@ public:
 	
 	Image* specular_map = nullptr;        /**< the map affects how specular the material appears */
 	
-	Image* emissive_map = nullptr;        /**< the map affects the emissive color of material */
+	Image* emissive_map = nullptr;        /**< the map affects the emissive color of the material */
 	
-	Image* ao_map = nullptr;              /**< the map affects the ambient occlusion of material */
+	Image* ao_map = nullptr;              /**< the map affects the ambient occlusion of the material */
 	
-	Image* custom_maps[16];               /**< the custom maps of material */
+	Image* custom_maps[16];               /**< the custom maps of the material */
 	
 	void* shader = nullptr;               /**< custom shader determines how lights affect material */
 	
-	void* reflection_probe = nullptr;     /**< reflection probe affects the environment light of material */
+	void* reflection_probe = nullptr;     /**< reflection probe affects the environment light of the material */
 	
-	Uniforms* uniforms = nullptr;         /**< the custom uniforms of material */
+	Uniforms* uniforms = nullptr;         /**< the custom uniforms of the material */
 	
 	/**
-	 * Creates a new Material object and initializes it with a name.
+	 * Creates a new Material object and initializes it with name.
 	 *
 	 * \param n material name
 	 */
-	explicit Material(const std::string& n = "");
+	Material(const std::string& n = "");
 };
 
 }

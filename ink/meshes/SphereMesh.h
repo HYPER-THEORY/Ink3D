@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,13 +24,13 @@
 
 #include "../objects/Mesh.h"
 
-namespace Ink {
+namespace ink {
 
 class SphereMesh {
 public:
 	/**
-	 * Returns a sphere shaped mesh with 0.5 unit radius. The sphere is centred
-	 * on the origin.
+	 * Returns a sphere shaped mesh of radius 0.5.
+	 * The sphere is centred on the origin.
 	 */
 	static Mesh create();
 	

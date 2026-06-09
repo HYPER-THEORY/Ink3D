@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,43 +28,43 @@
 
 #include "../math/Vector.h"
 
-namespace Ink {
+namespace ink {
 
 class Image {
 public:
-	int width = 0;                /**< the width of image */
-	int height = 0;               /**< the height of image */
-	int channel = 0;              /**< the channel of image */
-	int bytes = 1;                /**< the bytes of image */
+	int width = 0;                /**< the width in pixels */
+	int height = 0;               /**< the height in pixels */
+	int channel = 0;              /**< the channel per pixel */
+	int bytes = 1;                /**< the bytes per channel */
 	
-	std::vector<uint8_t> data;    /**< the data of image */
+	std::vector<uint8_t> data;    /**< the data source */
 	
 	/**
 	 * Creates a new Image object.
 	 */
-	explicit Image() = default;
+	Image() = default;
 	
 	/**
-	 * Creates a new Image object and initializes it with the size, channel and
+	 * Creates a new Image object and initializes it with size, channel, and
 	 * bytes.
 	 *
-	 * \param w the width of image
-	 * \param h the height of image
-	 * \param c the channel of image
-	 * \param b the bytes of image
+	 * \param w the width in pixels
+	 * \param h the height in pixels
+	 * \param c the channel per pixel
+	 * \param b the bytes per channel
 	 */
-	explicit Image(int w, int h, int c, int b = 1);
+	Image(int w, int h, int c, int b = 1);
 	
 	/**
-	 * Returns a sub-image sliced of the current image. The new image region is
-	 * set from (x1, y1) to (x2, y2).
+	 * Returns a sub-image sliced from the current image. The new image region
+	 * spans from (x1, y1) to (x2, y2).
 	 *
-	 * \param x1 the x-coordinate of left upper corner
-	 * \param y1 the y-coordinate of left upper corner
-	 * \param x2 the x-coordinate of right lower corner
-	 * \param y2 the y-coordinate of right lower corner
+	 * \param x1 the X-coordinate of the upper left corner
+	 * \param y1 the Y-coordinate of the upper left corner
+	 * \param x2 the X-coordinate of the lower right corner
+	 * \param y2 the Y-coordinate of the lower right corner
 	 */
-	Image subimage(int x1, int y1, int x2, int y2);
+	Image subimage(int x1, int y1, int x2, int y2) const;
 	
 	/**
 	 * Flips the image vertically.
@@ -72,103 +72,81 @@ public:
 	void flip_vertical();
 	
 	/**
-	 * Flips the image horizontally. Notes that this function is slower than
-	 * flip_vertical.
+	 * Flips the image horizontally.
 	 */
 	void flip_horizontal();
 	
 	/**
-	 * Returns a vector of the images split by channel.
+	 * Returns an image list split by channel.
 	 */
 	std::vector<Image> split() const;
 	
 	/**
-	 * Converts colors in the image from one color space to another color space.
+	 * Converts this image from one color space to another color space.
 	 *
 	 * \param c color conversion
 	 */
 	void convert(ColorConversion c);
 	
 	/**
-	 * Converts colors in the image from RGB color space to BGR color space.
+	 * Converts this image from the RGB color space to the BGR color space.
 	 */
 	template <typename Type>
 	void convert_rgb_to_bgr();
 	
 	/**
-	 * Converts colors in the image from BGR color space to RGB color space.
+	 * Converts this image from the BGR color space to the RGB color space.
 	 */
 	template <typename Type>
 	void convert_bgr_to_rgb();
 	
 	/**
-	 * Converts colors in the image from RGB color space to SRGB color space.
+	 * Converts this image from the RGB color space to the sRGB color space.
 	 */
 	template <typename Type>
 	void convert_rgb_to_srgb();
 	
 	/**
-	 * Converts colors in the image from SRGB color space to RGB color space.
+	 * Converts this image from the sRGB color space to the RGB color space.
 	 */
 	template <typename Type>
 	void convert_srgb_to_rgb();
 	
 	/**
-	 * Converts colors in the image from RGB color space to XYZ color space.
+	 * Converts this image from the RGB color space to the XYZ color space.
 	 */
 	template <typename Type>
 	void convert_rgb_to_xyz();
 	
 	/**
-	 * Converts colors in the image from XYZ color space to RGB color space.
+	 * Converts this image from the XYZ color space to the RGB color space.
 	 */
 	template <typename Type>
 	void convert_xyz_to_rgb();
 	
 	/**
-	 * Converts colors in the image from RGB color space to HSV color space.
+	 * Converts this image from the RGB color space to the HSV color space.
 	 */
 	template <typename Type>
 	void convert_rgb_to_hsv();
 	
 	/**
-	 * Converts colors in the image from HSV color space to RGB color space.
+	 * Converts this image from the HSV color space to the RGB color space.
 	 */
 	template <typename Type>
 	void convert_hsv_to_rgb();
 	
 	/**
-	 * Converts colors in the image from RGB color space to HSL color space.
+	 * Converts this image from the RGB color space to the HSL color space.
 	 */
 	template <typename Type>
 	void convert_rgb_to_hsl();
 	
 	/**
-	 * Converts colors in the image from HSL color space to RGB color space.
+	 * Converts this image from the HSL color space to the RGB color space.
 	 */
 	template <typename Type>
 	void convert_hsl_to_rgb();
-	
-	/**
-	 * Converts colors in the image from RGB color space to HCY color space.
-	 */
-	template <typename Type>
-	void convert_rgb_to_hcy();
-	
-	/**
-	 * Converts colors in the image from HCY color space to RGB color space.
-	 */
-	template <typename Type>
-	void convert_hcy_to_rgb();
-	
-private:
-	template <typename Type>
-	static inline float unpack(Type v);
-	
-	template <typename Type>
-	static inline Type pack(float v);
-	
-	static inline float saturate(float v);
 };
 
 }

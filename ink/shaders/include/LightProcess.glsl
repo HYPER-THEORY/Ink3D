@@ -3,7 +3,6 @@
 
 #include <lights>
 #include <fogs>
-#include <tonemapping>
 
 #if NUM_POINT_LIGHT > 0
 uniform PointLight point_lights[NUM_POINT_LIGHT];
@@ -28,8 +27,6 @@ uniform LinearFog fog;
 #ifdef USE_EXP2_FOG
 uniform Exp2Fog fog;
 #endif
-
-uniform float exposure;
 
 vec3 light_process(Material mat, Geometry geom, vec3 light, float occlusion) {
 	/* apply point / spot / directional / hemisphere lights */
@@ -61,7 +58,7 @@ vec3 light_process(Material mat, Geometry geom, vec3 light, float occlusion) {
 	#if defined(USE_LINEAR_FOG) || defined(USE_EXP2_FOG)
 		apply_fog(fog, distance(camera_pos, geom.position), total_light);
 	#endif
-	return TONE_MAP(total_light, exposure);
+	return total_light;
 }
 
 #endif

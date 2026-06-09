@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,51 +22,52 @@
 
 #pragma once
 
-#include "../objects/Material.h"
-#include "../objects/Instance.h"
+#include "../lights/DirectionalLight.h"
+#include "../lights/Exp2Fog.h"
+#include "../lights/HemisphereLight.h"
+#include "../lights/LinearFog.h"
 #include "../lights/PointLight.h"
 #include "../lights/SpotLight.h"
-#include "../lights/DirectionalLight.h"
-#include "../lights/HemisphereLight.h"
-#include "../lights/Exp2Fog.h"
-#include "../lights/LinearFog.h"
+#include "../objects/Instance.h"
+#include "../objects/Material.h"
 
+#include <string>
 #include <vector>
 #include <unordered_map>
 
-namespace Ink {
+namespace ink {
 
 class Scene : public Instance {
 public:
 	/**
-	 * Creates a new Scene object and initializes it with a name.
+	 * Creates a new Scene object and initializes it with name.
 	 *
 	 * \param n scene name
 	 */
-	explicit Scene(const std::string& n = "");
+	Scene(const std::string& n = "");
 	
 	/**
-	 * Returns the material matching the specified name.
+	 * Returns the material that matches the specified name.
 	 *
 	 * \param n material name
 	 */
 	Material* get_material(const std::string& n) const;
 	
 	/**
-	 * Returns the material matching the specified name and linking with the
+	 * Returns the material that matches the specified name and is linked to the
 	 * specified mesh.
 	 *
 	 * \param n material name
-	 * \param s specified mesh
+	 * \param s mesh
 	 */
 	Material* get_material(const std::string& n, const Mesh& s) const;
 	
 	/**
-	 * Returns the material matching the specified name and linking with the
-	 * specified mesh.
+	 * Returns the material that matches the specified name and is linked to the
+	 * specified instance.
 	 *
 	 * \param n material name
-	 * \param s specified instance
+	 * \param s instance
 	 */
 	Material* get_material(const std::string& n, const Instance& s) const;
 	
@@ -79,27 +80,27 @@ public:
 	void set_material(const std::string& n, Material* m);
 	
 	/**
-	 * Sets the specified material with name to the scene. Links it with the
+	 * Sets the specified material with name to the scene. Links it to the
 	 * specified mesh.
 	 *
 	 * \param n material name
-	 * \param s specified mesh
+	 * \param s mesh
 	 * \param m material
 	 */
 	void set_material(const std::string& n, const Mesh& s, Material* m);
 	
 	/**
-	 * Sets the specified material with name to the scene. Links it with the
-	 * specified mesh.
+	 * Sets the specified material with name to the scene. Links it to the
+	 * specified instance.
 	 *
 	 * \param n material name
-	 * \param s specified instance
+	 * \param s instance
 	 * \param m material
 	 */
 	void set_material(const std::string& n, const Instance& s, Material* m);
 	
 	/**
-	 * Removes the specified material matching the specified name from the
+	 * Removes the specified material that matches the specified name from the
 	 * scene.
 	 *
 	 * \param n material name
@@ -107,20 +108,20 @@ public:
 	void remove_material(const std::string& n);
 	
 	/**
-	 * Removes the specified material matching the specified name and linking
-	 * with the specified mesh from the scene.
+	 * Removes the specified material that matches the specified name and is
+	 * linked to the specified mesh from the scene.
 	 *
 	 * \param n material name
-	 * \param s specified mesh
+	 * \param s mesh
 	 */
 	void remove_material(const std::string& n, const Mesh& s);
 	
 	/**
-	 * Removes the specified material matching the specified name and linking
-	 * with the specified mesh from the scene.
+	 * Removes the specified material that matches the specified name and is
+	 * linked to the specified instance from the scene.
 	 *
 	 * \param n material name
-	 * \param s specified instance
+	 * \param s instance
 	 */
 	void remove_material(const std::string& n, const Instance& s);
 	
@@ -135,7 +136,7 @@ public:
 	std::vector<Material*> get_materials() const;
 	
 	/**
-	 * Returns the linear fog in the scene if there is, return nullptr
+	 * Returns the linear fog in the scene if there is one, returns nullptr
 	 * otherwise.
 	 */
 	LinearFog* get_linear_fog() const;
@@ -149,7 +150,7 @@ public:
 	void set_fog(LinearFog* f);
 	
 	/**
-	 * Returns the exp square fog in the scene if there is, return nullptr
+	 * Returns the exp square fog in the scene if there is one, returns nullptr
 	 * otherwise.
 	 */
 	Exp2Fog* get_exp2_fog() const;
@@ -164,7 +165,7 @@ public:
 	
 	/**
 	 * Adds the specified point light to the scene. The light number should not
-	 * exceed the maximum number.
+	 * exceed the limit.
 	 *
 	 * \param l point light
 	 */
@@ -172,6 +173,8 @@ public:
 	
 	/**
 	 * Removes the specified point light from the scene.
+	 * 
+	 * \param l point light
 	 */
 	void remove_light(PointLight* l);
 	
@@ -183,13 +186,13 @@ public:
 	/**
 	 * Returns the point light at the specified index in the scene.
 	 *
-	 * \param i the index of light
+	 * \param i the index of the light
 	 */
 	PointLight* get_point_light(int i) const;
 	
 	/**
 	 * Adds the specified spot light to the scene. The light number should not
-	 * exceed the maximum number.
+	 * exceed the limit.
 	 *
 	 * \param l spot light
 	 */
@@ -210,13 +213,13 @@ public:
 	/**
 	 * Returns the spot light at the specified index in the scene.
 	 *
-	 * \param i the index of light
+	 * \param i the index of the light
 	 */
 	SpotLight* get_spot_light(int i) const;
 	
 	/**
 	 * Adds the specified directional light to the scene. The light number
-	 * should not exceed the maximum number.
+	 * should not exceed the limit.
 	 *
 	 * \param l directional light
 	 */
@@ -237,13 +240,13 @@ public:
 	/**
 	 * Returns the directional light at the specified index in the scene.
 	 *
-	 * \param i the index of light
+	 * \param i the index of the light
 	 */
 	DirectionalLight* get_directional_light(int i) const;
 	
 	/**
 	 * Adds the specified hemisphere light to the scene. The light number should
-	 * not exceed the maximum number.
+	 * not exceed the limit.
 	 *
 	 * \param l hemisphere light
 	 */
@@ -264,28 +267,28 @@ public:
 	/**
 	 * Returns the hemisphere light at the specified index in the scene.
 	 *
-	 * \param i the index of light
+	 * \param i the index of the light
 	 */
 	HemisphereLight* get_hemisphere_light(int i) const;
 	
 	/**
-	 * Removes all the point & spot & directional & hemisphere lights from the
-	 * scene.
+	 * Removes all the lights from the scene.
 	 */
 	void clear_lights();
 	
 	/**
-	 * Updates the local and global matrices of all descendant instances.
+	 * Updates the local and global matrices of all the instances in the scene.
 	 */
 	void update_instances();
 	
 	/**
-	 * Returns an instance vector of all descendant instances.
+	 * Returns an instance list of all the instances in the scene.
 	 */
 	std::vector<const Instance*> to_instances() const;
 	
 	/**
-	 * Returns an instance vector of all descendant visible instances.
+	 * Returns an instance list of all the instances in the scene, excluding
+	 * invisible ones.
 	 */
 	std::vector<const Instance*> to_visible_instances() const;
 	

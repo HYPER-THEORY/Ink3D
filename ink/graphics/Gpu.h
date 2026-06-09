@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,26 +22,26 @@
 
 #pragma once
 
-#include "../objects/Enums.h"
-#include "../objects/Uniforms.h"
 #include "../objects/Defines.h"
-#include "../objects/Mesh.h"
+#include "../objects/Enums.h"
 #include "../objects/Image.h"
 #include "../objects/Material.h"
+#include "../objects/Mesh.h"
+#include "../objects/Uniforms.h"
 
-namespace Ink::Gpu {
+namespace ink::gpu {
 
 class Rect {
 public:
-	int x = 0;         /**< the x-coordinate of left lower corner */
-	int y = 0;         /**< the y-coordinate of left lower corner */
+	int x = 0;         /**< the X-coordinate of the lower left corner */
+	int y = 0;         /**< the Y-coordinate of the lower left corner */
 	int width = 0;     /**< the width of the rectangle */
 	int height = 0;    /**< the height of the rectangle */
 	
 	/**
 	 * Creates a new Rect object.
 	 */
-	explicit Rect() = default;
+	Rect() = default;
 	
 	/**
 	 * Creates a new Rect object and initializes it with size.
@@ -49,17 +49,17 @@ public:
 	 * \param w the width of the rectangle
 	 * \param h the height of the rectangle
 	 */
-	explicit Rect(int w, int h);
+	Rect(int w, int h);
 	
 	/**
 	 * Creates a new Rect object and initializes it with size and position.
 	 *
-	 * \param x the x-coordinate of left lower corner
-	 * \param y the y-coordinate of left lower corner
+	 * \param x the X-coordinate of the lower left corner
+	 * \param y the Y-coordinate of the lower left corner
 	 * \param w the width of the rectangle
 	 * \param h the height of the rectangle
 	 */
-	explicit Rect(int x, int y, int w, int h);
+	Rect(int x, int y, int w, int h);
 };
 
 class State {
@@ -70,23 +70,23 @@ public:
 	static std::string get_device_info();
 	
 	/**
-	 * Blocks until all GPU commands is complete.
+	 * Blocks until the execution of all GPU commands is complete.
 	 */
 	static void finish();
 	
 	/**
-	 * Forces execution of GPU commands in finite time.
+	 * Forces the execution of all GPU commands in finite time.
 	 */
 	static void flush();
 	
 	/**
-	 * Prints all error information from OpenGL.
+	 * Returns the error information from OpenGL.
 	 */
 	static std::string get_error();
 	
 	/**
-	 * Clears the color, depth or stencil drawing buffers. Initializes the color
-	 * buffer to the current clear color value.
+	 * Clears the color, depth or stencil buffers. Fills the color buffer with
+	 * the current color clear value.
 	 *
 	 * \param c whether to clear the color buffer
 	 * \param d whether to clear the depth buffer
@@ -95,75 +95,75 @@ public:
 	static void clear(bool c = true, bool d = true, bool s = true);
 	
 	/**
-	 * Returns the clear color (.xyz) and opacity (.w).
+	 * Returns the color (.xyz) and alpha (.w) for clearing.
 	 */
 	static Vec4 get_clear_color();
 	
 	/**
-	 * Sets the specified clear color and opacity. Default is (1, 1, 1) and 1.
+	 * Sets the specified color and alpha for clearing. The default is (1, 1, 1)
+	 * and 1.
 	 *
-	 * \param c clear color
-	 * \param a clear opacity
+	 * \param c color
+	 * \param a alpha
 	 */
 	static void set_clear_color(const Vec3& c, float a);
 	
 	/**
-	 * Sets the specified clear color (.xyz) and opacity (.w). Default is (1, 1,
-	 * 1, 1).
+	 * Sets the specified color (.xyz) and alpha (.w) for clearing. The default
+	 * is (1, 1, 1, 1).
 	 *
-	 * \param c clear color and opacity
+	 * \param c color with alpha
 	 */
 	static void set_clear_color(const Vec4& c);
 	
 	/**
-	 * Returns a vec4 value represents the red, green, blue and alpha components
-	 * are enabled for writing.
+	 * Returns a vec4 value that represents whether the red, green, blue, and
+	 * alpha components are enabled for writing.
 	 */
 	static Vec4 get_color_writemask();
 	
 	/**
-	 * Determines whether the red, green, blue and alpha components are enabled
-	 * for writing. Default is true, true, true, true.
+	 * Determines whether the red, green, blue, and alpha components are enabled
+	 * for writing. The default is true, true, true, true.
 	 *
 	 * \param r red writemask
 	 * \param g green writemask
-	 * \param b blur writemask
+	 * \param b blue writemask
 	 * \param a alpha writemask
 	 */
 	static void set_color_writemask(bool r, bool g, bool b, bool a);
 	
 	/**
-	 * Enables depth test. If enabled, do depth comparisons and update the depth
-	 * buffer.
+	 * Enables depth test. If enabled, does depth comparisons and updates the
+	 * depth buffer.
 	 */
 	static void enable_depth_test();
 	
 	/**
-	 * Disables depth test. If enabled, do depth comparisons and update the
-	 * depth buffer.
+	 * Disables depth test.
 	 */
 	static void disable_depth_test();
 	
 	/**
-	 * Returns the clear value for depth buffer.
+	 * Returns the depth clear value.
 	 */
 	static double get_clear_depth();
 	
 	/**
-	 * Sets the specified clear value for depth buffer. Default is 1.
+	 * Sets the specified depth clear value. The default is 1.
 	 *
-	 * \param d clear depth
+	 * \param d clear depth value
 	 */
 	static void set_clear_depth(double d);
 	
 	/**
-	 * Returns true if the depth buffer is enabled for writing in depth test.
+	 * Returns true if the depth buffer is enabled for writing.
 	 */
 	static bool get_depth_writemask();
 	
 	/**
-	 * Determines whether the depth buffer is enabled for writing in depth test.
-	 * Default is true.
+	 * Determines whether the depth buffer is enabled for writing. The default
+	 * is true.
 	 *
 	 * \param m depth writemask
 	 */
@@ -175,7 +175,7 @@ public:
 	static ComparisonFunc get_depth_func();
 	
 	/**
-	 * Sets the specified comparison function in depth test. Default is
+	 * Sets the specified comparison function in depth test. The default is
 	 * FUNC_LESS.
 	 *
 	 * \param f comparison function
@@ -183,38 +183,37 @@ public:
 	static void set_depth_func(ComparisonFunc f);
 	
 	/**
-	 * Enables stencil test. If enabled, do stencil testing and update the
+	 * Enables stencil test. If enabled, does stencil testing and updates the
 	 * stencil buffer.
 	 */
 	static void enable_stencil_test();
 	
 	/**
-	 * Disables stencil test. If enabled, do stencil testing and update the
-	 * stencil buffer.
+	 * Disables stencil test.
 	 */
 	static void disable_stencil_test();
 	
 	/**
-	 * Returns the clear value for stencil buffer.
+	 * Returns the stencil clear value.
 	 */
 	static int get_clear_stencil();
 	
 	/**
-	 * Sets the specified clear value for stencil buffer. Default is 0.
+	 * Sets the specified stencil clear value. The default is 0.
 	 *
-	 * \param s clear stencil
+	 * \param s stencil clear value
 	 */
 	static void set_clear_stencil(int s);
 	
 	/**
-	 * Returns true if the stencil buffer bits are enabled for writing in
-	 * stencil test.
+	 * Returns the stencil bit mask to enable writing of individual bits in the
+	 * stencil planes.
 	 */
 	static unsigned int get_stencil_writemask();
 	
 	/**
-	 * Determines whether the stencil buffer bits are enabled for writing in
-	 * stencil test. Default is all 1's.
+	 * Sets the specified stencil bit mask to enable writing of individual bits
+	 * in the stencil planes. The default is all 1's.
 	 *
 	 * \param m stencil writemask
 	 */
@@ -236,8 +235,8 @@ public:
 	static int get_stencil_mask();
 	
 	/**
-	 * Sets the specified comparison function, reference value and mask in
-	 * stencil test. Default is FUNC_ALWAYS, 0 and 1.
+	 * Sets the specified comparison function, reference value, and mask in
+	 * stencil test. The default is FUNC_ALWAYS, 0 and 1.
 	 *
 	 * \param f comparison function
 	 * \param r reference value
@@ -246,7 +245,7 @@ public:
 	static void set_stencil_func(ComparisonFunc f, int r, int m);
 	
 	/**
-	 * Returns the operation when the stencil test fails.
+	 * Returns the operation when stencil test fails.
 	 */
 	static StencilOperation get_stencil_fail();
 	
@@ -256,53 +255,52 @@ public:
 	static StencilOperation get_stencil_zfail();
 	
 	/**
-	 * Returns the operation when both the stencil test and depth test pass.
+	 * Returns the operation when both stencil test and depth test passes.
 	 */
 	static StencilOperation get_stencil_zpass();
 	
 	/**
 	 * Sets the specified operations for different cases in stencil test and
-	 * depth test. Default is STENCIL_KEEP, STENCIL_KEEP, STENCIL_KEEP.
+	 * depth test. The default is STENCIL_KEEP, STENCIL_KEEP, STENCIL_KEEP.
 	 *
-	 * \param f the operation when the stencil test fails
-	 * \param zf the operation when the stencil test passes but depth test fails
-	 * \param zp the operation when both the stencil test and depth test pass
+	 * \param f the operation when stencil test fails
+	 * \param zf the operation when stencil test passes but depth test fails
+	 * \param zp the operation when both stencil test and depth test passes
 	 */
 	static void set_stencil_op(StencilOperation f,
 							   StencilOperation zf,
 							   StencilOperation zp);
 	
 	/**
-	 * Enables blending. If enabled, blend the computed fragment color values
+	 * Enables blending. If enabled, blends the computed fragment color values
 	 * with the values in the color buffers.
 	 */
 	static void enable_blending();
 	
 	/**
-	 * Disables blending. If enabled, blend the computed fragment color values
-	 * with the values in the color buffers.
+	 * Disables blending.
 	 */
 	static void disable_blending();
 	
 	/**
-	 * Returns the blend operation of RGB color components in blending.
+	 * Returns the blend operation of the RGB color components in blending.
 	 */
 	static BlendOperation get_blend_op_rgb();
 	
 	/**
-	 * Returns the blend operation of alpha color component in blending.
+	 * Returns the blend operation of the alpha color component in blending.
 	 */
 	static BlendOperation get_blend_op_alpha();
 	
 	/**
-	 * Sets the specified blend operation in blending. Default is BLEND_ADD.
+	 * Sets the specified blend operation in blending. The default is BLEND_ADD.
 	 *
 	 * \param o blend operation
 	 */
 	static void set_blend_op(BlendOperation o);
 	
 	/**
-	 * Sets the specified blend operation in blending. Default is BLEND_ADD,
+	 * Sets the specified blend operation in blending. The default is BLEND_ADD,
 	 * BLEND_ADD.
 	 *
 	 * \param rgb RGB blend operation
@@ -311,30 +309,30 @@ public:
 	static void set_blend_op(BlendOperation rgb, BlendOperation a);
 	
 	/**
-	 * Returns the source blend factor of RGB color components in blending.
+	 * Returns the source blend factor of the RGB color components in blending.
 	 */
 	static BlendFactor get_blend_src_rgb();
 	
 	/**
-	 * Returns the source blend factor of alpha color component in blending.
+	 * Returns the source blend factor of the alpha color component in blending.
 	 */
 	static BlendFactor get_blend_src_alpha();
 	
 	/**
-	 * Returns the source destination factor of RGB color components in
+	 * Returns the destination blend factor of the RGB color components in
 	 * blending.
 	 */
 	static BlendFactor get_blend_dst_rgb();
 	
 	/**
-	 * Returns the source destination factor of alpha color component in
+	 * Returns the destination blend factor of the alpha color component in
 	 * blending.
 	 */
 	static BlendFactor get_blend_dst_alpha();
 	
 	/**
-	 * Sets the specified source and destination blend factors in blending.
-	 * Default is FACTOR_ONE and FACTOR_ZERO.
+	 * Sets the specified source and destination blend factors in blending. The
+	 * default is FACTOR_ONE and FACTOR_ZERO.
 	 *
 	 * \param s source blend factor
 	 * \param d destination blend factor
@@ -342,8 +340,8 @@ public:
 	static void set_blend_factor(BlendFactor s, BlendFactor d);
 	
 	/**
-	 * Sets the specified source and destination blend factors in blending.
-	 * Default is FACTOR_ONE, FACTOR_ZERO, FACTOR_ONE, FACTOR_ZERO.
+	 * Sets the specified source and destination blend factors in blending. The
+	 * default is FACTOR_ONE, FACTOR_ZERO, FACTOR_ONE, FACTOR_ZERO.
 	 *
 	 * \param sr RGB source blend factor
 	 * \param dr RGB destination blend factor
@@ -367,14 +365,13 @@ public:
 	static void set_viewport(const Rect& v);
 	
 	/**
-	 * Enables scissor test. If enabled, discard fragments that are outside the
+	 * Enables scissor test. If enabled, discards fragments that are outside the
 	 * scissor rectangle.
 	 */
 	static void enable_scissor_test();
 	
 	/**
-	 * Disables scissor test. If enabled, discard fragments that are outside the
-	 * scissor rectangle.
+	 * Disables scissor test.
 	 */
 	static void disable_scissor_test();
 	
@@ -398,30 +395,28 @@ public:
 	static void enable_wireframe();
 	
 	/**
-	 * Disables wireframe. If enabled, boundary edges of the polygon are drawn
-	 * as line segments.
+	 * Disables wireframe.
 	 */
 	static void disable_wireframe();
 	
 	/**
-	 * Enables face culling. If enabled, cull polygons based on their winding in
-	 * window coordinates.
+	 * Enables face culling. If enabled, culls polygons based on their winding
+	 * in window coordinates.
 	 */
 	static void enable_culling();
 	
 	/**
-	 * Disables face culling. If enabled, cull polygons based on their winding
-	 * in window coordinates.
+	 * Disables face culling.
 	 */
 	static void disable_culling();
 	
 	/**
-	 * Determines which side of face will be culled.
+	 * Returns the side of faces that will be culled.
 	 */
 	static RenderSide get_cull_side();
 	
 	/**
-	 * Determines which side of face will be culled. Default is BACK_SIDE.
+	 * Determines which side of faces will be culled. The default is BACK_SIDE.
 	 *
 	 * \param s culling side
 	 */
@@ -435,9 +430,7 @@ public:
 	static void enable_polygon_offset();
 	
 	/**
-	 * Disables polygon offset. If enabled, and if the wireframe is disabled, an
-	 * offset is added to depth values of a polygon's fragments before the depth
-	 * comparison is performed.
+	 * Disables polygon offset.
 	 */
 	static void disable_polygon_offset();
 	
@@ -452,7 +445,8 @@ public:
 	static float get_polygon_offset_units();
 	
 	/**
-	 * Sets the specified polygon offset factor and units. Default is 0 and 0.
+	 * Sets the specified polygon offset factor and units. The default is 0 and
+	 * 0.
 	 *
 	 * \param f polygon offset factor
 	 * \param u polygon offset units
@@ -460,40 +454,36 @@ public:
 	static void set_polygon_offset(float f, float u);
 	
 	/**
-	 * Enables dithering. If enabled, dither color components or indices before
+	 * Enables dithering. If enabled, dithers color components or indices before
 	 * they are written to the color buffer.
 	 */
 	static void enable_dithering();
 	
 	/**
-	 * Disables dithering. If enabled, dither color components or indices before
-	 * they are written to the color buffer.
+	 * Disables dithering.
 	 */
 	static void disable_dithering();
 	
 	/**
-	 * Enables multisample anti-aliasing. If enabled, use multiple fragment
+	 * Enables multisample anti-aliasing. If enabled, uses multiple fragment
 	 * samples in computing the final color of a pixel.
 	 */
 	static void enable_multisample();
 	
 	/**
-	 * Disables multisample anti-aliasing. If enabled, use multiple fragment
-	 * samples in computing the final color of a pixel.
+	 * Disables multisample anti-aliasing.
 	 */
 	static void disable_multisample();
 	
 	/**
-	 * Enables alpha to coverage. If enabled, compute a temporary coverage value
-	 * where each bit is determined by the alpha value at the corresponding
-	 * sample location.
+	 * Enables alpha to coverage. If enabled, computes a temporary coverage
+	 * value where each bit is determined by the alpha value at the
+	 * corresponding sample location.
 	 */
 	static void enable_alpha_to_coverage();
 	
 	/**
-	 * Disables alpha to coverage. If enabled, compute a temporary coverage
-	 * value where each bit is determined by the alpha value at the
-	 * corresponding sample location.
+	 * Disables alpha to coverage.
 	 */
 	static void disable_alpha_to_coverage();
 	
@@ -506,10 +496,7 @@ public:
 	static void enable_texture_cube_seamless();
 	
 	/**
-	 * Disables seamless cube texture accesses. If enabled, cubemap textures are
-	 * sampled such that when linearly sampling from the border between two
-	 * adjacent faces, texels from both faces are used to generate the final
-	 * sample value.
+	 * Disables seamless cube texture accesses.
 	 */
 	static void disable_texture_cube_seamless();
 };
@@ -564,7 +551,7 @@ public:
 	/**
 	 * Creates a new Shader object.
 	 */
-	explicit Shader();
+	Shader();
 	
 	/**
 	 * Deletes this Shader object.
@@ -572,52 +559,52 @@ public:
 	~Shader();
 	
 	/**
-	 * The copy constructor is deleted.
+	 * Shader is non-copyable. The copy constructor is deleted.
 	 */
 	Shader(const Shader&) = delete;
 	
 	/**
-	 * The copy assignment operator is deleted.
+	 * Shader is non-copyable. The copy assignment operator is deleted.
 	 */
 	Shader& operator=(const Shader&) = delete;
 	
 	/**
-	 * Loads the specified string of vertex shader content to the shader.
+	 * Loads the contents of the specified vertex shader to this shader.
 	 *
 	 * \param s vertex shader
 	 */
 	void load_vert(const char* s);
 	
 	/**
-	 * Loads the specified string of vertex shader content to the shader.
+	 * Loads the contents of the specified vertex shader to this shader.
 	 *
 	 * \param s vertex shader
 	 */
 	void load_vert(const std::string& s);
 	
 	/**
-	 * Loads the specified string of geometry shader content to the shader.
+	 * Loads the contents of the specified geometry shader to this shader.
 	 *
 	 * \param s geometry shader
 	 */
 	void load_geom(const char* s);
 	
 	/**
-	 * Loads the specified string of geometry shader content to the shader.
+	 * Loads the contents of the specified geometry shader to this shader.
 	 *
 	 * \param s geometry shader
 	 */
 	void load_geom(const std::string& s);
 	
 	/**
-	 * Loads the specified string of fragment shader content to the shader.
+	 * Loads the contents of the specified fragment shader to this shader.
 	 *
 	 * \param s fragment shader
 	 */
 	void load_frag(const char* s);
 	
 	/**
-	 * Loads the specified string of fragment shader content to the shader.
+	 * Loads the contents of the specified fragment shader to this shader.
 	 *
 	 * \param s fragment shader
 	 */
@@ -645,26 +632,26 @@ public:
 	void load_frag_file(const std::string& p);
 	
 	/**
-	 * Compile the program of shader if the shader has changed.
+	 * Compiles the shader program if the shader has been changed.
 	 */
 	void compile() const;
 	
 	/**
-	 * Use the program of the compiled shader.
+	 * Uses the program of the compiled shader.
 	 */
 	void use_program() const;
 	
 	/**
-	 * Sets the define directives to the shader. These values will be defined in
-	 * vertex, geometry and fragment shaders.
+	 * Sets the preprocessor defines for the shader. These defines are then
+	 * available in the vertex, geometry, and fragment shaders.
 	 *
 	 * \param d defines
 	 */
 	void set_defines(const Defines& d);
 	
 	/**
-	 * Sets the specified value for the specified uniform variable. These values
-	 * will be passed to vertex, geometry and fragment shaders.
+	 * Sets the value of the uniform variable. These uniform variables are then
+	 * available in the vertex, geometry, and fragment shaders.
 	 *
 	 * \param n variable name
 	 * \param v value
@@ -672,8 +659,8 @@ public:
 	void set_uniform_i(const std::string& n, int v) const;
 	
 	/**
-	 * Sets the specified value for the specified uniform variable. These values
-	 * will be passed to vertex, geometry and fragment shaders.
+	 * Sets the value of the uniform variable. These uniform variables are then
+	 * available in the vertex, geometry, and fragment shaders.
 	 *
 	 * \param n variable name
 	 * \param v value
@@ -681,8 +668,8 @@ public:
 	void set_uniform_u(const std::string& n, unsigned int v) const;
 	
 	/**
-	 * Sets the specified value for the specified uniform variable. These values
-	 * will be passed to vertex, geometry and fragment shaders.
+	 * Sets the value of the uniform variable. These uniform variables are then
+	 * available in the vertex, geometry, and fragment shaders.
 	 *
 	 * \param n variable name
 	 * \param v value
@@ -690,8 +677,8 @@ public:
 	void set_uniform_f(const std::string& n, float v) const;
 	
 	/**
-	 * Sets the specified value for the specified uniform variable. These values
-	 * will be passed to vertex, geometry and fragment shaders.
+	 * Sets the value of the uniform variable. These uniform variables are then
+	 * available in the vertex, geometry, and fragment shaders.
 	 *
 	 * \param n variable name
 	 * \param v value
@@ -699,8 +686,8 @@ public:
 	void set_uniform_v2(const std::string& n, const Vec2& v) const;
 	
 	/**
-	 * Sets the specified value for the specified uniform variable. These values
-	 * will be passed to vertex, geometry and fragment shaders.
+	 * Sets the value of the uniform variable. These uniform variables are then
+	 * available in the vertex, geometry, and fragment shaders.
 	 *
 	 * \param n variable name
 	 * \param v value
@@ -708,8 +695,8 @@ public:
 	void set_uniform_v3(const std::string& n, const Vec3& v) const;
 	
 	/**
-	 * Sets the specified value for the specified uniform variable. These values
-	 * will be passed to vertex, geometry and fragment shaders.
+	 * Sets the value of the uniform variable. These uniform variables are then
+	 * available in the vertex, geometry, and fragment shaders.
 	 *
 	 * \param n variable name
 	 * \param v value
@@ -717,8 +704,8 @@ public:
 	void set_uniform_v4(const std::string& n, const Vec4& v) const;
 	
 	/**
-	 * Sets the specified value for the specified uniform variable. These values
-	 * will be passed to vertex, geometry and fragment shaders.
+	 * Sets the value of the uniform variable. These uniform variables are then
+	 * available in the vertex, geometry, and fragment shaders.
 	 *
 	 * \param n variable name
 	 * \param v value
@@ -726,8 +713,8 @@ public:
 	void set_uniform_m2(const std::string& n, const Mat2& v) const;
 	
 	/**
-	 * Sets the specified value for the specified uniform variable. These values
-	 * will be passed to vertex, geometry and fragment shaders.
+	 * Sets the value of the uniform variable. These uniform variables are then
+	 * available in the vertex, geometry, and fragment shaders.
 	 *
 	 * \param n variable name
 	 * \param v value
@@ -735,8 +722,8 @@ public:
 	void set_uniform_m3(const std::string& n, const Mat3& v) const;
 	
 	/**
-	 * Sets the specified value for the specified uniform variable. These values
-	 * will be passed to vertex, geometry and fragment shaders.
+	 * Sets the value of the uniform variable. These uniform variables are then
+	 * available in the vertex, geometry, and fragment shaders.
 	 *
 	 * \param n variable name
 	 * \param v value
@@ -744,8 +731,8 @@ public:
 	void set_uniform_m4(const std::string& n, const Mat4& v) const;
 	
 	/**
-	 * Sets the specified uniforms object to the shader. These values will be
-	 * passed to vertex, geometry and fragment shaders.
+	 * Sets the value of the uniform variable. These uniform variables are then
+	 * available in the vertex, geometry, and fragment shaders.
 	 *
 	 * \param u uniforms object
 	 */
@@ -757,7 +744,7 @@ public:
 	static std::string get_glsl_version();
 	
 	/**
-	 * Sets the GLSL version of the shading language. Default is "410".
+	 * Sets the GLSL version of the shading language. The default is "410".
 	 *
 	 * \param v GLSL version
 	 */
@@ -795,7 +782,7 @@ public:
 	/**
 	 * Creates a new VertexObject object.
 	 */
-	explicit VertexObject();
+	VertexObject();
 	
 	/**
 	 * Deletes this VertexObject object.
@@ -803,12 +790,12 @@ public:
 	~VertexObject();
 	
 	/**
-	 * The copy constructor is deleted.
+	 * VertexObject is non-copyable. The copy constructor is deleted.
 	 */
 	VertexObject(const VertexObject&) = delete;
 	
 	/**
-	 * The copy assignment operator is deleted.
+	 * VertexObject is non-copyable. The copy assignment operator is deleted.
 	 */
 	VertexObject& operator=(const VertexObject&) = delete;
 	
@@ -821,8 +808,8 @@ public:
 	void load(const Mesh& m, const MeshGroup& g);
 	
 	/**
-	 * Attaches vertex object to the target shader to automatically match the
-	 * input data with the shader locations.
+	 * Attaches this vertex object to the target shader to automatically match
+	 * the input data with the shader locations.
 	 *
 	 * \param s target shader
 	 */
@@ -835,15 +822,12 @@ public:
 	
 private:
 	uint32_t id = 0;
-	
 	uint32_t buffer_id = 0;
 	
 	int length = 0;
 	
 	std::vector<std::string> names;
-	
 	std::vector<int> sizes;
-	
 	std::vector<int> locations;
 };
 
@@ -852,7 +836,7 @@ public:
 	/**
 	 * Creates a new Texture object.
 	 */
-	explicit Texture();
+	Texture();
 	
 	/**
 	 * Deletes this Texture object.
@@ -860,36 +844,36 @@ public:
 	~Texture();
 	
 	/**
-	 * The copy constructor is deleted.
+	 * Texture is non-copyable. The copy constructor is deleted.
 	 */
 	Texture(const Texture&) = delete;
 	
 	/**
-	 * The copy assignment operator is deleted.
+	 * Texture is non-copyable. The copy assignment operator is deleted.
 	 */
 	Texture& operator=(const Texture&) = delete;
 	
 	/**
-	 * Initializes the texture as 1d texture with empty data.
+	 * Initializes the texture as an empty 1D texture.
 	 *
-	 * \param w the width of texture
+	 * \param w the width of the texture
 	 * \param f texture format
 	 * \param t image data type
 	 */
 	void init_1d(int w, TextureFormat f, ImageType t = IMAGE_UBYTE);
 	
 	/**
-	 * Initializes the texture as 2d texture with empty data.
+	 * Initializes the texture as an empty 2D texture.
 	 *
-	 * \param w the width of texture
-	 * \param h the height of texture
+	 * \param w the width of the texture
+	 * \param h the height of the texture
 	 * \param f texture format
 	 * \param t image data type
 	 */
 	void init_2d(int w, int h, TextureFormat f, ImageType t = IMAGE_UBYTE);
 	
 	/**
-	 * Initializes the texture as 2d texture with the specified image.
+	 * Initializes the texture as a 2D texture with the specified image.
 	 *
 	 * \param i image
 	 * \param f texture format
@@ -898,36 +882,36 @@ public:
 	void init_2d(const Image& i, TextureFormat f, ImageFormat t = IMAGE_COLOR);
 	
 	/**
-	 * Initializes the texture as 3d texture with empty data.
+	 * Initializes the texture as an empty 3D texture.
 	 *
-	 * \param w the width of texture
-	 * \param h the height of texture
-	 * \param d the depth of texture
+	 * \param w the width of the texture
+	 * \param h the height of the texture
+	 * \param d the depth of the texture
 	 * \param f texture format
 	 * \param t image data type
 	 */
 	void init_3d(int w, int h, int d, TextureFormat f, ImageType t = IMAGE_UBYTE);
 	
 	/**
-	 * Initializes the texture as cube texture with empty data.
+	 * Initializes the texture as an empty cube texture.
 	 *
-	 * \param w the width of texture
-	 * \param h the height of texture
+	 * \param w the width of the texture
+	 * \param h the height of the texture
 	 * \param f texture format
 	 * \param t image data type
 	 */
 	void init_cube(int w, int h, TextureFormat f, ImageType t = IMAGE_UBYTE);
 	
 	/**
-	 * Initializes the texture as cube texture with the specified images from
-	 * different perspectives.
+	 * Initializes the texture as a cube texture with the specified images from
+	 * different sides.
 	 *
-	 * \param px right (+X) side of cube image
-	 * \param nx left  (-X) side of cube image
-	 * \param py upper (+Y) side of cube image
-	 * \param ny lower (-Y) side of cube image
-	 * \param pz front (+Z) side of cube image
-	 * \param nz back  (-Z) side of cube image
+	 * \param px right (+X) side of the cube image
+	 * \param nx left  (-X) side of the cube image
+	 * \param py upper (+Y) side of the cube image
+	 * \param ny lower (-Y) side of the cube image
+	 * \param pz front (+Z) side of the cube image
+	 * \param nz back  (-Z) side of the cube image
 	 * \param f texture format
 	 * \param t image data format
 	 */
@@ -935,99 +919,95 @@ public:
 				   const Image& pz, const Image& nz, TextureFormat f, ImageFormat t = IMAGE_COLOR);
 	
 	/**
-	 * Initializes the texture as 1D array texture with empty data.
+	 * Initializes the texture as an empty 1D texture array.
 	 *
-	 * \param w the width of texture
-	 * \param l the layer of texture
+	 * \param w the width of the texture
+	 * \param l the layer of the texture
 	 * \param f texture format
 	 * \param t image data type
 	 */
 	void init_1d_array(int w, int l, TextureFormat f, ImageType t = IMAGE_UBYTE);
 	
 	/**
-	 * Initializes the texture as 2D array texture with empty data.
+	 * Initializes the texture as an empty 2D texture array.
 	 *
-	 * \param w the width of texture
-	 * \param h the height of texture
-	 * \param l the layer of texture
-	 * \param f image format
+	 * \param w the width of the texture
+	 * \param h the height of the texture
+	 * \param l the layer of the texture
+	 * \param f texture format
 	 * \param t image data type
 	 */
 	void init_2d_array(int w, int h, int l, TextureFormat f, ImageType t = IMAGE_UBYTE);
 	
 	/**
-	 * Initializes the texture as cube array texture with empty data.
+	 * Initializes the texture as an empty cube texture array.
 	 *
-	 * \param w the width of texture
-	 * \param h the height of texture
-	 * \param l the layer of texture
+	 * \param w the width of the texture
+	 * \param h the height of the texture
+	 * \param l the layer of the texture
 	 * \param f texture format
 	 * \param t image data type
 	 */
 	void init_cube_array(int w, int h, int l, TextureFormat f, ImageType t = IMAGE_UBYTE);
 	
 	/**
-	 * Returns the width of texture if the texture is legal, returns 0
-	 * otherwise.
+	 * Returns the width of the texture, or 0 if the texture is uninitialized.
 	 */
 	int get_width() const;
 	
 	/**
-	 * Returns the height of texture if the texture is legal, returns 0
-	 * otherwise.
+	 * Returns the height of the texture, or 0 if the texture is uninitialized.
 	 */
 	int get_height() const;
 	
 	/**
-	 * Returns the depth of texture if the texture is legal, returns 0
-	 * otherwise.
+	 * Returns the depth of the texture, or 0 if the texture is uninitialized.
 	 */
 	int get_depth() const;
 	
 	/**
-	 * Returns the layer of texture if the texture is legal, returns 0
-	 * otherwise. The type of texture must be one of TEXTURE_1D_ARRAY,
-	 * TEXTURE_2D_ARRAY, TEXTURE_CUBE_ARRAY.
+	 * Returns the layer of the texture, or 0 if the texture is uninitialized.
+	 * The type must be one of TEXTURE_1D_ARRAY, TEXTURE_2D_ARRAY,
+	 * TEXTURE_CUBE_ARRAY.
 	 */
 	int get_layer() const;
 	
 	/**
-	 * Returns the type of texture.
+	 * Returns the type of the texture.
 	 */
 	TextureType get_type() const;
 	
 	/**
-	 * Returns the format of texture.
+	 * Returns the format of the texture.
 	 */
 	TextureFormat get_format() const;
 	
 	/**
-	 * Copys texture to the specified image. The type of texture must be
-	 * TEXTURE_2D.
+	 * Copies the texture to the specified image. The type must be TEXTURE_2D.
 	 */
 	void copy_to_image(Image& i) const;
 	
 	/**
-	 * Generates mipmap for the texture.
+	 * Generates mipmaps for the texture.
 	 */
 	void generate_mipmap() const;
 	
 	/**
-	 * Sets the wrapping mode on S coordinate. Default is TEXTURE_REPEAT.
+	 * Sets the wrapping mode on S coordinate. The default is TEXTURE_REPEAT.
 	 *
 	 * \param m wrapping mode
 	 */
 	void set_wrap_s(TextureWrappingMode m) const;
 	
 	/**
-	 * Sets the wrapping mode on T coordinate. Default is TEXTURE_REPEAT.
+	 * Sets the wrapping mode on T coordinate. The default is TEXTURE_REPEAT.
 	 *
 	 * \param m wrapping mode
 	 */
 	void set_wrap_t(TextureWrappingMode m) const;
 	
 	/**
-	 * Sets the wrapping mode on R coordinate. Default is TEXTURE_REPEAT.
+	 * Sets the wrapping mode on R coordinate. The default is TEXTURE_REPEAT.
 	 *
 	 * \param m wrapping mode
 	 */
@@ -1041,8 +1021,8 @@ public:
 	void set_wrap_all(TextureWrappingMode m) const;
 	
 	/**
-	 * Sets the magnification and minification filters of texture. Default is
-	 * TEXTURE_LINEAR and TEXTURE_NEAREST_MIPMAP_LINEAR.
+	 * Sets the magnification and minification filters of the texture. The
+	 * default is TEXTURE_LINEAR and TEXTURE_NEAREST_MIPMAP_LINEAR.
 	 *
 	 * \param mag magnification filter
 	 * \param min minification filter
@@ -1050,31 +1030,32 @@ public:
 	void set_filters(TextureFilter mag, TextureFilter min) const;
 	
 	/**
-	 * Sets the border color used for border texels. Default is (0, 0, 0, 0).
+	 * Sets the border color for border texels. The default is (0, 0, 0, 0).
 	 *
 	 * \param c border color
 	 */
 	void set_border_color(const Vec4& c) const;
 	
 	/**
-	 * Sets the range of LOD for mipmap texture. Default is 0 and 1000.
+	 * Sets the range of LODs for the texture with mipmaps. The default is 0 and
+	 * 1000.
 	 *
-	 * \param min lowest defined level
-	 * \param max highest defines level
+	 * \param min minimal defined level
+	 * \param max maximal defined level
 	 */
 	void set_lod_range(int min, int max) const;
 	
 	/**
-	 * Sets the bias of LOD for mipmap texture. Default is 0.
+	 * Sets the bias of LOD for the texture with mipmaps. The default is 0.
 	 *
 	 * \param b bias level
 	 */
-	void set_lod_bias(int b) const;
+	void set_lod_bias(float b) const;
 	
 	/**
-	 * Sets the texture active in the specified location.
+	 * Activates this texture at the specified location.
 	 *
-	 * \param l the location of texture
+	 * \param l the location of the texture
 	 */
 	int activate(int l) const;
 	
@@ -1097,14 +1078,12 @@ private:
 	uint32_t id = 0;
 	
 	int width = 0;
-	
 	int height = 0;
-	
 	int depth = 0;
 	
-	TextureType type;
+	TextureType type = TEXTURE_2D;
 	
-	TextureFormat format;
+	TextureFormat format = TEXTURE_R8G8B8A8_UNORM;
 	
 	void set_dimensions(int w, int h, int d);
 	
@@ -1113,34 +1092,33 @@ private:
 	friend class RenderTarget;
 };
 
-class RenderBuffer {
+class Renderbuffer {
 public:
 	/**
-	 * Creates a new RenderBuffer object.
+	 * Creates a new Renderbuffer object.
 	 */
-	explicit RenderBuffer();
+	Renderbuffer();
 	
 	/**
-	 * Deletes this RenderBuffer object.
+	 * Deletes this Renderbuffer object.
 	 */
-	~RenderBuffer();
+	~Renderbuffer();
 	
 	/**
-	 * The copy constructor is deleted.
+	 * Renderbuffer is non-copyable. The copy constructor is deleted.
 	 */
-	RenderBuffer(const RenderBuffer&) = delete;
+	Renderbuffer(const Renderbuffer&) = delete;
 	
 	/**
-	 * The copy assignment operator is deleted.
+	 * Renderbuffer is non-copyable. The copy assignment operator is deleted.
 	 */
-	RenderBuffer& operator=(const RenderBuffer&) = delete;
+	Renderbuffer& operator=(const Renderbuffer&) = delete;
 	
 	/**
-	 * Initializes the render buffer with empty data, which is similar to 2D
-	 * texture.
+	 * Initializes the empty render buffer with width, height, format.
 	 *
-	 * \param w the width of render buffer
-	 * \param h the height of render buffer
+	 * \param w the width of the render buffer
+	 * \param h the height of the render buffer
 	 * \param f texture format
 	 */
 	void init(int w, int h, TextureFormat f) const;
@@ -1156,7 +1134,7 @@ public:
 	/**
 	 * Creates a new RenderTarget object.
 	 */
-	explicit RenderTarget();
+	RenderTarget();
 	
 	/**
 	 * Deletes this RenderTarget object.
@@ -1164,97 +1142,97 @@ public:
 	~RenderTarget();
 	
 	/**
-	 * The copy constructor is deleted.
+	 * RenderTarget is non-copyable. The copy constructor is deleted.
 	 */
 	RenderTarget(const RenderTarget&) = delete;
 	
 	/**
-	 * The copy assignment operator is deleted.
+	 * RenderTarget is non-copyable. The copy assignment operator is deleted.
 	 */
 	RenderTarget& operator=(const RenderTarget&) = delete;
 	
 	/**
-	 * Sets the 2D texture, cube texture, 2D texture array or 3D texture to the
-	 * render target.
+	 * Sets the 2D texture, the cube texture, the 2D texture array or the 3D
+	 * texture to the render target.
 	 *
 	 * \param t 2D texture, cube texture, 2D texture array or 3D texture
-	 * \param i the index of texture
+	 * \param i the index of the texture
 	 * \param l mipmap level
-	 * \param p if texture is cube texture, specifies the face of cube texture
-	 *          if texture is 2D texture array, specifies the layer of texture
-	 *          if texture is 3D texture, specifies the layer of texture
+	 * \param p if there is a cube texture, specifies the face of the cube texture
+	 *          if there is a 2D texture array, specifies the layer of the texture
+	 *          if there is a 3D texture, specifies the layer of the texture
 	 */
 	void set_texture(const Texture& t, unsigned int i, int l = 0, int p = 0) const;
 	
 	/**
-	 * Sets the 2D texture or cube texture as the depth texture of render
+	 * Sets the 2D texture or the cube texture as the depth texture of render
 	 * target.
 	 *
 	 * \param t 2D texture or cube texture
 	 * \param l mipmap level
-	 * \param p if texture is cube texture, specifies the face of cube texture
-	 *          if texture is 2D texture array, specifies the layer of texture
+	 * \param p if there is a cube texture, specifies the face of the cube texture
+	 *          if there is a 2D texture array, specifies the layer of the texture
 	 */
 	void set_depth_texture(const Texture& t, int l = 0, int p = 0) const;
 	
 	/**
-	 * Sets the 2D texture or cube texture as the stencil texture of render
+	 * Sets the 2D texture or the cube texture as the stencil texture of render
 	 * target.
 	 *
 	 * \param t 2D texture or cube texture
 	 * \param l mipmap level
-	 * \param p if texture is cube texture, specifies the face of cube texture
-	 *          if texture is 2D texture array, specifies the layer of texture
+	 * \param p if there is a cube texture, specifies the face of the cube texture
+	 *          if there is a 2D texture array, specifies the layer of the texture
 	 */
 	void set_stencil_texture(const Texture& t, int l = 0, int p = 0) const;
 	
 	/**
-	 * Sets the 2D texture or cube texture as the depth stencil te texture of
+	 * Sets the 2D texture or the cube texture as the depth stencil texture of
 	 * render target.
 	 *
 	 * \param t 2D texture or cube texture
 	 * \param l mipmap level
-	 * \param p if texture is cube texture, specifies the face of cube texture
-	 *          if texture is 2D texture array, specifies the layer of texture
+	 * \param p if there is a cube texture, specifies the face of the cube texture
+	 *          if there is a 2D texture array, specifies the layer of the texture
 	 */
 	void set_depth_stencil_texture(const Texture& t, int l = 0, int p = 0) const;
 	
 	/**
-	 * Sets the render buffer as the depth buffer of render target.
+	 * Sets the render buffer as the depth buffer of the render target.
 	 *
 	 * \param r render buffer
 	 */
-	void set_depth_buffer(const RenderBuffer& r) const;
+	void set_depth_buffer(const Renderbuffer& r) const;
 	
 	/**
-	 * Sets the render buffer as the stencil buffer of render target.
+	 * Sets the render buffer as the stencil buffer of the render target.
 	 *
 	 * \param r render buffer
 	 */
-	void set_stencil_buffer(const RenderBuffer& r) const;
+	void set_stencil_buffer(const Renderbuffer& r) const;
 	
 	/**
-	 * Sets the render buffer as the depth stencil buffer of render target.
+	 * Sets the render buffer as the depth stencil buffer of the render target.
 	 *
 	 * \param r render buffer
 	 */
-	void set_depth_stencil_buffer(const RenderBuffer& r) const;
+	void set_depth_stencil_buffer(const Renderbuffer& r) const;
 	
 	/**
-	 * Sets the number of targets to be rendered into. Default is 1.
+	 * Sets the number of targets to be rendered into. The default is 1.
 	 *
-	 * \param n target number
+	 * \param n the number of targets
 	 */
 	void set_target_number(int n) const;
 	
 	/**
-	 * Activates the render target.
+	 * Activates this render target.
 	 */
 	void activate() const;
 	
 	/**
-	 * Activates the specified render target. If render target is nullptr,
-	 * activates the default render target.
+	 * Activates the specified render target. If the render target is nullptr,
+	 * falls back to the default render target.
 	 *
 	 * \param t render target
 	 */
@@ -1267,7 +1245,7 @@ private:
 	
 	void set_framebuffer(const Texture& t, uint32_t a, int l, int p) const;
 	
-	void set_framebuffer(const RenderBuffer& r, uint32_t a) const;
+	void set_framebuffer(const Renderbuffer& r, uint32_t a) const;
 };
 
 }

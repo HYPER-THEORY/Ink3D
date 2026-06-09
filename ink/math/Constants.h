@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,9 +22,7 @@
 
 #pragma once
 
-#include <cmath>
-
-namespace Ink {
+namespace ink {
 
 /* common math constants */
 constexpr double E        = 2.71828182845904523;

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,45 +28,38 @@
 
 #include <functional>
 
-namespace Ink {
+namespace ink {
 
 enum RenderingMode {
 	FORWARD_RENDERING,
 	DEFERRED_RENDERING,
 };
 
-enum ToneMapMode {
-	LINEAR_TONE_MAP,
-	REINHARD_TONE_MAP,
-	OPTIMIZED_TONE_MAP,
-	ACES_FILMIC_TONE_MAP,
-};
-
 class Renderer {
 public:
-	using TextureCallback = std::function<void(Gpu::Texture&)>;
+	using TextureCallback = std::function<void(gpu::Texture&)>;
 	
 	/**
 	 * Creates a new Renderer object.
 	 */
-	explicit Renderer() = default;
+	Renderer() = default;
 	
 	/**
-	 * Returns the clear color (.xyz) and opacity (.w).
+	 * Returns the color (.xyz) and alpha (.w) for clearing.
 	 */
 	Vec4 get_clear_color() const;
 	
 	/**
-	 * Sets the specified clear color (.xyz) and opacity (.w). Default is (0, 0,
-	 * 0, 0).
+	 * Sets the specified color (.xyz) and alpha (.w) for clearing. The default
+	 * is (0, 0, 0, 0).
 	 *
-	 * \param c clear color and opacity
+	 * \param c color with alpha
 	 */
 	void set_clear_color(const Vec4& c);
 	
 	/**
-	 * Clears the color, depth or stencil drawing buffers. Initializes the color
-	 * buffer to the current clear color value.
+	 * Clears the color, depth or stencil buffers. Fills the color buffer with
+	 * the current color clear value.
 	 *
 	 * \param c whether to clear the color buffer
 	 * \param d whether to clear the depth buffer
@@ -77,15 +70,15 @@ public:
 	/**
 	 * Returns the viewport region.
 	 */
-	Gpu::Rect get_viewport() const;
+	gpu::Rect get_viewport() const;
 	
 	/**
 	 * Sets the viewport region to render from (x, y) to (x + width, y +
-	 * height). Default is (0, 0, 0, 0).
+	 * height). The default is (0, 0, 0, 0).
 	 *
 	 * \param v viewport region
 	 */
-	void set_viewport(const Gpu::Rect& v);
+	void set_viewport(const gpu::Rect& v);
 	
 	/**
 	 * Returns true if scissor test is enabled.
@@ -93,7 +86,7 @@ public:
 	bool get_scissor_test() const;
 	
 	/**
-	 * Determines whether to enable scissor test. Default is false.
+	 * Determines whether to enable scissor test. The default is false.
 	 *
 	 * \param t enable scissor test
 	 */
@@ -102,108 +95,86 @@ public:
 	/**
 	 * Returns the scissor region in scissor test.
 	 */
-	Gpu::Rect get_scissor() const;
+	gpu::Rect get_scissor() const;
 	
 	/**
 	 * Sets the scissor region from (x, y) to (x + width, y + height) in scissor
-	 * test. Default is (0, 0, 0, 0).
+	 * test. The default is (0, 0, 0, 0).
 	 *
 	 * \param s scissor region
 	 */
-	void set_scissor(const Gpu::Rect& s);
+	void set_scissor(const gpu::Rect& s);
 	
 	/**
-	 * Returns the mode in rendering. If mode is DEFERRED_RENDERING, the number
-	 * of render targets should be 4.
+	 * Returns the rendering mode. If the mode is DEFERRED_RENDERING, there
+	 * should be 4 render targets.
 	 */
 	RenderingMode get_rendering_mode() const;
 	
 	/**
-	 * Sets the specified mode in rendering. If mode is DEFERRED_RENDERING, the
-	 * number of render targets should be 4. Default is DEFERRED_RENDERING.
+	 * Sets the specified rendering mode. The default is DEFERRED_RENDERING.
 	 *
 	 * \param m rendering mode
 	 */
 	void set_rendering_mode(RenderingMode m);
 	
 	/**
-	 * Returns the mode in tone mapping. This term will only be used when the
-	 * rendering mode is FORWARD_RENDERING.
+	 * Returns the current render target if there is one, returns nullptr
+	 * otherwise.
 	 */
-	ToneMapMode get_tone_map_mode() const;
+	const gpu::RenderTarget* get_target() const;
 	
 	/**
-	 * Returns the exposure in tone mapping. This term will only be used when
-	 * the rendering mode is FORWARD_RENDERING.
-	 */
-	float get_tone_map_exposure() const;
-	
-	/**
-	 * Sets the specified mode and exposure in tone mapping. This term will only
-	 * be used in forward rendering or transparent object rendering. Default is
-	 * LINEAR_TONE_MAP and 1.
-	 *
-	 * \param m tone mapping mode
-	 * \param e tone mapping exposure
-	 */
-	void set_tone_map(ToneMapMode m, float e);
-	
-	/**
-	 * Returns the current render target if there is, returns nullptr otherwise.
-	 */
-	const Gpu::RenderTarget* get_target() const;
-	
-	/**
-	 * Sets the render target. When nullptr is given, the default render target
-	 * is set as the render target.
+	 * Sets the render target. If the render target is nullptr, falls back to
+	 * the default render target.
 	 *
 	 * \param t render target
 	 */
-	void set_target(const Gpu::RenderTarget* t);
+	void set_target(const gpu::RenderTarget* t);
 	
 	/**
-	 * Sets the texture callback which will be called when texture is created.
+	 * Sets the texture callback which will be called when an image is loaded.
 	 *
 	 * \param f texture callback function
 	 */
 	void set_texture_callback(const TextureCallback& f);
 	
 	/**
-	 * Returns the intensity of skybox.
+	 * Returns the intensity of the skybox.
 	 */
 	float get_skybox_intensity() const;
 	
 	/**
-	 * Sets the intensity of skybox. Default is 1.
+	 * Sets the intensity of the skybox. The default is 1.
 	 *
 	 * \param i intensity
 	 */
 	void set_skybox_intensity(float i);
 	
 	/**
-	 * Loads a set of specified images, one for each side of the skybox cubemap.
+	 * Loads the specified image set, one for each side of the skybox cubemap.
 	 *
-	 * \param px right (+X) side of skybox cubemap
-	 * \param nx left  (-X) side of skybox cubemap
-	 * \param py upper (+Y) side of skybox cubemap
-	 * \param ny lower (-Y) side of skybox cubemap
-	 * \param pz front (+Z) side of skybox cubemap
-	 * \param nz back  (-Z) side of skybox cubemap
+	 * \param px right (+X) side of the skybox cubemap
+	 * \param nx left  (-X) side of the skybox cubemap
+	 * \param py upper (+Y) side of the skybox cubemap
+	 * \param ny lower (-Y) side of the skybox cubemap
+	 * \param pz front (+Z) side of the skybox cubemap
+	 * \param nz back  (-Z) side of the skybox cubemap
 	 */
 	void load_skybox(const Image& px, const Image& nx,
 					 const Image& py, const Image& ny,
 					 const Image& pz, const Image& nz);
 	
 	/**
-	 * Loads the specified equirectangular image to skybox.
+	 * Loads the specified equirectangular image to the skybox.
 	 *
 	 * \param i equirectangular image
 	 */
 	void load_skybox(const Image& i);
 	
 	/**
-	 * Renders skybox using a camera. This function should be called in the
-	 * first place. Otherwise it will overwrite the current render target.
+	 * Renders skybox using a camera. This function should be called before
+	 * the scene is rendered.
 	 *
 	 * \param c camera
 	 */
@@ -218,18 +189,20 @@ public:
 	
 	/**
 	 * Unloads the specified mesh and deletes corresponding vertex object.
+	 * 
+	 * \param m mesh
 	 */
 	void unload_mesh(const Mesh& m);
 	
 	/**
-	 * Clears all values from the image cache. The caches will be generated
-	 * automatically when loading meshes.
+	 * Clears the mesh cache. The caches are generated automatically when
+	 * loading meshes.
 	 */
 	void clear_mesh_caches();
 	
 	/**
-	 * Loads the specified image and creates corresponding texture. This function
-	 * will invoke the texture callback.
+	 * Loads the specified image and creates corresponding texture. This
+	 * function will invoke the texture callback.
 	 *
 	 * \param i image
 	 */
@@ -243,8 +216,8 @@ public:
 	void unload_image(const Image& i);
 	
 	/**
-	 * Clears all values from the image cache. The caches will be generated
-	 * automatically when loading images.
+	 * Clears the image cache. The caches are generated automatically when
+	 * loading images.
 	 */
 	void clear_image_caches();
 	
@@ -263,14 +236,14 @@ public:
 	void unload_scene(const Scene& s);
 	
 	/**
-	 * Clears all values from the scene cache. The caches will be generated
-	 * automatically when loading meshes, images or scenes.
+	 * Clears the scene cache. The caches are generated automatically when
+	 * loading meshes, images or scenes.
 	 */
 	void clear_scene_caches();
 	
 	/**
 	 * Renders a scene using a camera. The results will be rendered to the
-	 * specified render target.
+	 * current render target.
 	 *
 	 * \param s scene
 	 * \param c camera
@@ -279,7 +252,7 @@ public:
 	
 	/**
 	 * Renders the transparent objects in a scene using a camera. The results
-	 * will be rendered to the specified render target.
+	 * will be rendered to the current render target.
 	 *
 	 * \param s scene
 	 * \param c camera
@@ -287,8 +260,8 @@ public:
 	void render_transparent(const Scene& s, const Camera& c) const;
 	
 	/**
-	 * Renders a scene using the camera of shadow. The results will be rendered
-	 * to the shadow map.
+	 * Renders a scene using the shadow camera. The results will be rendered to
+	 * the shadow map.
 	 *
 	 * \param s scene
 	 * \param t target shadow
@@ -296,8 +269,8 @@ public:
 	void render_shadow(const Scene& s, const Shadow& t) const;
 	
 	/**
-	 * Updates the shadow of spot light. This function will update the
-	 * parameters of shadow's camera and render shadow map.
+	 * Updates the shadow of the spot light. This function will update the
+	 * shadow camera and render the results to shadow map.
 	 *
 	 * \param s scene
 	 * \param l spot light
@@ -305,8 +278,8 @@ public:
 	void update_shadow(const Scene& s, SpotLight& l) const;
 	
 	/**
-	 * Updates the shadow of directional light. This function will update the
-	 * parameters shadow'camera and render shadow map.
+	 * Updates the shadow of the directional light. This function will update
+	 * the shadow camera and render the results to shadow map.
 	 *
 	 * \param s scene
 	 * \param l directional light
@@ -323,16 +296,14 @@ public:
 	void update_probe(const Scene& s, ReflectionProbe& r) const;
 	
 	/**
-	 * Updates all the descendant instances in the scene before rendering the
-	 * scene.
+	 * Updates all the instances in the scene before the scene is rendered.
 	 *
 	 * \param s scene
 	 */
 	static void update_scene(Scene& s);
 	
 	/**
-	 * Sets the defines object for material. The object will be defined in
-	 * vertex, geometry and fragment shaders.
+	 * Sets the defines object for the material.
 	 *
 	 * \param m material
 	 * \param d defines
@@ -340,8 +311,7 @@ public:
 	static void set_material_defines(const Material& m, Defines& d);
 	
 	/**
-	 * Sets the defines object for scene. The object will be defined in vertex,
-	 * geometry and fragment shaders.
+	 * Sets the defines object for the scene.
 	 *
 	 * \param s scene
 	 * \param d defines
@@ -349,59 +319,45 @@ public:
 	static void set_scene_defines(const Scene& s, Defines& d);
 	
 	/**
-	 * Sets the defines object for tone mapping. The object will be defined in
-	 * vertex, geometry and fragment shaders.
-	 *
-	 * \param m tone mapping mode
-	 * \param d defines
-	 */
-	static void set_tone_map_defines(int m, Defines& d);
-	
-	/**
-	 * Returns the uniforms object of material. The object will be passed to
-	 * vertex, geometry and fragment shaders.
+	 * Sets the uniforms object for the lights.
 	 *
 	 * \param s scene
 	 * \param shader shader
 	 */
-	static void set_light_uniforms(const Scene& s, const Gpu::Shader& shader);
+	static void set_light_uniforms(const Scene& s, const gpu::Shader& shader);
 	
 private:
 	Vec4 clear_color = {0, 0, 0, 0};
 	
 	bool scissor_test = false;
 	
-	Gpu::Rect scissor = Gpu::Rect(0, 0, 0, 0);
+	gpu::Rect scissor = gpu::Rect(0, 0, 0, 0);
 	
-	Gpu::Rect viewport = Gpu::Rect(0, 0, 0, 0);
+	gpu::Rect viewport = gpu::Rect(0, 0, 0, 0);
 	
-	const Gpu::RenderTarget* target = nullptr;
+	const gpu::RenderTarget* target = nullptr;
 	
-	TextureCallback texture_callback = [](Gpu::Texture& t) -> void {
+	TextureCallback texture_callback = [](gpu::Texture& t) -> void {
 		t.generate_mipmap(); /* generate mipmap for every texture */
 	};
 	
 	RenderingMode rendering_mode = DEFERRED_RENDERING;
 	
-	ToneMapMode tone_map_mode = LINEAR_TONE_MAP;
-	
-	float tone_map_exposure = 1;
-	
 	float skybox_intensity = 1;
 	
-	std::unique_ptr<Gpu::Texture> skybox_map;
+	std::unique_ptr<gpu::Texture> skybox_map;
 	
-	std::unordered_map<const Mesh*, std::unique_ptr<Gpu::VertexObject[]> > mesh_cache;
+	std::unordered_map<const Mesh*, std::unique_ptr<gpu::VertexObject[]>> mesh_cache;
 	
-	std::unordered_map<const Image*, std::unique_ptr<Gpu::Texture> > image_cache;
+	std::unordered_map<const Image*, std::unique_ptr<gpu::Texture>> image_cache;
 	
-	static std::unique_ptr<Gpu::VertexObject> cube;
+	static std::unique_ptr<gpu::VertexObject> cube;
 	
-	static std::unique_ptr<Gpu::Texture> probe_map;
+	static std::unique_ptr<gpu::Texture> probe_map;
 	
-	static std::unique_ptr<Gpu::RenderBuffer> probe_buffer;
+	static std::unique_ptr<gpu::Renderbuffer> probe_buffer;
 	
-	static std::unique_ptr<Gpu::RenderTarget> probe_target;
+	static std::unique_ptr<gpu::RenderTarget> probe_target;
 	
 	void render_skybox_to_buffer(const Camera& c, RenderingMode r) const;
 	
@@ -409,7 +365,7 @@ private:
 	
 	void render_to_shadow(const Scene& s, const Camera& c) const;
 	
-	static bool init_cube();
+	static void init_cube();
 	
 	static void sort_instances(const Camera& c, std::vector<const Instance*>& l, bool t);
 };

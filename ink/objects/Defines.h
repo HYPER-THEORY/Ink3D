@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,39 +24,38 @@
 
 #include <string>
 
-namespace Ink {
+namespace ink {
 
 class Defines {
 public:
 	/**
 	 * Creates a new Defines object.
 	 */
-	explicit Defines() = default;
+	Defines() = default;
 	
 	/**
-	 * Returns the specific string containing all the define directives.
+	 * Returns a string containing all the preprocessor defines.
 	 */
 	std::string get() const;
 	
 	/**
-	 * Sets the defines object. These values will be defined in vertex, geometry
-	 * and fragment shaders.
+	 * Sets another Defines object to this object.
 	 *
 	 * \param d defines
 	 */
 	void set(const Defines& d);
 	
 	/**
-	 * Sets the define directive consisted of a single name. These values will
-	 * be defined in vertex, geometry and fragment shaders.
+	 * Sets the preprocessor defines for the shader. These defines are then
+	 * available in the vertex, geometry, and fragment shaders.
 	 *
 	 * \param n macro name
 	 */
 	void set(const std::string& n);
 	
 	/**
-	 * Sets the define directive consisted of a name and a value. These values
-	 * will be defined in vertex, geometry and fragment shaders.
+	 * Sets the preprocessor defines for the shader. These defines are then
+	 * available in the vertex, geometry, and fragment shaders.
 	 *
 	 * \param n macro name
 	 * \param v value
@@ -64,8 +63,8 @@ public:
 	void set(const std::string& n, const std::string& v);
 	
 	/**
-	 * Sets the define directive consisted of a name and a value. These values
-	 * will be defined in vertex, geometry and fragment shaders.
+	 * Sets the preprocessor defines for the shader. These defines are then
+	 * available in the vertex, geometry, and fragment shaders.
 	 *
 	 * \param n macro name
 	 * \param v value
@@ -73,8 +72,8 @@ public:
 	void set_i(const std::string& n, int v);
 	
 	/**
-	 * Sets the define directive consisted of a name and a value. These values
-	 * will be defined in vertex, geometry and fragment shaders.
+	 * Sets the preprocessor defines for the shader. These defines are then
+	 * available in the vertex, geometry, and fragment shaders.
 	 *
 	 * \param n macro name
 	 * \param v value
@@ -82,8 +81,8 @@ public:
 	void set_l(const std::string& n, long v);
 	
 	/**
-	 * Sets the define directive consisted of a name and a value. These values
-	 * will be defined in vertex, geometry and fragment shaders.
+	 * Sets the preprocessor defines for the shader. These defines are then
+	 * available in the vertex, geometry, and fragment shaders.
 	 *
 	 * \param n macro name
 	 * \param v value
@@ -91,8 +90,8 @@ public:
 	void set_ll(const std::string& n, long long v);
 	
 	/**
-	 * Sets the define directive consisted of a name if the flag is true. These
-	 * values will be defined in vertex, geometry and fragment shaders.
+	 * If the flag is true, Sets the preprocessor defines for the shader. These
+	 * defines are then available in the vertex, geometry, and fragment shaders.
 	 *
 	 * \param n macro name
 	 * \param f flag
@@ -100,7 +99,7 @@ public:
 	void set_if(const std::string& n, bool f);
 	
 	/**
-	 * Clears all the data from the defines object.
+	 * Removes all the preprocessor defines from this Defines object.
 	 */
 	void clear();
 	

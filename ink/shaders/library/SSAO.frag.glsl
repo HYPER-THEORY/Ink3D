@@ -12,7 +12,7 @@
 #endif
 
 uniform sampler2D g_normal;
-uniform sampler2D z_map;
+uniform sampler2D z_buffer;
 
 uniform float intensity;
 uniform float radius;
@@ -34,7 +34,7 @@ bool out_of_screen(vec2 coord) {
 
 void main() {
 	/* sample depth from Z-Buffer */
-	float depth = textureLod(z_map, v_uv, 0).x;
+	float depth = textureLod(z_buffer, v_uv, 0).x;
 	float z = depth_to_z_persp(depth, near, far);
 	
 	/* ignore the pixels on skybox */
@@ -74,8 +74,8 @@ void main() {
 		/* discard when sample UV is out of screen */
 		if (out_of_screen(sample_uv)) continue;
 		
-		/* calcualte difference between depths */
-		float sample_depth = textureLod(z_map, sample_uv, 0).x;
+		/* calculate difference between depths */
+		float sample_depth = textureLod(z_buffer, sample_uv, 0).x;
 		float sample_z = depth_to_z_persp(sample_depth, near, far);
 		float delta = sample_z - sample_pos.z;
 		

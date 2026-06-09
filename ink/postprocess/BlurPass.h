@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
 
 #include "RenderPass.h"
 
-namespace Ink {
+namespace ink {
 
 enum BlurType {
 	BLUR_BOX,
@@ -35,25 +35,25 @@ enum BlurType {
 class BlurPass : public RenderPass {
 public:
 	BlurType type = BLUR_BOX;    /**< the type of the blur */
-	int width = 0;               /**< the width of screen */
-	int height = 0;              /**< the height of screen */
-	int channel = 4;             /**< the channel of texture */
+	int width = 0;               /**< the width of the screen */
+	int height = 0;              /**< the height of the screen */
+	int channel = 4;             /**< the channel number of the texture */
 	int radius = 3;              /**< the radius of the blur */
-	float sigma_s = 2.0;         /**< the sigma of space, for Gaussian or bilateral blur */
-	float sigma_r = 0.25;        /**< the sigma of range, only for bilateral blur */
+	float sigma_s = 2.0;         /**< the spatial sigma, for Gaussian or bilateral blur */
+	float sigma_r = 0.25;        /**< the range sigma, only for bilateral blur */
 	
 	/**
 	 * Creates a new BlurPass object.
 	 */
-	explicit BlurPass() = default;
+	BlurPass() = default;
 	
 	/**
-	 * Creates a new BlurPass and initializes it with the size of screen.
+	 * Creates a new BlurPass and initializes it with the size of the screen.
 	 *
-	 * \param w the width of screen
-	 * \param h the height of screen
+	 * \param w the width of the screen
+	 * \param h the height of the screen
 	 */
-	explicit BlurPass(int w, int h);
+	BlurPass(int w, int h);
 	
 	/**
 	 * Initializes the render pass and prepares the resources for rendering.
@@ -66,25 +66,25 @@ public:
 	void render() override;
 	
 	/**
-	 * Returns the 2D texture represents the input of rendering pass.
+	 * Returns the 2D texture that represents the input of the render pass.
 	 */
-	const Gpu::Texture* get_texture() const;
+	const gpu::Texture* get_texture() const;
 	
 	/**
-	 * Sets the specified 2D texture as the input of rendering pass.
+	 * Sets the specified 2D texture as the input of the render pass.
 	 *
 	 * \param t input texture
 	 */
-	void set_texture(const Gpu::Texture* t);
+	void set_texture(const gpu::Texture* t);
 	
 private:
-	const Gpu::Texture* map = nullptr;
+	const gpu::Texture* map = nullptr;
 	
-	std::unique_ptr<Gpu::Texture> blur_map_1;
-	std::unique_ptr<Gpu::Texture> blur_map_2;
+	std::unique_ptr<gpu::Texture> blur_map_1;
+	std::unique_ptr<gpu::Texture> blur_map_2;
 	
-	std::unique_ptr<Gpu::RenderTarget> blur_target_1;
-	std::unique_ptr<Gpu::RenderTarget> blur_target_2;
+	std::unique_ptr<gpu::RenderTarget> blur_target_1;
+	std::unique_ptr<gpu::RenderTarget> blur_target_2;
 };
 
 }

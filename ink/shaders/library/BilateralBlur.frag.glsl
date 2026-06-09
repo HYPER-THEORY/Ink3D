@@ -14,7 +14,7 @@ layout(location = 0) out TYPE out_color;
 
 void main() {
 	TYPE blur_sum = TYPE(0.);
-	float weight_sum = 0;
+	float weight_sum = 0.;
 	
 	/* prepare for bilateral filtering */
 	TYPE center_color = textureLod(map, v_uv, lod) SWIZZLE;
@@ -22,7 +22,7 @@ void main() {
 	float factor_r = 1. / (sigma_r * sigma_r);
 	
 	/* sample color along the direction */
-	for (float i = -radius + 1; i < radius; ++i) {
+	for (float i = -radius + 1.; i < radius; ++i) {
 		vec2 offset = direction * i;
 		TYPE color = textureLod(map, v_uv + offset, lod) SWIZZLE;
 		TYPE delta_color = center_color - color;

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,24 +25,24 @@
 #include "../math/Vector.h"
 #include "../math/Matrix.h"
 
-namespace Ink {
+namespace ink {
 
 class Camera {
 public:
-	float near = 0;     /**< distance to the nearer clipping plane */
-	float far = 0;      /**< distance to the farther clipping plane */
+	float near = 0;                 /**< the nearer clipping plane */
+	float far = 0;                  /**< the farther clipping plane */
 	
-	Vec3 position;      /**< the position of camera */
-	Vec3 direction;     /**< the viewing direction of camera */
-	Vec3 up;            /**< the view-up vector of camera */
+	Vec3 position = {0, 0, 0};      /**< the position of the camera */
+	Vec3 direction = {0, 0, -1};    /**< the viewing direction of the camera */
+	Vec3 up = {0, 1, 0};            /**< the view-up vector of the camera */
 	
-	Mat4 viewing;       /**< the matrix of viewing transform */
-	Mat4 projection;    /**< the matrix of projection transform */
+	Mat4 viewing;                   /**< the matrix of viewing transform */
+	Mat4 projection;                /**< the matrix of projection transform */
 	
 	/**
 	 * Creates a new Camera object.
 	 */
-	explicit Camera() = default;
+	Camera() = default;
 	
 	/**
 	 * Returns true if this camera is perspective.
@@ -50,11 +50,11 @@ public:
 	bool is_perspective() const;
 	
 	/**
-	 * Sets the position, viewing direction, view-up vector of camera. Updates
-	 * the viewing matrix and projection matrix.
+	 * Sets the position, viewing direction, view-up vector of the camera.
+	 * Updates the viewing matrix and the projection matrix.
 	 *
-	 * \param p the position of camera
-	 * \param d viewing direction (from object to camera)
+	 * \param p position of the camera
+	 * \param d viewing direction (from target to the camera)
 	 * \param u view-up vector
 	 */
 	void lookat(const Vec3& p, const Vec3& d, const Vec3& u);

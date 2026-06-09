@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,28 +25,21 @@
 #include <functional>
 #include <string>
 
-namespace Ink {
+namespace ink {
 
 class Error {
 public:
 	using ErrorCallback = std::function<void(const std::string&)>;
 	
 	/**
-	 * Returns the specific string describing the error.
-	 */
-	static std::string get();
-	
-	/**
-	 * Sets the string describing the error. calling this function will replace
-	 * the previous error message.
+	 * Sets the specified error description string.
 	 *
 	 * \param m error message
 	 */
 	static void set(const std::string& m);
 	
 	/**
-	 * Sets the string describing the error. calling this function will replace
-	 * the previous error message.
+	 * Sets the specified error description string.
 	 *
 	 * \param l error location
 	 * \param m error message
@@ -54,20 +47,13 @@ public:
 	static void set(const std::string& l, const std::string& m);
 	
 	/**
-	 * Clears the current error message.
-	 */
-	static void clear();
-	
-	/**
-	 * Sets the callback that will be triggered when a new error occurred.
+	 * Sets the callback that will be triggered when a new error occurs.
 	 *
 	 * \param f error callback function
 	 */
 	static void set_callback(const ErrorCallback& f);
 	
 private:
-	static std::string message;
-	
 	static ErrorCallback callback;
 };
 

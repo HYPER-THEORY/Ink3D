@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,24 +24,24 @@
 
 #include "../math/Vector.h"
 
-namespace Ink {
+namespace ink {
 
 class Exp2Fog {
 public:
 	bool visible = true;       /**< whether the fog is visible */
-	Vec3 color = {1, 1, 1};    /**< the color of fog */
-	float near = 1;            /**< the nearest distance of fog */
-	float density = 0.001;     /**< the density of fog */
+	Vec3 color = {1, 1, 1};    /**< the color of the fog */
+	float near = 1;            /**< the nearest distance of the fog */
+	float density = 0.001;     /**< the density of the fog */
 	
 	/**
 	 * Creates a new Exp2Fog object and initializes it with color, distance and
 	 * density.
 	 *
-	 * \param c the color of fog
-	 * \param n the nearest distance of fog
-	 * \param d the density of fog
+	 * \param c the color of the fog
+	 * \param n the nearest distance of the fog
+	 * \param d the density of the fog
 	 */
-	explicit Exp2Fog(const Vec3& c = {1, 1, 1}, float n = 1, float d = 0.001);
+	Exp2Fog(const Vec3& c = {1, 1, 1}, float n = 1, float d = 0.001);
 };
 
 }

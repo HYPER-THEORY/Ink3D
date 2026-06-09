@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
 
 #include <random>
 
-namespace Ink {
+namespace ink {
 
 class Random {
 public:
@@ -39,7 +39,7 @@ public:
 	static float random_f();
 	
 	/**
-	 * Sets the seed of the random number generator. Default is zero.
+	 * Sets the seed of the random number generator. The default is zero.
 	 *
 	 * \param s seed
 	 */

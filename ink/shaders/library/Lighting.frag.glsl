@@ -5,7 +5,7 @@ uniform sampler2D g_color;       /* G-Buffer base color */
 uniform sampler2D g_normal;      /* G-Buffer world normal */
 uniform sampler2D g_material;    /* G-Buffer material data */
 uniform sampler2D g_light;       /* G-Buffer indirect light */
-uniform sampler2D z_map;         /* Z-Buffer */
+uniform sampler2D z_buffer;      /* Z-Buffer */
 
 uniform vec3 camera_pos;
 uniform mat4 inv_view_proj;
@@ -23,10 +23,10 @@ void main() {
 	float occlusion = diffuse_occlusion.w;
 	
 	/* sample depth from Z-Buffer */
-	float depth = textureLod(z_map, v_uv, 0).x;
+	float depth = textureLod(z_buffer, v_uv, 0).x;
 	
 	if (depth == 1.) {
-		out_color = vec4(TONE_MAP(diffuse, exposure), 0);
+		out_color = vec4(diffuse, 0.);
 		return; /* ignore the pixels on skybox */
 	}
 	

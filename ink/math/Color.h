@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,90 +24,89 @@
 
 #include "Vector.h"
 
-namespace Ink {
+namespace ink {
 
 class Color {
 public:
 	/**
-	 * Converts the specified color from RGB color space to SRGB color space.
+	 * Converts the specified color from the hexadecimal color code to the RGB
+	 * values.
+	 *
+	 * \param c color
+	 */
+	static Vec3 hex_to_rgb(unsigned int c);
+	
+	/**
+	 * Converts the specified color from the RGB values to the hexadecimal color
+	 * code.
+	 *
+	 * \param c color
+	 */
+	static unsigned int rgb_to_hex(const Vec3& c);
+	
+	/**
+	 * Converts the specified color from the RGB color space to the sRGB color
+	 * space.
 	 *
 	 * \param c color
 	 */
 	static Vec3 rgb_to_srgb(const Vec3& c);
 	
 	/**
-	 * Converts the specified color from SRGB color space to RGB color space.
+	 * Converts the specified color from the sRGB color space to the RGB color
+	 * space.
 	 *
 	 * \param c color
 	 */
 	static Vec3 srgb_to_rgb(const Vec3& c);
 	
 	/**
-	 * Converts the specified color from RGB color space to XYZ color space.
+	 * Converts the specified color from the RGB color space to the XYZ color
+	 * space.
 	 *
 	 * \param c color
 	 */
 	static Vec3 rgb_to_xyz(const Vec3& c);
 	
 	/**
-	 * Converts the specified color from XYZ color space to RGB color space.
+	 * Converts the specified color from the XYZ color space to the RGB color
+	 * space.
 	 *
 	 * \param c color
 	 */
 	static Vec3 xyz_to_rgb(const Vec3& c);
 	
 	/**
-	 * Converts the specified color from RGB color space to HSV color space.
+	 * Converts the specified color from the RGB color space to the HSV color
+	 * space.
 	 *
 	 * \param c color
 	 */
 	static Vec3 rgb_to_hsv(const Vec3& c);
 	
 	/**
-	 * Converts the specified color from HSV color space to RGB color space.
+	 * Converts the specified color from the HSV color space to the RGB color
+	 * space.
 	 *
 	 * \param c color
 	 */
 	static Vec3 hsv_to_rgb(const Vec3& c);
 	
 	/**
-	 * Converts the specified color from RGB color space to HSL color space.
+	 * Converts the specified color from the RGB color space to the HSL color
+	 * space.
 	 *
 	 * \param c color
 	 */
 	static Vec3 rgb_to_hsl(const Vec3& c);
 	
 	/**
-	 * Converts the specified color from HSL color space to RGB color space.
+	 * Converts the specified color from the HSL color space to the RGB color
+	 * space.
 	 *
 	 * \param c color
 	 */
 	static Vec3 hsl_to_rgb(const Vec3& c);
-	
-	/**
-	 * Converts the specified color from RGB color space to HCY color space.
-	 *
-	 * \param c color
-	 */
-	static Vec3 rgb_to_hcy(const Vec3& c);
-	
-	/**
-	 * Converts the specified color from HCY color space to RGB color space.
-	 *
-	 * \param c color
-	 */
-	static Vec3 hcy_to_rgb(const Vec3& c);
-	
-private:
-	static inline float saturate(float v);
-	
-	static inline float rgb_to_srgb(float v);
-	
-	static inline float srgb_to_rgb(float v);
-	
-	static inline Vec3 hue_to_rgb(float h);
-	
-	static inline Vec3 rgb_to_hcv(const Vec3& c);
 };
 
 }

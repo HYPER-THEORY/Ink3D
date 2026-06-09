@@ -14,7 +14,7 @@ void main() {
 	TYPE blur_sum = TYPE(0.);
 	
 	/* sampling color along the direction */
-	for (float i = -radius + 1; i < radius; ++i) {
+	for (float i = -radius + 1.; i < radius; ++i) {
 		vec2 offset = direction * i;
 		blur_sum += textureLod(map, v_uv + offset, lod) SWIZZLE;
 	}

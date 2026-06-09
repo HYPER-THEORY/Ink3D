@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,13 +24,13 @@
 
 #include "../objects/Mesh.h"
 
-namespace Ink {
+namespace ink {
 
 class BoxMesh {
 public:
 	/**
-	 * Returns a box shaped mesh with 1 unit width, 1 unit height and 1 unit
-	 * depth. The box is centred on the origin.
+	 * Returns a box shaped mesh of width 1, height 1, and depth 1.
+	 * The box is centred on the origin.
 	 */
 	static Mesh create();
 	

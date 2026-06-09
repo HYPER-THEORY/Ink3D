@@ -13,13 +13,13 @@ layout(location = 0) out TYPE out_color;
 
 void main() {
 	TYPE blur_sum = TYPE(0.);
-	float weight_sum = 0;
+	float weight_sum = 0.;
 	
 	/* prepare for Gaussian filtering */
 	float factor_s = 1. / (sigma_s * sigma_s);
 	
 	/* sample color along the direction */
-	for (float i = -radius + 1; i < radius; ++i) {
+	for (float i = -radius + 1.; i < radius; ++i) {
 		vec2 offset = direction * i;
 		TYPE color = textureLod(map, v_uv + offset, lod) SWIZZLE;
 		float weight = exp(i * i * factor_s * -0.5);

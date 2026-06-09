@@ -138,7 +138,7 @@ void main() {
 	
 	/* calculate roughness */
 	float t_roughness = roughness;
-	#ifdef USE_METALNESS_MAP
+	#ifdef USE_ROUGHNESS_MAP
 		t_roughness *= texture(roughness_map, v_uv).x;
 	#endif
 	
@@ -161,7 +161,7 @@ void main() {
 	#endif
 	
 	/* calculate diffuse color */
-	vec3 diffuse = t_color.xyz * (1 - t_metalness);
+	vec3 diffuse = t_color.xyz * (1. - t_metalness);
 	
 	/* calculate specular F0 */
 	vec3 specular_f0 = mix(vec3(t_specular * 0.08), t_color.xyz, t_metalness);
@@ -187,7 +187,7 @@ void main() {
 		indirect_light += multi_scatter * irradiance;
 		
 		/* calculate indirect diffuse light */
-		indirect_light += diffuse * (1 - single_scatter - multi_scatter) * irradiance * t_occlusion;
+		indirect_light += diffuse * (1. - single_scatter - multi_scatter) * irradiance * t_occlusion;
 	#endif
 	
 	#ifdef DEFERRED_RENDERING

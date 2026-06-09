@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,32 +24,32 @@
 
 #include "Vector3.h"
 
-namespace Ink {
+namespace ink {
 
 class Ray {
 public:
-	Vec3 origin;		/**< the origin of ray */
-	Vec3 direction;		/**< the direction of ray, must be normalized */
+	Vec3 origin;       /**< the origin of the ray */
+	Vec3 direction;    /**< the direction of the ray, must be normalized */
 	
 	/**
 	 * Creates a new Ray object.
 	 */
-	explicit Ray() = default;
+	Ray() = default;
 	
 	/**
 	 * Creates a new Ray object and initializes it with origin and direction.
 	 *
-	 * \param o the origin of ray
-	 * \param d the direction of ray, must be normalized
+	 * \param o the origin of the ray
+	 * \param d the direction of the ray, must be normalized
 	 */
-	explicit Ray(const Vec3& o, const Vec3& d);
+	Ray(const Vec3& o, const Vec3& d);
 	
 	/**
 	 * Intersects the ray with the AABB box. Returns the distance to the
 	 * intersection point if there is an intersection, returns -1 otherwise.
 	 *
-	 * \param l the lower boundary of box
-	 * \param u the upper boundary of box
+	 * \param l the lower boundary of the box
+	 * \param u the upper boundary of the box
 	 */
 	float intersect_box(const Vec3& l, const Vec3& u) const;
 	
@@ -57,7 +57,7 @@ public:
 	 * Intersects the ray with the plane. Returns the distance to the
 	 * intersection point if there is an intersection, returns -1 otherwise.
 	 *
-	 * \param n the normal of plane, must be normalized
+	 * \param n the normal of the plane, must be normalized
 	 * \param d the distance from the origin to the plane
 	 */
 	float intersect_plane(const Vec3& n, float d) const;
@@ -66,18 +66,18 @@ public:
 	 * Intersects the ray with the sphere. Returns the distance to the
 	 * intersection point if there is an intersection, returns -1 otherwise.
 	 *
-	 * \param c the center of sphere
-	 * \param r the radius of sphere
+	 * \param c the center of the sphere
+	 * \param r the radius of the sphere
 	 */
-	float intersect_shpere(const Vec3& c, float r) const;
+	float intersect_sphere(const Vec3& c, float r) const;
 	
 	/**
-	 * Intersects the ray with the triangle ABC. Returns the distance to the
+	 * Intersects the ray with the triangle. Returns the distance to the
 	 * intersection point if there is an intersection, returns -1 otherwise.
 	 *
-	 * \param a the vertex A of triangle
-	 * \param b the vertex B of triangle
-	 * \param c the vertex C of triangle
+	 * \param a the vertex A of the triangle
+	 * \param b the vertex B of the triangle
+	 * \param c the vertex C of the triangle
 	 */
 	float intersect_triangle(const Vec3& a, const Vec3& b, const Vec3& c) const;
 };

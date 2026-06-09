@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,151 +22,460 @@
 
 #pragma once
 
+#include "Constants.h"
+
 #include <cmath>
+#include <sstream>
 #include <string>
 
-namespace Ink {
+namespace ink {
 
 class FVec2 {
 public:
-	float x = 0;
-	float y = 0;
+	float x = 0;    /**< the X component of the vector */
+	float y = 0;    /**< the Y component of the vector */
 	
-	FVec2(float x = 0);
+	constexpr FVec2() = default;
 	
-	FVec2(float x, float y);
+	constexpr FVec2(float x, float y);
 	
-	FVec2 operator-() const;
+	constexpr explicit FVec2(float x);
 	
-	bool operator==(const FVec2& v) const;
+	constexpr FVec2 operator+() const;
 	
-	void operator+=(float v);
+	constexpr FVec2 operator-() const;
 	
-	void operator+=(const FVec2& v);
+	constexpr bool operator==(const FVec2& v) const;
 	
-	void operator-=(float v);
+	constexpr bool operator!=(const FVec2& v) const;
 	
-	void operator-=(const FVec2& v);
+	constexpr FVec2& operator+=(float v);
 	
-	void operator*=(float v);
+	constexpr FVec2& operator+=(const FVec2& v);
 	
-	void operator*=(const FVec2& v);
+	constexpr FVec2& operator-=(float v);
 	
-	void operator/=(float v);
+	constexpr FVec2& operator-=(const FVec2& v);
 	
-	void operator/=(const FVec2& v);
+	constexpr FVec2& operator*=(float v);
 	
-	float dot(const FVec2& v) const;
+	constexpr FVec2& operator*=(const FVec2& v);
 	
-	float cross(const FVec2& v) const;
+	constexpr FVec2& operator/=(float v);
 	
-	float magnitude() const;
+	constexpr FVec2& operator/=(const FVec2& v);
 	
-	float distance(const FVec2& v) const;
+	constexpr float dot(const FVec2& v) const;
 	
-	FVec2 normalize() const;
+	constexpr float cross(const FVec2& v) const;
 	
-	FVec2 rotate(float a) const;
+	inline float magnitude() const;
 	
-	std::string to_string(int p = 2) const;
+	inline float distance(const FVec2& v) const;
 	
-	static FVec2 random();
+	inline FVec2 normalize() const;
+	
+	inline FVec2 rotate(float a) const;
+	
+	inline std::string to_string(int p = 2) const;
 };
 
-FVec2 operator+(const FVec2& v1, float v2);
+constexpr FVec2 operator+(const FVec2& v1, float v2);
 
-FVec2 operator+(float v1, const FVec2& v2);
+constexpr FVec2 operator+(float v1, const FVec2& v2);
 
-FVec2 operator+(const FVec2& v1, const FVec2& v2);
+constexpr FVec2 operator+(const FVec2& v1, const FVec2& v2);
 
-FVec2 operator-(const FVec2& v1, float v2);
+constexpr FVec2 operator-(const FVec2& v1, float v2);
 
-FVec2 operator-(float v1, const FVec2& v2);
+constexpr FVec2 operator-(float v1, const FVec2& v2);
 
-FVec2 operator-(const FVec2& v1, const FVec2& v2);
+constexpr FVec2 operator-(const FVec2& v1, const FVec2& v2);
 
-FVec2 operator*(const FVec2& v1, float v2);
+constexpr FVec2 operator*(const FVec2& v1, float v2);
 
-FVec2 operator*(float v1, const FVec2& v2);
+constexpr FVec2 operator*(float v1, const FVec2& v2);
 
-FVec2 operator*(const FVec2& v1, const FVec2& v2);
+constexpr FVec2 operator*(const FVec2& v1, const FVec2& v2);
 
-FVec2 operator/(const FVec2& v1, float v2);
+constexpr FVec2 operator/(const FVec2& v1, float v2);
 
-FVec2 operator/(float v1, const FVec2& v2);
+constexpr FVec2 operator/(float v1, const FVec2& v2);
 
-FVec2 operator/(const FVec2& v1, const FVec2& v2);
-
-using Vec2 = FVec2;
+constexpr FVec2 operator/(const FVec2& v1, const FVec2& v2);
 
 class DVec2 {
 public:
-	double x = 0;
-	double y = 0;
+	double x = 0;    /**< the X component of the vector */
+	double y = 0;    /**< the Y component of the vector */
 	
-	DVec2(double x = 0);
+	constexpr DVec2() = default;
 	
-	DVec2(double x, double y);
+	constexpr DVec2(double x, double y);
 	
-	DVec2 operator-() const;
+	constexpr explicit DVec2(double x);
 	
-	bool operator==(const DVec2& v) const;
+	constexpr DVec2 operator+() const;
 	
-	void operator+=(double v);
+	constexpr DVec2 operator-() const;
 	
-	void operator+=(const DVec2& v);
+	constexpr bool operator==(const DVec2& v) const;
 	
-	void operator-=(double v);
+	constexpr bool operator!=(const DVec2& v) const;
 	
-	void operator-=(const DVec2& v);
+	constexpr DVec2& operator+=(double v);
 	
-	void operator*=(double v);
+	constexpr DVec2& operator+=(const DVec2& v);
 	
-	void operator*=(const DVec2& v);
+	constexpr DVec2& operator-=(double v);
 	
-	void operator/=(double v);
+	constexpr DVec2& operator-=(const DVec2& v);
 	
-	void operator/=(const DVec2& v);
+	constexpr DVec2& operator*=(double v);
 	
-	double dot(const DVec2& v) const;
+	constexpr DVec2& operator*=(const DVec2& v);
 	
-	double cross(const DVec2& v) const;
+	constexpr DVec2& operator/=(double v);
 	
-	double magnitude() const;
+	constexpr DVec2& operator/=(const DVec2& v);
 	
-	double distance(const DVec2& v) const;
+	constexpr double dot(const DVec2& v) const;
 	
-	DVec2 normalize() const;
+	constexpr double cross(const DVec2& v) const;
 	
-	DVec2 rotate(double a) const;
+	inline double magnitude() const;
 	
-	std::string to_string(int p = 2) const;
+	inline double distance(const DVec2& v) const;
 	
-	static DVec2 random();
+	inline DVec2 normalize() const;
+	
+	inline DVec2 rotate(double a) const;
+	
+	inline std::string to_string(int p = 2) const;
 };
 
-DVec2 operator+(const DVec2& v1, double v2);
+constexpr DVec2 operator+(const DVec2& v1, double v2);
 
-DVec2 operator+(double v1, const DVec2& v2);
+constexpr DVec2 operator+(double v1, const DVec2& v2);
 
-DVec2 operator+(const DVec2& v1, const DVec2& v2);
+constexpr DVec2 operator+(const DVec2& v1, const DVec2& v2);
 
-DVec2 operator-(const DVec2& v1, double v2);
+constexpr DVec2 operator-(const DVec2& v1, double v2);
 
-DVec2 operator-(double v1, const DVec2& v2);
+constexpr DVec2 operator-(double v1, const DVec2& v2);
 
-DVec2 operator-(const DVec2& v1, const DVec2& v2);
+constexpr DVec2 operator-(const DVec2& v1, const DVec2& v2);
 
-DVec2 operator*(const DVec2& v1, double v2);
+constexpr DVec2 operator*(const DVec2& v1, double v2);
 
-DVec2 operator*(double v1, const DVec2& v2);
+constexpr DVec2 operator*(double v1, const DVec2& v2);
 
-DVec2 operator*(const DVec2& v1, const DVec2& v2);
+constexpr DVec2 operator*(const DVec2& v1, const DVec2& v2);
 
-DVec2 operator/(const DVec2& v1, double v2);
+constexpr DVec2 operator/(const DVec2& v1, double v2);
 
-DVec2 operator/(double v1, const DVec2& v2);
+constexpr DVec2 operator/(double v1, const DVec2& v2);
 
-DVec2 operator/(const DVec2& v1, const DVec2& v2);
+constexpr DVec2 operator/(const DVec2& v1, const DVec2& v2);
+
+using Vec2 = FVec2;
+
+constexpr FVec2::FVec2(float x, float y) : x(x), y(y) {}
+
+constexpr FVec2::FVec2(float x) : x(x), y(x) {}
+
+constexpr FVec2 FVec2::operator+() const {
+	return *this;
+}
+
+constexpr FVec2 FVec2::operator-() const {
+	return {-x, -y};
+}
+
+constexpr bool FVec2::operator==(const FVec2& v) const {
+	return x == v.x && y == v.y;
+}
+
+constexpr bool FVec2::operator!=(const FVec2& v) const {
+	return x != v.x || y != v.y;
+}
+
+constexpr FVec2& FVec2::operator+=(float v) {
+	x += v;
+	y += v;
+	return *this;
+}
+
+constexpr FVec2& FVec2::operator+=(const FVec2& v) {
+	x += v.x;
+	y += v.y;
+	return *this;
+}
+
+constexpr FVec2& FVec2::operator-=(float v) {
+	x -= v;
+	y -= v;
+	return *this;
+}
+
+constexpr FVec2& FVec2::operator-=(const FVec2& v) {
+	x -= v.x;
+	y -= v.y;
+	return *this;
+}
+
+constexpr FVec2& FVec2::operator*=(float v) {
+	x *= v;
+	y *= v;
+	return *this;
+}
+
+constexpr FVec2& FVec2::operator*=(const FVec2& v) {
+	x *= v.x;
+	y *= v.y;
+	return *this;
+}
+
+constexpr FVec2& FVec2::operator/=(float v) {
+	x /= v;
+	y /= v;
+	return *this;
+}
+
+constexpr FVec2& FVec2::operator/=(const FVec2& v) {
+	x /= v.x;
+	y /= v.y;
+	return *this;
+}
+
+constexpr float FVec2::dot(const FVec2& v) const {
+	return x * v.x + y * v.y;
+}
+
+constexpr float FVec2::cross(const FVec2& v) const {
+	return x * v.y - y * v.x;
+}
+
+inline float FVec2::magnitude() const {
+	return sqrtf(x * x + y * y);
+}
+
+inline float FVec2::distance(const FVec2& v) const {
+	return sqrtf((x - v.x) * (x - v.x) + (y - v.y) * (y - v.y));
+}
+
+inline FVec2 FVec2::normalize() const {
+	float l = sqrtf(x * x + y * y);
+	return {x / l, y / l};
+}
+
+inline FVec2 FVec2::rotate(float a) const {
+	return {x * cosf(a) - y * sinf(a), x * sinf(a) + y * cosf(a)};
+}
+
+inline std::string FVec2::to_string(int p) const {
+	std::stringstream stream;
+	stream.setf(std::ios::fixed, std::ios::floatfield);
+	stream.precision(p);
+	stream << "(" << x << ", " << y << ")";
+	return stream.str();
+}
+
+constexpr FVec2 operator+(const FVec2& v1, float v2) {
+	return {v1.x + v2, v1.y + v2};
+}
+
+constexpr FVec2 operator+(float v1, const FVec2& v2) {
+	return {v1 + v2.x, v1 + v2.y};
+}
+
+constexpr FVec2 operator+(const FVec2& v1, const FVec2& v2) {
+	return {v1.x + v2.x, v1.y + v2.y};
+}
+
+constexpr FVec2 operator-(const FVec2& v1, float v2) {
+	return {v1.x - v2, v1.y - v2};
+}
+
+constexpr FVec2 operator-(float v1, const FVec2& v2) {
+	return {v1 - v2.x, v1 - v2.y};
+}
+
+constexpr FVec2 operator-(const FVec2& v1, const FVec2& v2) {
+	return {v1.x - v2.x, v1.y - v2.y};
+}
+
+constexpr FVec2 operator*(const FVec2& v1, float v2) {
+	return {v1.x * v2, v1.y * v2};
+}
+
+constexpr FVec2 operator*(float v1, const FVec2& v2) {
+	return {v1 * v2.x, v1 * v2.y};
+}
+
+constexpr FVec2 operator*(const FVec2& v1, const FVec2& v2) {
+	return {v1.x * v2.x, v1.y * v2.y};
+}
+
+constexpr FVec2 operator/(const FVec2& v1, float v2) {
+	return {v1.x / v2, v1.y / v2};
+}
+
+constexpr FVec2 operator/(float v1, const FVec2& v2) {
+	return {v1 / v2.x, v1 / v2.y};
+}
+
+constexpr FVec2 operator/(const FVec2& v1, const FVec2& v2) {
+	return {v1.x / v2.x, v1.y / v2.y};
+}
+
+constexpr DVec2::DVec2(double x, double y) : x(x), y(y) {}
+
+constexpr DVec2::DVec2(double x) : x(x), y(x) {}
+
+constexpr DVec2 DVec2::operator+() const {
+	return *this;
+}
+
+constexpr DVec2 DVec2::operator-() const {
+	return {-x, -y};
+}
+
+constexpr bool DVec2::operator==(const DVec2& v) const {
+	return x == v.x && y == v.y;
+}
+
+constexpr bool DVec2::operator!=(const DVec2& v) const {
+	return x != v.x || y != v.y;
+}
+
+constexpr DVec2& DVec2::operator+=(double v) {
+	x += v;
+	y += v;
+	return *this;
+}
+
+constexpr DVec2& DVec2::operator+=(const DVec2& v) {
+	x += v.x;
+	y += v.y;
+	return *this;
+}
+
+constexpr DVec2& DVec2::operator-=(double v) {
+	x -= v;
+	y -= v;
+	return *this;
+}
+
+constexpr DVec2& DVec2::operator-=(const DVec2& v) {
+	x -= v.x;
+	y -= v.y;
+	return *this;
+}
+
+constexpr DVec2& DVec2::operator*=(double v) {
+	x *= v;
+	y *= v;
+	return *this;
+}
+
+constexpr DVec2& DVec2::operator*=(const DVec2& v) {
+	x *= v.x;
+	y *= v.y;
+	return *this;
+}
+
+constexpr DVec2& DVec2::operator/=(double v) {
+	x /= v;
+	y /= v;
+	return *this;
+}
+
+constexpr DVec2& DVec2::operator/=(const DVec2& v) {
+	x /= v.x;
+	y /= v.y;
+	return *this;
+}
+
+constexpr double DVec2::dot(const DVec2& v) const {
+	return x * v.x + y * v.y;
+}
+
+constexpr double DVec2::cross(const DVec2& v) const {
+	return x * v.y - y * v.x;
+}
+
+inline double DVec2::magnitude() const {
+	return sqrt(x * x + y * y);
+}
+
+inline double DVec2::distance(const DVec2& v) const {
+	return sqrt((x - v.x) * (x - v.x) + (y - v.y) * (y - v.y));
+}
+
+inline DVec2 DVec2::normalize() const {
+	double l = sqrt(x * x + y * y);
+	return {x / l, y / l};
+}
+
+inline DVec2 DVec2::rotate(double a) const {
+	return {x * cos(a) - y * sin(a), x * sin(a) + y * cos(a)};
+}
+
+inline std::string DVec2::to_string(int p) const {
+	std::stringstream stream;
+	stream.setf(std::ios::fixed, std::ios::floatfield);
+	stream.precision(p);
+	stream << "(" << x << ", " << y << ")";
+	return stream.str();
+}
+
+constexpr DVec2 operator+(const DVec2& v1, double v2) {
+	return {v1.x + v2, v1.y + v2};
+}
+
+constexpr DVec2 operator+(double v1, const DVec2& v2) {
+	return {v1 + v2.x, v1 + v2.y};
+}
+
+constexpr DVec2 operator+(const DVec2& v1, const DVec2& v2) {
+	return {v1.x + v2.x, v1.y + v2.y};
+}
+
+constexpr DVec2 operator-(const DVec2& v1, double v2) {
+	return {v1.x - v2, v1.y - v2};
+}
+
+constexpr DVec2 operator-(double v1, const DVec2& v2) {
+	return {v1 - v2.x, v1 - v2.y};
+}
+
+constexpr DVec2 operator-(const DVec2& v1, const DVec2& v2) {
+	return {v1.x - v2.x, v1.y - v2.y};
+}
+
+constexpr DVec2 operator*(const DVec2& v1, double v2) {
+	return {v1.x * v2, v1.y * v2};
+}
+
+constexpr DVec2 operator*(double v1, const DVec2& v2) {
+	return {v1 * v2.x, v1 * v2.y};
+}
+
+constexpr DVec2 operator*(const DVec2& v1, const DVec2& v2) {
+	return {v1.x * v2.x, v1.y * v2.y};
+}
+
+constexpr DVec2 operator/(const DVec2& v1, double v2) {
+	return {v1.x / v2, v1.y / v2};
+}
+
+constexpr DVec2 operator/(double v1, const DVec2& v2) {
+	return {v1 / v2.x, v1 / v2.y};
+}
+
+constexpr DVec2 operator/(const DVec2& v1, const DVec2& v2) {
+	return {v1.x / v2.x, v1.y / v2.y};
+}
 
 }

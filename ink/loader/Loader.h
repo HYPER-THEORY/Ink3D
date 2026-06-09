@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,17 +23,17 @@
 #pragma once
 
 #include "../objects/Image.h"
-#include "../objects/Mesh.h"
 #include "../objects/Material.h"
+#include "../objects/Mesh.h"
 
-namespace Ink {
+namespace ink {
 
 struct LoadObject {
-	std::vector<Mesh> meshes;
-	std::vector<Material> materials;
+	std::vector<Mesh> mesh;
+	std::vector<Material> material;
 };
 
-struct ObjOptions {
+struct LoadObjOptions {
 	bool vertex_color = false;
 	std::string group = "g";
 };
@@ -41,7 +41,7 @@ struct ObjOptions {
 class Loader {
 public:
 	/**
-	 * Loads the image data from the specified file into a image.
+	 * Loads the image data from the specified file into an image.
 	 *
 	 * \param p the path to the file
 	 */
@@ -55,20 +55,20 @@ public:
 	static Image load_image_hdr(const std::string& p);
 	
 	/**
-	 * Loads the material data from the specified MTL file into material vector.
+	 * Loads the material data from the specified MTL file into a material list.
 	 *
 	 * \param p the path to the file
 	 */
 	static LoadObject load_mtl(const std::string& p);
 	
 	/**
-	 * Loads the mesh data from the specified OBJ file into mesh vector. The
-	 * meshes are divided by the custom grouping keyword.
+	 * Loads the mesh data from the specified OBJ file into a mesh list. Meshes
+	 * are divided by the custom grouping keyword.
 	 *
 	 * \param p the path to the file
-	 * \param o options when loading OBJ file
+	 * \param o options for loading OBJ file
 	 */
-	static LoadObject load_obj(const std::string& p, const ObjOptions& o = {});
+	static LoadObject load_obj(const std::string& p, const LoadObjOptions& o = {});
 };
 
 }

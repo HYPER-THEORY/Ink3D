@@ -79,7 +79,7 @@ vec3 apply_light(PointLight light, Material mat, Geometry geom) {
 	/* check whether the light is visible */
 	if (!light.visible) return vec3(0.);
 	
-	/* calculate the vector form world to light */
+	/* calculate the vector from world to light */
 	vec3 light_dir = light.position - geom.position;
 	float light_distance = length(light_dir);
 	light_dir = normalize(light_dir);
@@ -103,7 +103,7 @@ vec3 apply_light(SpotLight light, Material mat, Geometry geom) {
 	/* check whether the light is visible */
 	if (!light.visible) return vec3(0.);
 	
-	/* calculate the vector form world to light */
+	/* calculate the vector from world to light */
 	vec3 light_dir = light.position - geom.position;
 	float light_distance = length(light_dir);
 	light_dir = normalize(light_dir);

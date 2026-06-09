@@ -27,7 +27,7 @@ void apply_fog(LinearFog fog, float camera_distance, inout vec3 color) {
 /* Applies the specified exp square fog to color. */
 void apply_fog(Exp2Fog fog, float camera_distance, inout vec3 color) {
 	if (!fog.visible) return;
-	float fog_distance = max(0, camera_distance - fog.near);
+	float fog_distance = max(0., camera_distance - fog.near);
 	float factor = exp(-square(fog_distance * fog.density));
 	color = mix(fog.color, color, factor);
 }

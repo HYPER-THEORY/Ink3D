@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021-2023 Hypertheory
+ * Copyright (C) 2021-2023 HYPERTHEORY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,12 +24,12 @@
 
 #include "../objects/Mesh.h"
 
-namespace Ink {
+namespace ink {
 
 class CylinderMesh {
 public:
 	/**
-	 * Returns a cylinder shaped mesh with 1 unit height and 0.5 unit radius.
+	 * Returns a cylinder shaped mesh of height 1 and radius 0.5.
 	 * The cylinder is centred on the origin.
 	 */
 	static Mesh create();
