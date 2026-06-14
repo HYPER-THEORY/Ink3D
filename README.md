@@ -1,9 +1,9 @@
-Ink 3D
+Ink3D
 ========
 
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
 
-Ink 3D is a lightweight and easy to use framework for 3D rendering.
+Ink3D is a lightweight and easy to use framework for 3D rendering.
 
 ### Screenshots ###
 
@@ -15,27 +15,31 @@ Ink 3D is a lightweight and easy to use framework for 3D rendering.
 
 ### Features ###
 
-- Forward + Deferred Rendering Pipeline
-
-- HDR Rendering Pipeline Supported
+- Forward / Deferred Rendering Pipeline
 
 - Physically Based Rendering Materials
 
-- Light System (Directional / Point / Spot / Hemisphere)
+- Light & Fog System
 
 - High Quality Shadows (Hard-Edge / PCF / PCSS)
 
-- Probes System (Reflection Probe)
-
-- Global Fog (Linear Fog / Exponential Square Fog)
+- Probe Based Reflection
 
 - Post-Processing (SSAO, SSR, Bloom, FXAA and more)
 
-- Built-in Efficient Software Rasterization
-
 ### Getting Started ###
 
-- A few lines of code to render a question block.
+Get the source with the **Download ZIP** button or use git to clone the repository.
+
+```
+git clone --depth=1 https://github.com/HYPER-THEORY/Ink3D.git
+```
+
+Run **Setup.bat** to configure SDL2 dependency and create Visual Studio 2022 project files. If you are using Visual Studio 2026, replace "Visual Studio 17 2022" in Setup.bat with "Visual Studio 18 2026".
+
+### Usage ###
+
+Use the following code to render a question mark block.
 
 ```CPP
 #include "addons/Mainloop.h"
